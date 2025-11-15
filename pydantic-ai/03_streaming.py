@@ -47,8 +47,8 @@ async def handle_stream_events(event: AgentStreamEvent):
 
 # --- 4. Run Examples ---
 async def main():
-    print("\n=== Streaming with Custom Handler ===")
     
+    print("\n=== Streaming with Custom Handler ===")
     async with weather_agent.run_stream(
         user_prompt="What will the weather be like in Paris tomorrow?",
         event_stream_handler=handle_stream_events  # pass the custom handler here TODO bug here
@@ -56,6 +56,7 @@ async def main():
         async for text_chunk in result.stream_text():
             print(text_chunk, end='', flush=True)
     print("\n")
+
     
     print("\n=== Stream All Events and filtering ===")
     messages = []
