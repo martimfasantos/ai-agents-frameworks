@@ -57,7 +57,7 @@ async def main():
             print(text_chunk, end='', flush=True)
     print("\n")
 
-    
+
     print("\n=== Stream All Events and filtering ===")
     messages = []
     async for event in weather_agent.run_stream_events("Weather in Tokyo please"):
