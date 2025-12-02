@@ -126,18 +126,17 @@ async def main():
     # Step 1: Find flight using first agent
     opt_flight_details = await find_flight(usage)
     if opt_flight_details is not None:
-        print(f'Flight found: {opt_flight_details.flight_number}')
+        print(f"✈️ Flight found: {opt_flight_details.flight_number}")
         #> Flight found: AK456
         
         # Step 2: Select seat using second agent
         # Usage is passed to track combined metrics across both agents
         seat_preference = await find_seat(usage)
-        print(f'Seat preference: {seat_preference}')
+        print(f"💺 Seat preference: {seat_preference}")
         #> Seat preference: row=1 seat='A'
         
         # Application code controlled the entire workflow, calling each agent
         # in sequence and passing the shared usage tracker between them
-        print("=== Total Usage Metrics: ===")
         show_metrics(usage)
 
 
