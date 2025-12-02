@@ -1,8 +1,17 @@
-import re
 from dotenv import load_dotenv
-from pydantic_ai import Agent, ModelRequest, ModelResponse, RequestUsage, RunContext, ModelMessage, SystemPromptPart, TextPart, UserPromptPart
+from pydantic_ai import (
+    Agent,
+    ModelRequest,
+    ModelResponse,
+    RequestUsage,
+    RunContext,
+    ModelMessage,
+    SystemPromptPart,
+    TextPart,
+    UserPromptPart
+)   
 from pydantic_ai.messages import ModelMessagesTypeAdapter
-from pydantic_core import to_json, from_json
+from pydantic_core import to_json
 
 from utils import print_all_messages
 from settings import settings
