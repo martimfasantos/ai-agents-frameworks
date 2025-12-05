@@ -14,6 +14,7 @@ In this example, we explore Pydantic Graph with the following features:
 - State object persisting throughout entire workflow execution
 - Nodes reading and modifying shared state via ctx.state
 - Graph-based control flow with typed node transitions
+- Human-in-the-loop to interact with the workflow
 
 Graphs and finite state machines (FSMs) are a powerful abstraction to model, 
 execute, control and visualize complex workflows.
