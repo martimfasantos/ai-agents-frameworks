@@ -1,0 +1,12 @@
+[project]
+name = "crewai-examples"
+version = "0.1.0"
+description = "CrewAI framework examples"
+requires-python = ">=3.12"
+dependencies = [
+    "crewai>=0.186.0",
+    "crewai-tools>=0.69.0",
+    "python-dotenv>=1.1.1",
+    "pydantic>=2.11.7",
+    "pydantic-settings>=2.10.1",
+]
