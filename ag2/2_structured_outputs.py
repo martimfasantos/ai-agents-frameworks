@@ -47,7 +47,7 @@ class WeatherResponseModel(BaseModel):
 # 4. Create LLM configuration for the weather agent
 weather_llm_config = LLMConfig(
     api_type="openai",
-    model="gpt-4o-mini",
+    model=settings.OPENAI_MODEL_NAME,
     response_format=WeatherResponseModel    
 )
 
@@ -61,7 +61,7 @@ weather_agent = ConversableAgent(
 # 6. Create LLM configuration for the user agent
 user_llm_config = LLMConfig(
     api_type="openai",
-    model="gpt-4o-mini",
+    model=settings.OPENAI_MODEL_NAME,
 )
 
 # 7. Create a user proxy agent to interact with the weather agent

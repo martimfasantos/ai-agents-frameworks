@@ -21,7 +21,7 @@ triggered by an ConversableAgent that serves as an "input" agent.
 -----------------------------------------------------------------------------
 """
 
-llm_config = LLMConfig(api_type="openai", model="gpt-4o-mini")
+llm_config = LLMConfig(api_type="openai", model=settings.OPENAI_MODEL_NAME)
 
 # 1. Define a tool function that will be used by the agent
 def get_weekday(date_string: Annotated[str, "Format: YYYY-MM-DD"]) -> str:

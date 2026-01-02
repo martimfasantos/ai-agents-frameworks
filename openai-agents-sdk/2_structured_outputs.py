@@ -51,6 +51,7 @@ def get_user_profile(id: int) -> UserProfile:
 agent = Agent(
     name="Example Agent",
     instructions="You are a helpful agent.",
+    model=settings.OPENAI_MODEL_NAME,
     tools=[get_user_profile],
     output_type=FilteredUserProfile,  # Specify the output model which filters sensitive data
 )

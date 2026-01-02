@@ -18,7 +18,7 @@ In this example, we explore a simple Hello World agent
 hello_world_agent = LlmAgent( # or use Agent() if you prefer
     name="hello_world_agent",
     instruction="You are a helpful assistant", # this is the system prompt
-    model='gemini-2.0-flash',
+    model=settings.GOOGLE_MODEL_NAME,
     description="An AI assistant that can help you.",
 )
 

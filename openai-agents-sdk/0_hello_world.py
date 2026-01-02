@@ -14,7 +14,7 @@ In this example, we explore a simple Hello World agent
 agent = Agent(
     name="Assistant", 
     instructions="You are a helpful assistant", # this is the system prompt
-    model="gpt-4o-mini",  # specify the model to use (default: "gpt-4o")
+    model=settings.OPENAI_MODEL_NAME,  # specify the model to use (default: "gpt-4o")
 )
 
 # 2. Run the agent with a user message

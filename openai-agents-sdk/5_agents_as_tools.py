@@ -22,18 +22,21 @@ it picks from a set of translation agents.
 spanish_agent = Agent(
     name="spanish_agent",
     instructions="You translate the user's message to Spanish",
+    model=settings.OPENAI_MODEL_NAME,
     handoff_description="An english to spanish translator",
 )
 
 french_agent = Agent(
     name="french_agent",
     instructions="You translate the user's message to French",
+    model=settings.OPENAI_MODEL_NAME,
     handoff_description="An english to french translator",
 )
 
 italian_agent = Agent(
     name="italian_agent",
     instructions="You translate the user's message to Italian",
+    model=settings.OPENAI_MODEL_NAME,
     handoff_description="An english to italian translator",
 )
 
@@ -45,6 +48,7 @@ orchestrator_agent = Agent(
         "If asked for multiple translations, you call the relevant tools in order."
         "You never translate on your own, you always use the provided tools."
     ),
+    model=settings.OPENAI_MODEL_NAME,
     tools=[  # Pass the agents as tools here
         spanish_agent.as_tool(
             tool_name="translate_to_spanish",
@@ -67,7 +71,8 @@ synthesizer_agent = Agent(
     instructions=(
         f"You inspect translations, correct them if needed, and "
         f"produce a final concatenated response.",
-    )    
+    ),
+    model=settings.OPENAI_MODEL_NAME,  
 )
 
 

@@ -62,6 +62,7 @@ async def sensitive_data_check(
 agent = Agent(
     name="Assistant",
     instructions="You are a helpful assistant.",
+    model=settings.OPENAI_MODEL_NAME,
     output_type=MessageOutput,
     output_guardrails=[sensitive_data_check],
 )

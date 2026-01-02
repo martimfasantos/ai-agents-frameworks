@@ -37,11 +37,16 @@ def get_weather(city: str) -> Weather:
 agent = Agent(
     name="Example Agent",
     instructions="You are a helpful agent.",
+    model=settings.OPENAI_MODEL_NAME,
     tools=[get_weather],    # Register the function in the agent
 )
 
 async def main():
-    agent = Agent(name="Joke generator", instructions="Tell funny jokes.")
+    agent = Agent(
+        name="Joke generator",
+        instructions="Tell funny jokes.",
+        model=settings.OPENAI_MODEL_NAME
+    )
 
     # 4. Run the agent with tracing
     with trace("8_tracing"):

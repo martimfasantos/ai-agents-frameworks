@@ -25,18 +25,21 @@ language of the request. Responses are streamed to the user.
 french_agent = Agent(
     name="french_agent",
     instructions="You only speak French",
+    model=settings.OPENAI_MODEL_NAME,
     handoff_description="A french speaking agent",
 )
 
 portuguese_agent = Agent(
     name="portuguese_agent",
     instructions="You only speak Portuguese",
+    model=settings.OPENAI_MODEL_NAME,
     handoff_description="A portuguese speaking agent",
 )
 
 english_agent = Agent(
     name="english_agent",
     instructions="You only speak English",
+    model=settings.OPENAI_MODEL_NAME,
     handoff_description="An english speaking agent",
 )
 
@@ -44,6 +47,7 @@ english_agent = Agent(
 orchestrator_agent = Agent(
     name="orchestrator_agent",
     instructions="Handoff to the appropriate agent based on the language of the request.",
+    model=settings.OPENAI_MODEL_NAME,
     handoffs=[french_agent, portuguese_agent, english_agent],
 )
 

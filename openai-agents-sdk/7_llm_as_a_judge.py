@@ -28,6 +28,7 @@ story_outline_generator = Agent(
         "You generate a very short story outline based on the user's input."
         "If there is any feedback provided, use it to improve the outline."
     ),
+    model=settings.OPENAI_MODEL_NAME,
 )
 
 # 2. Define the output model for the evaluation feedback
@@ -45,6 +46,7 @@ evaluator = Agent[None](    # Agent with no context
         "Never give it a pass on the first try."
         "Don't harsh, but be honest and constructive in your feedback."
     ),
+    model=settings.OPENAI_MODEL_NAME,
     output_type=EvaluationFeedback,
 )
 

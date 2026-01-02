@@ -3,8 +3,8 @@ from pydantic_settings import BaseSettings
 
 # Use pydantic base settings for basic settings read from a .env file
 class Settings(BaseSettings):
-    openai_api_key: pydantic.SecretStr 
-    openai_model_name: str
+    OPENAI_API_KEY: pydantic.SecretStr 
+    OPENAI_MODEL_NAME: str
 
     class Config:
         env_file = ".env"

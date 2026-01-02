@@ -30,7 +30,7 @@ built-in tool to perform Google Search.
 # 1. Define the agent with built-in tool
 search_agent = Agent(
     name='search_agent',
-    model='gemini-2.0-flash',
+    model=settings.GOOGLE_MODEL_NAME,
     instruction=(
         "You're a specialist in Google Search."
     ),

@@ -20,7 +20,7 @@ os.environ["OPENAI_API_KEY"] = settings.OPENAI_API_KEY.get_secret_value()
 
 # 2. Define our LLM configuration for OpenAI's GPT-4o mini
 #    uses the OPENAI_API_KEY environment variable
-llm_config = LLMConfig(api_type="openai", model="gpt-4o-mini")
+llm_config = LLMConfig(api_type="openai", model=settings.OPENAI_MODEL_NAME)
 
 # 3. Create an AssistantAgent instance with the LLM configuration
 with llm_config:

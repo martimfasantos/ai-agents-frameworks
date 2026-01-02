@@ -69,7 +69,7 @@ research_agent = CustomResearchAgent()
 # --- 2. Analysis Agent (Sub-agent in hierarchy) ---
 analysis_agent = LlmAgent(
     name="AnalysisAgent",
-    model="gemini-2.0-flash",
+    model=settings.GOOGLE_MODEL_NAME,
     instruction=(
         "You are a data analysis specialist."
         "Analyze the research data: {research_data}"
@@ -83,7 +83,7 @@ analysis_agent = LlmAgent(
 # --- 3. Report Generation Agent (Sub-agent in hierarchy) ---
 report_agent = LlmAgent(
     name="ReportGenerator",
-    model="gemini-2.0-flash",
+    model=settings.GOOGLE_MODEL_NAME,
     instruction=(
         "You are a professional report writer."
         "Create a comprehensive report based on:"
@@ -101,7 +101,7 @@ research_tool = agent_tool.AgentTool(agent=research_agent)
 # --- 5. Coordinator Agent (Parent in hierarchy with delegation capabilities) ---
 coordinator_agent = LlmAgent(
     name="ProjectCoordinator",
-    model="gemini-2.0-flash",
+    model=settings.GOOGLE_MODEL_NAME,
     instruction=(
         "You are a project coordinator managing a research and analysis workflow."
         "Follow this sequence:"

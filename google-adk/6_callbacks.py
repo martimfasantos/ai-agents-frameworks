@@ -118,7 +118,7 @@ def my_after_llm_logic(
 # 1.3. Create the agent with callbacks
 model_callbacks_agent = LlmAgent(
     name="MyCallbackAgent",
-    model="gemini-2.0-flash",
+    model=settings.GOOGLE_MODEL_NAME,
     instruction="Be helpful.",
     # Other agent parameters...
     before_model_callback=my_before_llm_logic,
@@ -185,7 +185,7 @@ def simple_before_tool_modifier(
 
 my_llm_agent = LlmAgent(
     name="ToolCallbackAgent",
-    model="gemini-2.0-flash",
+    model=settings.GOOGLE_MODEL_NAME,
     instruction="You are an agent that can find capital cities. Use the get_capital_city tool.",
     description="An LLM agent demonstrating before_tool_callback and after_tool_callback.",
     tools=[capital_tool],
@@ -269,7 +269,7 @@ def modify_output_after_agent(callback_context: CallbackContext) -> Optional[typ
 # 3.3. Create the agent with callbacks
 agent_with_callbacks = LlmAgent(
     name="AgentWithCallbacks",
-    model="gemini-2.0-flash",
+    model=settings.GOOGLE_MODEL_NAME,
     instruction=(
         "You are an agent that can answer questions. "
         "Use the before_agent_callback and after_agent_callback to modify your behavior."

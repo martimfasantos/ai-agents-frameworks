@@ -14,8 +14,8 @@ from settings import settings
 task = "9.11 and 9.9 -- which is bigger?"
 
 model = OpenAIChat(
-    id=settings.openai_model_name,
-    api_key=settings.openai_api_key.get_secret_value(),
+    id=settings.OPENAI_MODEL_NAME,
+    api_key=settings.OPENAI_API_KEY.get_secret_value(),
 )
 
 regular_agent = Agent(

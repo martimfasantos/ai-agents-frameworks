@@ -35,7 +35,7 @@ And an orchestrator agent that uses both agents as tools to answer a question.
 # 1. Create the agents that will be used as tools
 search_agent = Agent(
     name='search_agent',
-    model='gemini-2.0-flash',
+    model=settings.GOOGLE_MODEL_NAME,
     instruction=(
         "You're a specialist in Google Search"
     ),
@@ -44,7 +44,7 @@ search_agent = Agent(
 
 coding_agent = Agent(
     name='coding_agent',
-    model='gemini-2.0-flash',
+    model=settings.GOOGLE_MODEL_NAME,
     instruction=(
         "You're a specialist in Code Execution"
     ),
@@ -54,7 +54,7 @@ coding_agent = Agent(
 # 2. Create the orchestrator agent that uses the above agents as tools
 orchestrator = Agent(
     name="orchestrator",
-    model="gemini-2.0-flash",
+    model=settings.GOOGLE_MODEL_NAME,
     description="Orchestrator Agent",
     instruction=(
         "You are an orchestrator agent that can use other agents as tools."

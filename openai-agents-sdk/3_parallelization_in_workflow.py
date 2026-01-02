@@ -22,11 +22,13 @@ three times in parallel, and pick the best result.
 spanish_agent = Agent(
     name="spanish_agent",
     instructions="You translate the user's message to Spanish",
+    model=settings.OPENAI_MODEL_NAME,
 )
 
 translation_picker = Agent(
     name="translation_picker",
     instructions="You pick the best Spanish translation from the given options.",
+    model=settings.OPENAI_MODEL_NAME,
 )
 
 

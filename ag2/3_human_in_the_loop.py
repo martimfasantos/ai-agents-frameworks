@@ -17,7 +17,7 @@ that can interact with a human user.
 
 # 1. Define the LLM configuration for OpenAI's GPT-4o mini
 #    uses the OPENAI_API_KEY environment variable
-llm_config = LLMConfig(api_type="openai", model="gpt-4o-mini")
+llm_config = LLMConfig(api_type="openai", model=settings.OPENAI_MODEL_NAME)
 
 
 # 2. Create the LLM agent

@@ -17,7 +17,7 @@ This example shows
 ----------------------------------------------------------------------
 """
 
-llm_config = LLMConfig(api_type="openai", model="gpt-4o-mini")
+llm_config = LLMConfig(api_type="openai", model=settings.OPENAI_MODEL_NAME)
 
 # 1. Define the system prompts and descriptions for 
 # the planner and reviewer agents

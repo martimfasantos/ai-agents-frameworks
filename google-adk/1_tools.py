@@ -84,7 +84,7 @@ current_time_tool = FunctionTool(func=get_current_time)
 # 2. Register the customs FunctionTools in an agent (or the directly the functions)
 weather_time_agent = Agent(
     name="weather_time_agent",
-    model="gemini-2.0-flash",
+    model=settings.GOOGLE_MODEL_NAME,
     description=(
         "Agent to answer questions about weather in a city and "
         "search the web."

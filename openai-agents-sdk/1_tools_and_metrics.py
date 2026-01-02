@@ -36,6 +36,7 @@ def get_weather(city: str) -> Weather:
 agent = Agent(
     name="Example Agent",
     instructions="You are a helpful agent.",
+    model=settings.OPENAI_MODEL_NAME,
     tools=[get_weather],    # Register the function in the agent
 )
 
