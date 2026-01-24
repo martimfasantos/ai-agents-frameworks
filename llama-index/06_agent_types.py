@@ -1,0 +1,1 @@
+# SHow ReAct, Functiion, CodeAct and other agent types in llama-index
