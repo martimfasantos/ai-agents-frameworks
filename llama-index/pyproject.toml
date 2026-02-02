@@ -12,4 +12,5 @@ dependencies = [
     "pydantic-settings>=2.7.0",
     "python-dotenv>=1.0.0",
     "openai>=1.60.0",
+    "llama-index-tools-google>=0.6.2",
 ]

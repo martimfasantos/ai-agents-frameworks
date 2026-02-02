@@ -19,7 +19,7 @@ This demonstrates LlamaIndex's strength: giving agents the ability to intelligen
 select different retrieval strategies based on the question type.
 
 For more details, visit:
-https://www.llamaindex.ai/blog/agentic-rag-with-llamaindex-2721b8a49ff6
+https://developers.llamaindex.ai/python/examples/agent/openai_agent_with_query_engine/
 -------------------------------------------------------
 """
 

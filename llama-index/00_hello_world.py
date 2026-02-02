@@ -7,21 +7,11 @@ from settings import settings
 
 """
 -------------------------------------------------------
-In this example, we explore LlamaIndex with the following features:
-- Document loading and parsing
-- Index creation for RAG
-- Basic querying with vector search
-
-This is the foundational pattern for building RAG applications with LlamaIndex.
-LlamaIndex is a data framework designed for LLM applications with a focus on 
-Retrieval-Augmented Generation (RAG).
-
-For more details, visit:
-https://docs.llamaindex.ai/en/stable/getting_started/starter_example/
+In this example, we explore a simple Hello World agent
 -------------------------------------------------------
 """
 
-# Create an agent workflow with our calculator tool
+# --- 1. Define the agent ---
 agent = FunctionAgent(
     name="hello_world_agent",
     description="A simple hello world agent.",
@@ -32,6 +22,7 @@ agent = FunctionAgent(
     system_prompt="You are a helpful assistant that greets the user.",
 )
 
+# --- 2. Run the agent with a user message ---
 async def main():
     # Run the agent
     response = await agent.run("Hello World!")
