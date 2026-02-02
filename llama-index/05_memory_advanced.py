@@ -15,7 +15,9 @@ In this example, we explore LlamaIndex with the following features:
 - Multi-turn conversations with context retention
 
 LlamaIndex's Memory class provides both short-term memory (a FIFO queue of
-messages) and optionally long-term memory (extracting information over time).
+messages) and long-term memory (using Memory Blocks). Short-term memory
+manages recent conversation history with token limits, while long-term memory
+stores important information extracted from conversations.
 This enables agents to maintain conversation context while respecting token
 limits and preserving important information.
 
