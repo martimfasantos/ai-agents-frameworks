@@ -1,8 +1,9 @@
+import re
 import asyncio
-from llama_index.core import Settings
 from llama_index.llms.openai import OpenAI
-from llama_index.core.agent import FunctionAgent
-from llama_index.core.tools import FunctionTool
+from llama_index.core.agent import ReActAgent, FunctionAgent
+from llama_index.core.workflow import Context
+from llama_index.core.agent.workflow.workflow_events import ToolCall
 from settings import settings
 
 
@@ -21,81 +22,87 @@ https://docs.llamaindex.ai/en/stable/module_guides/agent/agents/
 -------------------------------------------------------
 """
 
+# --- 1. Configure the LLM ---
+llm = OpenAI(
+    model=settings.OPENAI_MODEL_NAME,
+    api_key=settings.OPENAI_API_KEY.get_secret_value()
+)
 
-def calculate(a: float, b: float, operation: str) -> float:
-    """Perform basic math operations."""
-    if operation == "add":
-        return a + b
-    elif operation == "multiply":
-        return a * b
-    elif operation == "subtract":
-        return a - b
-    elif operation == "divide":
-        return a / b if b != 0 else 0
-    return 0
+# --- 2. Create the sub-agents that will perform specific tasks ---
+research_agent = FunctionAgent(
+    llm=llm,
+    tools=[],
+    verbose=True,
+    system_prompt="You are a research assistant. Provide detailed notes on any topic."
+)
+
+write_agent = FunctionAgent(
+    llm=llm,
+    tools=[],
+    verbose=True,
+    system_prompt="You are a writing assistant. Write clear and concise summaries based on research notes."
+)
+
+# --- 3. Create the tools for the orchestrator to call the sub agents ---
+async def call_research_agent(ctx: Context, prompt: str) -> str:
+    """Useful for recording research notes based on a specific prompt."""
+    result = await research_agent.run(
+        user_msg=f"Write some notes about the following: {prompt}"
+    )
+
+    async with ctx.store.edit_state() as ctx_state:
+        ctx_state["state"]["research_notes"].append(str(result))
+
+    return str(result)
+
+async def call_write_agent(ctx: Context) -> str:
+    """Useful for writing a report based on the research notes or revising the report based on feedback."""
+    async with ctx.store.edit_state() as ctx_state:
+        notes = ctx_state["state"].get("research_notes", None)
+        if not notes:
+            return "No research notes to write from."
+
+        user_msg = f"Write a markdown report from the following notes. Be sure to output the report in the following format: <report>...</report>:\n\n"
+
+        # Add the research notes to the user message
+        notes = "\n\n".join(notes)
+        user_msg += f"<research_notes>{notes}</research_notes>\n\n"
+
+        # Run the write agent
+        result = await write_agent.run(user_msg=user_msg)
+        report = re.search(
+            r"<report>(.*)</report>", str(result), re.DOTALL
+        ).group(1)
+        ctx_state["state"]["report_content"] = str(report)
+
+    return str(report)
 
 
+# --- 4. Create the orchestrator agent that delegates to the research agent ---
+orchestrator_agent = ReActAgent(
+    llm=llm,
+    system_prompt="You are an orchestrator assistant. Delegate research tasks to the sub-agents.",
+    tools=[call_research_agent, call_write_agent],
+    initial_state={
+        "research_notes": [],
+        "report_content": None,
+        "review": None,
+    },
+)
+
+# --- 5. Run the orchestrator agent with a research question ---
 async def main():
-    # --- 1. Configure the LLM ---
-    llm = OpenAI(
-        model=settings.OPENAI_MODEL_NAME,
-        api_key=settings.OPENAI_API_KEY.get_secret_value()
+    handler = orchestrator_agent.run(
+        "Write me a report on the history of the web …"
     )
-    Settings.llm = llm
-
-    print("LLM configured for agent delegation")
-    print("-" * 50)
-
-    # --- 2. Create a specialized math agent ---
-    math_tool = FunctionTool.from_defaults(fn=calculate)
+    async for ev in handler.stream_events():
+        if isinstance(ev, ToolCall):
+            print(f"Tool selected: {ev.tool_name}")
+    output = await handler
     
-    math_agent = FunctionAgent(
-        llm=llm,
-        tools=[math_tool],
-        verbose=True,
-        system_prompt="You are a math expert. Perform calculations accurately."
-    )
-
-    print("Created Math Agent")
+    # NOTE: the output takes a while to generate since it involves multiple agent calls and LLM interactions
     print("-" * 50)
-
-    # --- 3. Wrap the math agent as a tool ---
-    # This allows other agents to delegate math tasks to this specialist
-    math_agent_tool = FunctionTool.from_defaults(
-        fn=lambda query: math_agent.chat(query).response,
-        name="math_expert",
-        description="A math expert that can perform complex calculations"
-    )
-
-    print("Wrapped Math Agent as a tool")
-    print("-" * 50)
-
-    # --- 4. Create a master agent that uses the math agent ---
-    master_agent = FunctionAgent(
-        llm=llm,
-        tools=[math_agent_tool],
-        verbose=True,
-        system_prompt="You are a helpful assistant. Delegate math questions to the math expert."
-    )
-
-    print("Created Master Agent")
-    print("-" * 50)
-
-    # --- 5. Test agent delegation ---
-    query = "Calculate 25 multiplied by 4, then add 10"
-    response = await master_agent.achat(query)
-
-    print(f"Query: {query}")
-    print(f"Response: {response}")
-    print("-" * 50)
-
-    """
-    Expected output:
-    - Master agent delegates calculation to math expert
-    - Math agent performs the calculations
-    - Master agent returns the result
-    - Demonstrates agent delegation pattern
-    """
+    print("Final Output: ", output)
 
 
 if __name__ == "__main__":
