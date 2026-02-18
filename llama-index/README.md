@@ -21,25 +21,17 @@ Key strengths include:
 
 ### How to setup
 
-#### Virtual environment
+#### Create a virtual environment and install dependencies
 
-Create a simple virtual environment with:
+Run the following command to create a virtual environment and install dependencies using UV:
 
 ```bash
-python3 -m venv .venv
+uv sync
 ```
 
-Then activate it with:
+Alternatively, use UV to run files directly without manual activation:
 ```bash
-# On Linux/macOS
-source .venv/bin/activate
-# On Windows
-.venv\Scripts\activate
-```
-
-And install the requirements with:
-```bash
-pip install -r requirements.txt
+uv run <example_name>.py
 ```
 
 #### .env
@@ -53,18 +45,37 @@ You need to get an OpenAI endpoint and key and fill them in.
 - `00_hello_world.py` - Basic RAG with document loading and querying
 - `01_tools.py` - Function calling agents with custom tools
 - `02_structured_outputs.py` - Enforcing response schemas with Pydantic
+- `03_memory.py` - Conversation memory and context management
+- `04_streaming.py` - Real-time event and token streaming
+- `05_memory_advanced.py` - Memory with initial_messages for persistent context
 
 **Agent Capabilities** (Recommended):
-- `03_memory.py` - Conversation memory and context management
-- `04_streaming.py` - Real-time event and token streaming with custom workflow
-- `05_memory_advanced.py` - Memory with initial_messages for persistent context
-- `06_agentic_rag.py` - Multiple query engines (vector vs summary) with intelligent tool selection
-- `07_async_patterns.py` - Async agent execution with achat
-- `08_agent_delegation.py` - Wrapping agents as tools for delegation
+- `06_agent_types.py` - Different agent implementations (ReAct, Function Calling)
+- `07_multi_modal_agents.py` - Vision agents for image understanding
+- `08_manual_agents.py` - Manual agent control with step execution
+- `09_agent_delegation.py` - Wrapping agents as tools for delegation
+- `10_agentic_rag.py` - Multiple query engines with intelligent tool selection
+- `11_agent_workflows.py` - Complete workflows combining RAG and reasoning
 
-**Advanced Patterns** (Optional):
-- `09_router_engine.py` - RouterQueryEngine with LLMSingleSelector for automatic index selection
-- `10_workflow_custom.py` - Custom Workflow with @step decorator, Events, and Context state
+### Workflow Examples (agent_workflows/)
+
+**Getting Started**:
+- `01_gettings_started.py` - Basic workflow with events and steps
+- `02_branches_and_loops.py` - Conditional branching and looping patterns
+
+**State & Data Flow**:
+- `03_managing_state.py` - Context state (typed/untyped, locking, persistence)
+- `04_streaming.py` - Streaming progress events and handling termination
+- `05_concurrent_execution.py` - Parallel step execution and event collection
+
+**Advanced Patterns**:
+- `06_human_in_the_loop.py` - InputRequiredEvent for human interaction
+- `07_customizing_entry_exit_points.py` - Custom StartEvent/StopEvent for type safety
+- `08_drawing_workflow.py` - Visualizing workflows (HTML export, debugger UI)
+- `09_resource_objects.py` - Dependency injection with Resource/ResourceConfig
+- `10_retry_steps_execution.py` - Retry policies for transient failures
+- `11_workflow_as_a_server.py` - Exposing workflows via HTTP API
+- `12_observability.py` - OpenTelemetry tracing and observability tools
 
 ### Key LlamaIndex Differentiators
 
@@ -82,7 +93,8 @@ You need to get an OpenAI endpoint and key and fill them in.
 
 - Main Docs: https://developers.llamaindex.ai/
 - Agents Guide: https://developers.llamaindex.ai/python/framework/use_cases/agents/
-- Workflows: https://developers.llamaindex.ai/python/framework/understanding/workflows/
+- Workflows: https://developers.llamaindex.ai/python/llamaagents/workflows/
+- Workflow API Reference: https://developers.llamaindex.ai/python/workflows-api-reference/
 - Memory: https://developers.llamaindex.ai/python/framework/module_guides/deploying/agents/memory/
 - Streaming: https://developers.llamaindex.ai/python/framework/understanding/agent/streaming/
 - LlamaHub: https://llamahub.ai/

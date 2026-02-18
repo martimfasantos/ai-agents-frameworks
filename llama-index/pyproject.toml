@@ -1,6 +1,6 @@
 [project]
 name = "llama-index-examples"
-version = "0.1.0"
+version = "1.0.0"
 description = "LlamaIndex framework examples"
 requires-python = ">=3.12"
 dependencies = [
@@ -13,4 +13,7 @@ dependencies = [
     "python-dotenv>=1.0.0",
     "openai>=1.60.0",
     "llama-index-tools-google>=0.6.2",
+    "llama-index-workflows>=2.11.5",
+    "llama-index-utils-workflow>=0.9.2",
+    "llama-agents-server>=0.1.3",
 ]

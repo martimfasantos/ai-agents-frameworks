@@ -1,21 +1,40 @@
+import sys
+import asyncio
+from pathlib import Path
+from llama_index.llms.openai import OpenAI
 from workflows import Workflow, step
 from workflows.events import (
     Event,
     StartEvent,
     StopEvent,
 )
+sys.path.append(str(Path(__file__).parent.parent))
+from settings import settings
 
-# `pip install llama-index-llms-openai` if you don't already have it
-from llama_index.llms.openai import OpenAI
 
+"""
+-------------------------------------------------------
+In this example, we explore a simple LlamaIndex Workflow
 
+For more details, visit:
+https://developers.llamaindex.ai/python/llamaagents/workflows/
+-------------------------------------------------------
+"""
+
+# --- 1. Define the LLM ---
 class JokeEvent(Event):
     joke: str
 
 
+# --- 2. Create a workflow that generates and critiques a joke ---
 class JokeFlow(Workflow):
-    llm = OpenAI(model="gpt-4.1")
+    # 2.1 Define the LLM
+    llm = OpenAI(
+        model=settings.OPENAI_MODEL_NAME,
+        api_key=settings.OPENAI_API_KEY.get_secret_value()
+    )
 
+    # 2.2 Define the starting step of the workflow
     @step
     async def generate_joke(self, ev: StartEvent) -> JokeEvent:
         topic = ev.topic
@@ -24,6 +43,7 @@ class JokeFlow(Workflow):
         response = await self.llm.acomplete(prompt)
         return JokeEvent(joke=str(response))
 
+    # 2.3 Define the critique step of the workflow
     @step
     async def critique_joke(self, ev: JokeEvent) -> StopEvent:
         joke = ev.joke
@@ -33,6 +53,11 @@ class JokeFlow(Workflow):
         return StopEvent(result=str(response))
 
 
-w = JokeFlow(timeout=60, verbose=False)
-result = await w.run(topic="pirates")
-print(str(result))
+# --- 3. Define the main function to run the workflow ---
+async def main():
+    w = JokeFlow(timeout=60, verbose=False)
+    result = await w.run(topic="pirates")
+    print(str(result))
+
+if __name__ == "__main__":
+    asyncio.run(main())

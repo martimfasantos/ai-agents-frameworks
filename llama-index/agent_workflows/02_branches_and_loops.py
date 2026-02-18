@@ -19,28 +19,27 @@ https://developers.llamaindex.ai/python/llamaagents/workflows/branches_and_loops
 -------------------------------------------------------
 """
 
-
-# Define events for looping
+# --- 1. Define the events for branching and looping ---
 class LoopEvent(Event):
     num_loops: int
 
-
-# Define events for branching
 class BranchAEvent(Event):
     payload: str
-
 
 class BranchBEvent(Event):
     payload: str
 
 
+# --- 2. Define the workflow with branching and looping logic ---
 class BranchingAndLoopingWorkflow(Workflow):
     @step
     async def start(self, ev: StartEvent) -> BranchAEvent | BranchBEvent:
         """Randomly select between two branches"""
         if random.randint(0, 1) == 0:
+            print("Branch A selected")
             return BranchAEvent(payload="Branch A selected")
         else:
+            print("Branch B selected")
             return BranchBEvent(payload="Branch B selected")
 
     @step
@@ -63,10 +62,12 @@ class BranchingAndLoopingWorkflow(Workflow):
         return LoopEvent(num_loops=ev.num_loops - 1)
 
 
+# --- 3. Define the main function to run the workflow ---
 async def main():
     workflow = BranchingAndLoopingWorkflow(timeout=30, verbose=False)
     result = await workflow.run()
     print(f"Result: {result}")
+    print("--- Run the workflow multiple times to see different branches and loop counts. ---")
 
 
 if __name__ == "__main__":
