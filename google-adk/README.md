@@ -59,12 +59,19 @@ uv run python 00_hello_world.py
 | `07_memory.py` | Memory | Persist and recall facts across separate sessions |
 | `08_structured_outputs.py` | Structured Outputs | Enforce typed JSON output using Pydantic schemas |
 | `09_litellm.py` | LiteLLM | Use OpenAI and other non-Google models inside ADK agents |
+| `10_artifacts.py` | Artifacts | Save, load, and list binary/text artifacts across sessions |
+| `11_mcp_tools.py` | MCP Tools | Connect agents to MCP servers for filesystem and external tools |
+| `12_grounding.py` | Grounding | Ground responses in Google Search results with source citations |
+| `13_safety.py` | Safety Guardrails | Block unsafe inputs and redact PII from outputs via callbacks |
+| `14_evaluation.py` | Evaluation | Score agent behavior against expected tool trajectories and responses |
 
 ## Key dependencies
 
 | Package | Version | Purpose |
 |---------|---------|---------|
-| `google-adk` | 1.5.0 | Core framework |
+| `google-adk` | 1.26.0 | Core framework |
+| `google-adk[eval]` | 1.26.0 | Evaluation extras (rouge-score, scikit-learn, pandas) |
 | `pydantic` | ≥2.0 | Structured output schemas and settings |
 | `pydantic-settings` | ≥2.0 | `.env` file loading via `BaseSettings` |
 | `litellm` | latest | Third-party model routing (required for `09_litellm.py`) |
+| `mcp` | latest | MCP protocol client (required for `11_mcp_tools.py`) |

@@ -1,3 +1,4 @@
+import logging
 from typing import Any, Optional
 
 from google.adk.agents import (
@@ -6,6 +7,11 @@ from google.adk.agents import (
 from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
 from google.genai.types import Content, Part, FunctionCall, FunctionResponse
+
+# Suppress the SDK's "non-text parts in response" warning — it fires whenever
+# a streaming event contains a function_call part alongside text parts and is
+# purely informational noise in example output.
+logging.getLogger("google_genai.types").setLevel(logging.ERROR)
 
 APP_NAME = "my_agent"
 USER_ID = "user"

@@ -7,7 +7,8 @@ from google.adk.models.lite_llm import LiteLlm
 from settings import settings
 from utils import call_agent_async, print_new_section
 
-# LiteLLM routes to third-party providers using their own API keys
+# Both the native Gemini model and LiteLLM routing need their keys in env
+os.environ["GOOGLE_API_KEY"] = settings.GOOGLE_API_KEY.get_secret_value()
 os.environ["OPENAI_API_KEY"] = settings.OPENAI_API_KEY.get_secret_value()
 
 """
