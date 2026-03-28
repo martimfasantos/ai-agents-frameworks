@@ -321,8 +321,33 @@ This repository provides a comprehensive, hands-on comparison of modern AI agent
           </a>
       </td>
     </tr>
+    <tr>
+      <td style="vertical-align: middle;">
+    <strong style="vertical-align: middle; font-size: 1.2em;">🤖 PraisonAI</strong>
+      </td>
+      <td>
+          <a href="https://docs.praison.ai">
+            <picture>
+              <source media="(prefers-color-scheme: dark)" srcset="res/book-open-dark.svg">
+              <source media="(prefers-color-scheme: light)" srcset="res/book-open.svg">
+              <img src="res/book-open.svg" alt="Docs" width="20">
+            </picture>
+          </a>
+      </td>
+      <td>
+          <a href="https://github.com/MervinPraison/PraisonAI">
+            <picture>
+              <source media="(prefers-color-scheme: dark)" srcset="res/github-icon-dark.svg">
+              <source media="(prefers-color-scheme: light)" srcset="res/github-icon.svg">
+              <img src="res/github-icon.svg" alt="GitHub" width="20">
+            </picture>
+          </a>
+      </td>
+    </tr>
   </tbody>
 </table>
+
+> **PraisonAI** - Production-ready Multi-AI Agents framework with self-reflection. Fastest agent instantiation (3.77μs), 100+ LLM support via LiteLLM, MCP Protocol integration, agentic workflows (route/parallel/loop/repeat), built-in memory, and both Python & JavaScript SDKs.
 
   
 ## 📁 Structure
