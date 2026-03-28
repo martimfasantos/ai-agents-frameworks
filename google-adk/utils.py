@@ -1,18 +1,26 @@
-from tracemalloc import start
+import logging
 from typing import Any, Optional
 
-from google.adk import Agent
+from google.adk.agents import (
+    BaseAgent,
+)  # common base for LlmAgent, SequentialAgent, etc.
 from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
 from google.genai.types import Content, Part, FunctionCall, FunctionResponse
 
-APP_NAME="my_agent"
-USER_ID="user"
-SESSION_ID="1234"
+# Suppress the SDK's "non-text parts in response" warning — it fires whenever
+# a streaming event contains a function_call part alongside text parts and is
+# purely informational noise in example output.
+logging.getLogger("google_genai.types").setLevel(logging.ERROR)
+
+APP_NAME = "my_agent"
+USER_ID = "user"
+SESSION_ID = "1234"
+
 
 # Session and Runner
 async def setup_session_and_runner(
-    agent: Agent,
+    agent: BaseAgent,
     state: Optional[dict[str, Any]] = None,
 ):
     session_service = InMemorySessionService()
@@ -28,25 +36,27 @@ async def setup_session_and_runner(
 
 # Agent Interaction
 async def call_agent_async(
-    agent: Agent, 
+    agent: BaseAgent,
     query: str,
     *,
     tool_calls: bool = False,
     tool_call_results: bool = False,
-    state: Optional[dict[str, Any]] = None
+    state: Optional[dict[str, Any]] = None,
 ):
-    content = Content(
-        role='user', 
-        parts=[Part(text=query)]
-    )
+    content = Content(role="user", parts=[Part(text=query)])
     _, runner = await setup_session_and_runner(agent, state=state)
-    events = runner.run_async(user_id=USER_ID, session_id=SESSION_ID, new_message=content)
+    events = runner.run_async(
+        user_id=USER_ID, session_id=SESSION_ID, new_message=content
+    )
 
     async for event in events:
         print(f"\n[{event.author.upper()}] ", end="")
         if event.is_final_response():
-            final_response = event.content.parts[0].text
-            print(f"{final_response}\n")
+            if event.content and event.content.parts:
+                final_response = event.content.parts[0].text
+                print(f"{final_response}\n")
+            else:
+                print("\n")
 
         if tool_calls:
             function_calls = event.get_function_calls()
@@ -57,23 +67,22 @@ async def call_agent_async(
             if function_responses:
                 handle_tool_responses(function_responses)
 
+
 def handle_tool_calls(function_calls: list[FunctionCall]):
     for call in function_calls:
         tool_name = call.name
-        arguments = call.args  # This is usually a dictionary
+        arguments = call.args
         print(f"  Tool: {tool_name}, Args: {arguments}")
     print("")
+
 
 def handle_tool_responses(function_responses: list[FunctionResponse]):
     for response in function_responses:
         tool_name = response.name
-        result_dict = response.response  # The dictionary returned by the tool
+        result_dict = response.response
         print(f"  Tool Result: {tool_name} -> {result_dict}")
     print("")
 
+
 def print_new_section(title: str):
-    print(
-        "\n" + "-" * 65 + "\n"
-        + " " * 15 + title + " " * 15
-        + "\n" + "-" * 65 + "\n"
-    )
+    print("\n" + "-" * 65 + "\n" + " " * 15 + title + " " * 15 + "\n" + "-" * 65 + "\n")
