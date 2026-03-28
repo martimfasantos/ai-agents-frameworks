@@ -1,0 +1,16 @@
+[project]
+name = "langchain-examples"
+version = "0.1.0"
+description = "LangChain framework examples"
+requires-python = ">=3.12"
+dependencies = [
+    "langchain>=1.0.0",
+    "langchain-openai>=0.3.0",
+    "langgraph>=0.3.0",
+    "langchain-mcp-adapters>=0.1.0",
+    "fastmcp>=2.0.0",
+    "langsmith>=0.3.0",
+    "pydantic>=2.10.0",
+    "pydantic-settings>=2.7.0",
+    "python-dotenv>=1.0.0",
+]
