@@ -10,19 +10,21 @@ from settings import settings
 """
 ------------------------------------------------------------------------
 In this example, we explore Autogen agents with the following features:
-- Memory stores
-- User preferences
-- Persistent context
+- Memory stores with ListMemory
+- User preferences persisted across interactions
+- Memory-aware tool usage
 
-This example shows a primitive example of a Memory store that maintains
-user preferences across interactions. You can build on the Memory protocol
-to implement more complex memory stores using vector databases, ML models,
-or other advanced storage mechanisms.
+This example shows a primitive memory store that maintains user
+preferences across interactions. The agent automatically queries its
+memory before each response, enriching its context. You can build on
+the Memory protocol to implement more complex stores using vector
+databases, ML models, or other advanced storage mechanisms.
 
-For more advanced and custom memory stores, check:
-https://microsoft.github.io/autogen/stable//user-guide/agentchat-user-guide/memory.html#custom-memory-stores-vector-dbs-etc
+For more details, visit:
+https://microsoft.github.io/autogen/stable/user-guide/agentchat-user-guide/memory.html
 ------------------------------------------------------------------------
 """
+
 
 # --- 1. Define a tool function ---
 async def get_weather(city: str, units: str = "imperial") -> str:
@@ -34,28 +36,28 @@ async def get_weather(city: str, units: str = "imperial") -> str:
     else:
         return f"Sorry, I don't know the weather in {city}."
 
+
 async def main() -> None:
     # --- 2. Define the model client ---
     model_client = OpenAIChatCompletionClient(
         model=settings.OPENAI_MODEL_NAME,
-        api_key=settings.OPENAI_API_KEY.get_secret_value()
+        api_key=settings.OPENAI_API_KEY.get_secret_value(),
     )
 
     # --- 3. Initialize user memory and add preferences ---
     user_memory = ListMemory()
-    
-    # Add user preferences to memory
+
     await user_memory.add(
         MemoryContent(
-            content="The weather should be in metric units", 
-            mime_type=MemoryMimeType.TEXT
+            content="The weather should be in metric units",
+            mime_type=MemoryMimeType.TEXT,
         )
     )
 
     await user_memory.add(
         MemoryContent(
-            content="Meal recipes must be vegan", 
-            mime_type=MemoryMimeType.TEXT
+            content="Meal recipes must be vegan",
+            mime_type=MemoryMimeType.TEXT,
         )
     )
 
@@ -64,28 +66,29 @@ async def main() -> None:
         name="assistant_agent",
         model_client=model_client,
         tools=[get_weather],
-        memory=[user_memory], # Add memory to the agent here
-        system_message="You are a helpful assistant that remembers user preferences."
+        memory=[user_memory],
+        system_message="You are a helpful assistant that remembers user preferences.",
     )
 
-    # --- 5. Run the agent ---
+    # --- 5. Run the agent - weather query (should use metric units) ---
+    print("=" * 50)
+    print("Weather Query (expects metric units from memory):")
+    print("=" * 50)
     await Console(
-        assistant_agent.run_stream(
-            task=("What's the weather like in New York?")
-        )
+        assistant_agent.run_stream(task="What's the weather like in New York?")
     )
-    
+
+    # --- 6. Run the agent - recipe query (should be vegan) ---
+    print("\n" + "=" * 50)
+    print("Recipe Query (expects vegan from memory):")
+    print("=" * 50)
     await Console(
-        assistant_agent.run_stream(
-            task=("Write brief meal recipe with broth?")
-        )
+        assistant_agent.run_stream(task="Write a brief meal recipe with broth.")
     )
-    # Get the assistant's messages and model context
-    print(
-        "-" * 50,
-        f"\nAssistant's Internal messages:\n\t"
-        f"{await assistant_agent._model_context.get_messages()}"
-    )
+
+    # --- 7. Close the model client ---
+    await model_client.close()
+
 
 if __name__ == "__main__":
     asyncio.run(main())

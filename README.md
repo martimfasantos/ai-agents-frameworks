@@ -103,7 +103,7 @@ This repository provides a comprehensive, hands-on comparison of modern AI agent
         </picture>
     <strong style="vertical-align: middle; font-size: 1.2em;">Autogen</strong>
       </td>
-      <td><code>0.7.2</code></td>
+      <td><code>0.7.5</code></td>
       <td>
           <a href="https://microsoft.github.io/autogen/stable/index.html">
             <picture>
