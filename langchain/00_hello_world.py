@@ -11,7 +11,7 @@ os.environ["OPENAI_API_KEY"] = settings.OPENAI_API_KEY.get_secret_value()
 -------------------------------------------------------
 In this example, we explore LangChain with the following features:
 - Creating a simple agent with create_agent()
-- Initializing a ChatOpenAI model with custom parameters
+- Initializing a chat model
 - Invoking an agent with a single message
 
 This is the simplest possible LangChain agent. It uses the new
@@ -24,12 +24,7 @@ https://docs.langchain.com/oss/python/langchain/agents
 """
 
 # --- 1. Create the model ---
-model = ChatOpenAI(
-    model=settings.OPENAI_MODEL_NAME,
-    temperature=0.1,
-    max_tokens=1000,
-    timeout=30,
-)
+model = ChatOpenAI(model=settings.OPENAI_MODEL_NAME)
 
 # --- 2. Create the agent ---
 agent = create_agent(

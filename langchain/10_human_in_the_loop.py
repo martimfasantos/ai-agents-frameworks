@@ -57,12 +57,7 @@ def delete_account(user_id: str) -> str:
 
 
 # --- 2. Create the model ---
-model = ChatOpenAI(
-    model=settings.OPENAI_MODEL_NAME,
-    temperature=0.1,
-    max_tokens=1000,
-    timeout=30,
-)
+model = ChatOpenAI(model=settings.OPENAI_MODEL_NAME)
 
 # --- 3. Create agent with HITL middleware ---
 agent = create_agent(

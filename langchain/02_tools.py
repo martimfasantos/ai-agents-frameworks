@@ -49,12 +49,7 @@ def calculate(expression: str) -> str:
 
 
 # --- 2. Create the model ---
-model = ChatOpenAI(
-    model=settings.OPENAI_MODEL_NAME,
-    temperature=0.1,
-    max_tokens=1000,
-    timeout=30,
-)
+model = ChatOpenAI(model=settings.OPENAI_MODEL_NAME)
 
 # --- 3. Create an agent with tools ---
 agent = create_agent(

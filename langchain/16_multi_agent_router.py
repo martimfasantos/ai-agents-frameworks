@@ -31,12 +31,7 @@ https://docs.langchain.com/oss/python/langchain/multi-agent/router
 """
 
 # --- 1. Create the model ---
-model = ChatOpenAI(
-    model=settings.OPENAI_MODEL_NAME,
-    temperature=0.1,
-    max_tokens=1000,
-    timeout=30,
-)
+model = ChatOpenAI(model=settings.OPENAI_MODEL_NAME)
 
 
 # --- 2. Define domain tools and create specialized agents ---

@@ -71,12 +71,7 @@ def search_knowledge_base(query: str) -> str:
 
 
 # --- 3. Create the model ---
-model = ChatOpenAI(
-    model=settings.OPENAI_MODEL_NAME,
-    temperature=0.1,
-    max_tokens=1000,
-    timeout=30,
-)
+model = ChatOpenAI(model=settings.OPENAI_MODEL_NAME)
 
 # --- 4. Create the RAG agent ---
 agent = create_agent(

@@ -63,12 +63,7 @@ if __name__ == "__main__":
 # --- 1. Main async function ---
 async def main():
     # --- 2. Create the model ---
-    model = ChatOpenAI(
-        model=settings.OPENAI_MODEL_NAME,
-        temperature=0.1,
-        max_tokens=1000,
-        timeout=30,
-    )
+    model = ChatOpenAI(model=settings.OPENAI_MODEL_NAME)
 
     # --- 3. Connect to the MCP server via stdio ---
     client = MultiServerMCPClient(
