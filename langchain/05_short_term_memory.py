@@ -1,8 +1,8 @@
 import os
 
 from langchain.agents import create_agent
-from langchain.chat_models import init_chat_model
 from langchain.tools import tool
+from langchain_openai import ChatOpenAI
 from langgraph.checkpoint.memory import InMemorySaver
 
 from settings import settings
@@ -39,15 +39,23 @@ def get_time(timezone: str) -> str:
     return times.get(timezone.lower(), f"Time not available for {timezone}")
 
 
-# --- 2. Create agent with checkpointer for memory ---
+# --- 2. Create the model ---
+model = ChatOpenAI(
+    model=settings.OPENAI_MODEL_NAME,
+    temperature=0.1,
+    max_tokens=1000,
+    timeout=30,
+)
+
+# --- 3. Create agent with checkpointer for memory ---
 agent = create_agent(
-    model=init_chat_model(f"openai:{settings.OPENAI_MODEL_NAME}"),
+    model=model,
     tools=[get_time],
     system_prompt="You are a helpful assistant. Be concise.",
     checkpointer=InMemorySaver(),
 )
 
-# --- 3. Have a multi-turn conversation on thread "abc" ---
+# --- 4. Have a multi-turn conversation on thread "abc" ---
 config = {"configurable": {"thread_id": "abc"}}
 
 print("=== Thread 'abc': Multi-turn conversation ===")
@@ -75,7 +83,7 @@ result_3 = agent.invoke(
 )
 print(f"Turn 3: {result_3['messages'][-1].content}\n")
 
-# --- 4. Show that a different thread has no memory ---
+# --- 5. Show that a different thread has no memory ---
 print("=== Thread 'xyz': Fresh conversation ===")
 
 config_new = {"configurable": {"thread_id": "xyz"}}

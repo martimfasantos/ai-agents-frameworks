@@ -3,8 +3,8 @@ from dataclasses import dataclass
 from typing import Any, cast
 
 from langchain.agents import create_agent
-from langchain.chat_models import init_chat_model
 from langchain.tools import tool, ToolRuntime
+from langchain_openai import ChatOpenAI
 from langgraph.store.memory import InMemoryStore
 
 from settings import settings
@@ -79,16 +79,24 @@ def save_preference(
     return f"Saved preference: {key} = {value}"
 
 
-# --- 4. Create agent with store ---
+# --- 4. Create the model ---
+model = ChatOpenAI(
+    model=settings.OPENAI_MODEL_NAME,
+    temperature=0.1,
+    max_tokens=1000,
+    timeout=30,
+)
+
+# --- 5. Create agent with store ---
 agent = create_agent(
-    model=init_chat_model(f"openai:{settings.OPENAI_MODEL_NAME}"),
+    model=model,
     tools=[get_preferences, save_preference],
     system_prompt="You are a personal assistant. Use tools to read and save user preferences.",
     context_schema=UserContext,
     store=store,
 )
 
-# --- 5. Read existing preferences ---
+# --- 6. Read existing preferences ---
 print("=== Reading Alice's Preferences ===")
 result = agent.invoke(
     {"messages": [{"role": "user", "content": "What are my preferences?"}]},
@@ -96,7 +104,7 @@ result = agent.invoke(
 )
 print(f"Response: {result['messages'][-1].content}\n")
 
-# --- 6. Save a new preference ---
+# --- 7. Save a new preference ---
 print("=== Saving a New Preference ===")
 result = agent.invoke(
     {"messages": [{"role": "user", "content": "Save my favorite color as blue."}]},
@@ -104,7 +112,7 @@ result = agent.invoke(
 )
 print(f"Response: {result['messages'][-1].content}\n")
 
-# --- 7. Verify the preference persists (different invocation) ---
+# --- 8. Verify the preference persists (different invocation) ---
 print("=== Verifying Persistence ===")
 result = agent.invoke(
     {"messages": [{"role": "user", "content": "What are my preferences now?"}]},
@@ -112,7 +120,7 @@ result = agent.invoke(
 )
 print(f"Response: {result['messages'][-1].content}\n")
 
-# --- 8. Different user has no preferences ---
+# --- 9. Different user has no preferences ---
 print("=== Different User (Bob) ===")
 result = agent.invoke(
     {"messages": [{"role": "user", "content": "What are my preferences?"}]},

@@ -2,8 +2,8 @@ import os
 from dataclasses import dataclass
 
 from langchain.agents import create_agent
-from langchain.chat_models import init_chat_model
 from langchain.tools import tool, ToolRuntime
+from langchain_openai import ChatOpenAI
 
 from settings import settings
 
@@ -68,15 +68,23 @@ def get_user_orders(runtime: ToolRuntime[UserContext]) -> str:
     return "Recent orders:\n" + "\n".join(lines)
 
 
-# --- 3. Create the agent with a context schema ---
+# --- 3. Create the model ---
+model = ChatOpenAI(
+    model=settings.OPENAI_MODEL_NAME,
+    temperature=0.1,
+    max_tokens=1000,
+    timeout=30,
+)
+
+# --- 4. Create the agent with a context schema ---
 agent = create_agent(
-    model=init_chat_model(f"openai:{settings.OPENAI_MODEL_NAME}"),
+    model=model,
     tools=[get_user_profile, get_user_orders],
     system_prompt="You are a customer support assistant. Use the available tools to help the user.",
     context_schema=UserContext,
 )
 
-# --- 4. Invoke with context for user_42 ---
+# --- 5. Invoke with context for user_42 ---
 print("=== User 42: Alice ===")
 result = agent.invoke(
     {
@@ -91,7 +99,7 @@ result = agent.invoke(
 print(result["messages"][-1].content)
 print()
 
-# --- 5. Invoke with context for a different user ---
+# --- 6. Invoke with context for a different user ---
 print("=== User 99: Bob ===")
 result = agent.invoke(
     {"messages": [{"role": "user", "content": "What orders do I have?"}]},

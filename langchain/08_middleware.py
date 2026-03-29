@@ -12,8 +12,8 @@ from langchain.agents.middleware import (
     ModelRequest,
     ModelResponse,
 )
-from langchain.chat_models import init_chat_model
 from langchain.tools import tool
+from langchain_openai import ChatOpenAI
 
 from settings import settings
 
@@ -43,7 +43,16 @@ class Context:
     user_name: str
 
 
-# --- 2. Create middleware hooks ---
+# --- 2. Create the model ---
+model = ChatOpenAI(
+    model=settings.OPENAI_MODEL_NAME,
+    temperature=0.1,
+    max_tokens=1000,
+    timeout=30,
+)
+
+
+# --- 3. Create middleware hooks ---
 
 
 # Dynamic prompt: personalize the system prompt based on context
@@ -72,7 +81,7 @@ def log_after(state: AgentState, runtime: Runtime[Context]) -> dict | None:
     return None
 
 
-# --- 3. Define a tool ---
+# --- 4. Define a tool ---
 @tool
 def get_fact(topic: str) -> str:
     """Get an interesting fact about a topic."""
@@ -84,15 +93,15 @@ def get_fact(topic: str) -> str:
     return facts.get(topic.lower(), f"No fact available for {topic}")
 
 
-# --- 4. Create the agent with middleware ---
+# --- 5. Create the agent with middleware ---
 agent = create_agent(
-    model=init_chat_model(f"openai:{settings.OPENAI_MODEL_NAME}"),
+    model=model,
     tools=[get_fact],
     middleware=[personalized_prompt, log_before, log_after],
     context_schema=Context,
 )
 
-# --- 5. Run the agent ---
+# --- 6. Run the agent ---
 print("=== Agent with Middleware ===")
 result = agent.invoke(
     {"messages": [{"role": "user", "content": "Tell me a fun fact about coffee."}]},

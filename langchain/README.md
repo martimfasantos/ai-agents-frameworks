@@ -55,13 +55,15 @@ uv run python 00_hello_world.py
 | 04 | `04_structured_output.py` | `response_format` with Pydantic models |
 | 05 | `05_short_term_memory.py` | `InMemorySaver` checkpointer, thread-based memory |
 | 06 | `06_runtime_context.py` | `context_schema`, `ToolRuntime[Context]` DI |
-| 07 | `07_middleware.py` | `@before_model`, `@after_model`, `@dynamic_prompt` |
-| 08 | `08_guardrails.py` | `@before_agent`, `@after_agent` content filtering |
-| 09 | `09_human_in_the_loop.py` | `HumanInTheLoopMiddleware`, interrupt/resume |
-| 10 | `10_long_term_memory.py` | `InMemoryStore`, store read/write from tools |
-| 11 | `11_retrieval_rag.py` | Agentic RAG with retrieval tools |
-| 12 | `12_mcp.py` | MCP integration with `MultiServerMCPClient` and FastMCP |
-| 13 | `13_multi_agent_subagents.py` | Subagents as tools, supervisor pattern |
-| 14 | `14_multi_agent_handoffs.py` | State-driven handoffs with `wrap_model_call` |
-| 15 | `15_context_engineering.py` | Dynamic prompts, tool filtering, message injection |
-| 16 | `16_observability.py` | LangSmith tracing, metadata, selective tracing |
+| 07 | `07_context_engineering.py` | Dynamic prompts, tool filtering, message injection |
+| 08 | `08_middleware.py` | `@before_model`, `@after_model`, `@dynamic_prompt` |
+| 09 | `09_guardrails.py` | `@before_agent`, `@after_agent` content filtering |
+| 10 | `10_human_in_the_loop.py` | `HumanInTheLoopMiddleware`, interrupt/resume |
+| 11 | `11_long_term_memory.py` | `InMemoryStore`, store read/write from tools |
+| 12 | `12_retrieval_rag.py` | Agentic RAG with retrieval tools |
+| 13 | `13_mcp.py` | MCP integration with `MultiServerMCPClient` and FastMCP |
+| 14 | `14_multi_agent_subagents.py` | Subagents as tools, supervisor pattern |
+| 15 | `15_multi_agent_handoffs.py` | State-driven handoffs with `wrap_model_call` |
+| 16 | `16_multi_agent_router.py` | Router pattern with `StateGraph`, `Send` fan-out |
+| 17 | `17_multi_agent_skills.py` | Skills pattern with progressive skill disclosure |
+| 18 | `18_observability.py` | LangSmith tracing, metadata, selective tracing |

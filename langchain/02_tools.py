@@ -1,8 +1,8 @@
 import os
 
 from langchain.agents import create_agent
-from langchain.chat_models import init_chat_model
 from langchain.tools import tool
+from langchain_openai import ChatOpenAI
 
 from settings import settings
 
@@ -48,20 +48,28 @@ def calculate(expression: str) -> str:
         return f"Error: {e}"
 
 
-# --- 2. Create an agent with tools ---
+# --- 2. Create the model ---
+model = ChatOpenAI(
+    model=settings.OPENAI_MODEL_NAME,
+    temperature=0.1,
+    max_tokens=1000,
+    timeout=30,
+)
+
+# --- 3. Create an agent with tools ---
 agent = create_agent(
-    model=init_chat_model(f"openai:{settings.OPENAI_MODEL_NAME}"),
+    model=model,
     tools=[get_weather, calculate],
     system_prompt="You are a helpful assistant with access to weather and math tools.",
 )
 
-# --- 3. Ask a question that requires a tool ---
+# --- 4. Ask a question that requires a tool ---
 result = agent.invoke(
     {"messages": [{"role": "user", "content": "What's the weather like in Lisbon?"}]}
 )
 print(f"Weather query: {result['messages'][-1].content}\n")
 
-# --- 4. Ask a question requiring the calculator ---
+# --- 5. Ask a question requiring the calculator ---
 result = agent.invoke(
     {"messages": [{"role": "user", "content": "What is 42 * 17 + 3?"}]}
 )

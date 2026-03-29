@@ -2,8 +2,8 @@ import asyncio
 import os
 
 from langchain.agents import create_agent
-from langchain.chat_models import init_chat_model
 from langchain_mcp_adapters.client import MultiServerMCPClient
+from langchain_openai import ChatOpenAI
 
 from settings import settings
 
@@ -62,7 +62,15 @@ if __name__ == "__main__":
 
 # --- 1. Main async function ---
 async def main():
-    # --- 2. Connect to the MCP server via stdio ---
+    # --- 2. Create the model ---
+    model = ChatOpenAI(
+        model=settings.OPENAI_MODEL_NAME,
+        temperature=0.1,
+        max_tokens=1000,
+        timeout=30,
+    )
+
+    # --- 3. Connect to the MCP server via stdio ---
     client = MultiServerMCPClient(
         {
             "math": {
@@ -73,18 +81,18 @@ async def main():
         }
     )
 
-    # --- 3. Load tools from MCP server ---
+    # --- 4. Load tools from MCP server ---
     tools = await client.get_tools()
     print(f"Loaded {len(tools)} tools from MCP server: {[t.name for t in tools]}\n")
 
-    # --- 4. Create agent with MCP tools ---
+    # --- 5. Create agent with MCP tools ---
     agent = create_agent(
-        model=init_chat_model(f"openai:{settings.OPENAI_MODEL_NAME}"),
+        model=model,
         tools=tools,
         system_prompt="You are a math assistant. Use the available tools to solve math problems.",
     )
 
-    # --- 5. Use the agent with MCP tools ---
+    # --- 6. Use the agent with MCP tools ---
     print("=== Math Query 1: Addition and Multiplication ===")
     result = await agent.ainvoke(
         {"messages": [{"role": "user", "content": "What is (3 + 5) * 12?"}]}

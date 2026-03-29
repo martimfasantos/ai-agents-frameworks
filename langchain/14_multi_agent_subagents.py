@@ -1,8 +1,8 @@
 import os
 
 from langchain.agents import create_agent
-from langchain.chat_models import init_chat_model
 from langchain.tools import tool
+from langchain_openai import ChatOpenAI
 
 from settings import settings
 
@@ -26,8 +26,16 @@ https://docs.langchain.com/oss/python/langchain/multi-agent/subagents
 -------------------------------------------------------
 """
 
-# --- 1. Create specialized subagents ---
-model = init_chat_model(f"openai:{settings.OPENAI_MODEL_NAME}")
+# --- 1. Create the model ---
+model = ChatOpenAI(
+    model=settings.OPENAI_MODEL_NAME,
+    temperature=0.1,
+    max_tokens=1000,
+    timeout=30,
+)
+
+
+# --- 2. Create specialized subagents ---
 
 
 # Research subagent with its own tools
@@ -49,9 +57,10 @@ research_agent = create_agent(
     model=model,
     tools=[search_web],
     system_prompt=(
-        "You are a research specialist. Search for information and provide "
-        "a concise, factual summary. Your response will be read by a supervisor agent, "
-        "so include all key findings in your final message."
+        "You are a research specialist. Search for information using the search_web tool "
+        "and provide a concise, factual summary. Call search_web ONCE with the best query, "
+        "then immediately respond with your findings. Do NOT search multiple times. "
+        "Your response will be read by a supervisor agent."
     ),
 )
 
@@ -67,7 +76,7 @@ writer_agent = create_agent(
 )
 
 
-# --- 2. Wrap subagents as tools ---
+# --- 3. Wrap subagents as tools ---
 @tool("research", description="Research a topic and return findings")
 def call_research_agent(query: str) -> str:
     """Delegate a research task to the research specialist."""
@@ -95,7 +104,7 @@ def call_writer_agent(research_notes: str) -> str:
     return result["messages"][-1].content
 
 
-# --- 3. Create the main (supervisor) agent ---
+# --- 4. Create the main (supervisor) agent ---
 main_agent = create_agent(
     model=model,
     tools=[call_research_agent, call_writer_agent],
@@ -109,7 +118,7 @@ main_agent = create_agent(
     ),
 )
 
-# --- 4. Run the multi-agent system ---
+# --- 5. Run the multi-agent system ---
 print("=== Multi-Agent: Research + Write ===")
 result = main_agent.invoke(
     {

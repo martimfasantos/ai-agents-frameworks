@@ -2,8 +2,8 @@ import os
 
 from langchain.agents import create_agent
 from langchain.agents.middleware import HumanInTheLoopMiddleware
-from langchain.chat_models import init_chat_model
 from langchain.tools import tool
+from langchain_openai import ChatOpenAI
 from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.types import Command
 
@@ -56,9 +56,17 @@ def delete_account(user_id: str) -> str:
     return f"Account {user_id} has been deleted"
 
 
-# --- 2. Create agent with HITL middleware ---
+# --- 2. Create the model ---
+model = ChatOpenAI(
+    model=settings.OPENAI_MODEL_NAME,
+    temperature=0.1,
+    max_tokens=1000,
+    timeout=30,
+)
+
+# --- 3. Create agent with HITL middleware ---
 agent = create_agent(
-    model=init_chat_model(f"openai:{settings.OPENAI_MODEL_NAME}"),
+    model=model,
     tools=[search_docs, send_email, delete_account],
     system_prompt="You are a support assistant. Use tools to help the user.",
     middleware=[
@@ -77,7 +85,7 @@ agent = create_agent(
 
 config = {"configurable": {"thread_id": "hitl-demo"}}
 
-# --- 3. Trigger an interrupt by requesting a sensitive action ---
+# --- 4. Trigger an interrupt by requesting a sensitive action ---
 print("=== Requesting email send (will interrupt) ===")
 result = agent.invoke(
     {
@@ -98,7 +106,7 @@ if result.interrupts:
     print(f"Interrupt received!")
     print(f"  Action requests: {interrupt.value.get('action_requests', [])}")
 
-    # --- 4. Resume with approval ---
+    # --- 5. Resume with approval ---
     print("\n=== Approving the action ===")
     final_result = agent.invoke(
         Command(resume={"decisions": [{"type": "approve"}]}),

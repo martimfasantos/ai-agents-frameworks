@@ -8,9 +8,9 @@ from langchain.agents.middleware import (
     after_agent,
     hook_config,
 )
-from langchain.chat_models import init_chat_model
 from langchain.messages import AIMessage
 from langchain.tools import tool
+from langchain_openai import ChatOpenAI
 
 from settings import settings
 
@@ -92,22 +92,30 @@ def search_docs(query: str) -> str:
     return f"No documentation found for: {query}"
 
 
-# --- 4. Create agent with guardrails ---
+# --- 4. Create the model ---
+model = ChatOpenAI(
+    model=settings.OPENAI_MODEL_NAME,
+    temperature=0.1,
+    max_tokens=1000,
+    timeout=30,
+)
+
+# --- 5. Create agent with guardrails ---
 agent = create_agent(
-    model=init_chat_model(f"openai:{settings.OPENAI_MODEL_NAME}"),
+    model=model,
     tools=[search_docs],
     system_prompt="You are a helpful support assistant. Use the search tool to find answers.",
     middleware=[content_filter, output_length_check],
 )
 
-# --- 5. Test with a safe request ---
+# --- 6. Test with a safe request ---
 print("=== Safe Request ===")
 result = agent.invoke(
     {"messages": [{"role": "user", "content": "How do I reset my password?"}]}
 )
 print(f"Response: {result['messages'][-1].content}\n")
 
-# --- 6. Test with a blocked request ---
+# --- 7. Test with a blocked request ---
 print("=== Blocked Request ===")
 result = agent.invoke(
     {"messages": [{"role": "user", "content": "How do I hack into the admin panel?"}]}

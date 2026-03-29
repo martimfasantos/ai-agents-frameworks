@@ -1,8 +1,8 @@
 import os
 
 from langchain.agents import create_agent
-from langchain.chat_models import init_chat_model
 from langchain.tools import tool
+from langchain_openai import ChatOpenAI
 
 from settings import settings
 
@@ -70,9 +70,17 @@ def search_knowledge_base(query: str) -> str:
     return "No relevant documentation found. Try different search terms."
 
 
-# --- 3. Create the RAG agent ---
+# --- 3. Create the model ---
+model = ChatOpenAI(
+    model=settings.OPENAI_MODEL_NAME,
+    temperature=0.1,
+    max_tokens=1000,
+    timeout=30,
+)
+
+# --- 4. Create the RAG agent ---
 agent = create_agent(
-    model=init_chat_model(f"openai:{settings.OPENAI_MODEL_NAME}"),
+    model=model,
     tools=[search_knowledge_base],
     system_prompt=(
         "You are a LangChain documentation assistant. "
@@ -82,7 +90,7 @@ agent = create_agent(
     ),
 )
 
-# --- 4. Ask questions that require retrieval ---
+# --- 5. Ask questions that require retrieval ---
 print("=== Question 1: What are LangChain agents? ===")
 result = agent.invoke(
     {"messages": [{"role": "user", "content": "How do agents work in LangChain?"}]}
@@ -95,7 +103,7 @@ result = agent.invoke(
 )
 print(f"{result['messages'][-1].content}\n")
 
-# --- 5. Ask a question that might not need retrieval ---
+# --- 6. Ask a question that might not need retrieval ---
 print("=== Question 3: Simple greeting (no retrieval needed) ===")
 result = agent.invoke(
     {"messages": [{"role": "user", "content": "Hello! What can you help me with?"}]}

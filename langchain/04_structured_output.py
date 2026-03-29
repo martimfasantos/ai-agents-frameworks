@@ -3,8 +3,8 @@ import os
 from pydantic import BaseModel, Field
 
 from langchain.agents import create_agent
-from langchain.chat_models import init_chat_model
 from langchain.tools import tool
+from langchain_openai import ChatOpenAI
 
 from settings import settings
 
@@ -64,14 +64,22 @@ def search_database(query: str) -> str:
     return f"No results found for: {query}"
 
 
+# --- 3. Create the model ---
+model = ChatOpenAI(
+    model=settings.OPENAI_MODEL_NAME,
+    temperature=0.1,
+    max_tokens=1000,
+    timeout=30,
+)
+
 # --------------------------------------------------------------
 # Example 1: Movie review with structured output
 # --------------------------------------------------------------
 print("=== Example 1: Structured Movie Review ===")
 
-# --- 3. Create agent with structured response format ---
+# --- 4. Create agent with structured response format ---
 movie_agent = create_agent(
-    model=init_chat_model(f"openai:{settings.OPENAI_MODEL_NAME}"),
+    model=model,
     tools=[search_database],
     response_format=MovieReview,
     system_prompt="You review movies. Use the search tool to find info, then provide a structured review.",
@@ -93,9 +101,9 @@ print(f"Summary: {review.summary}\n")
 # --------------------------------------------------------------
 print("=== Example 2: Structured City Info ===")
 
-# --- 4. Create agent with different schema ---
+# --- 5. Create agent with different schema ---
 city_agent = create_agent(
-    model=init_chat_model(f"openai:{settings.OPENAI_MODEL_NAME}"),
+    model=model,
     tools=[search_database],
     response_format=CityInfo,
     system_prompt="You provide city information. Use the search tool, then return structured data.",

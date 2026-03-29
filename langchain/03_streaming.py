@@ -1,8 +1,8 @@
 import os
 
 from langchain.agents import create_agent
-from langchain.chat_models import init_chat_model
 from langchain.tools import tool
+from langchain_openai import ChatOpenAI
 
 from settings import settings
 
@@ -40,9 +40,17 @@ def get_population(country: str) -> str:
     )
 
 
-# --- 2. Create the agent ---
+# --- 2. Create the model ---
+model = ChatOpenAI(
+    model=settings.OPENAI_MODEL_NAME,
+    temperature=0.1,
+    max_tokens=1000,
+    timeout=30,
+)
+
+# --- 3. Create the agent ---
 agent = create_agent(
-    model=init_chat_model(f"openai:{settings.OPENAI_MODEL_NAME}"),
+    model=model,
     tools=[get_population],
     system_prompt="You are a helpful assistant. Be concise.",
 )
@@ -52,7 +60,7 @@ agent = create_agent(
 # --------------------------------------------------------------
 print("=== Example 1: Stream Updates ===")
 
-# --- 3. Stream step-by-step updates ---
+# --- 4. Stream step-by-step updates ---
 for chunk in agent.stream(
     {"messages": [{"role": "user", "content": "What's the population of Portugal?"}]},
     stream_mode="updates",
@@ -67,7 +75,7 @@ for chunk in agent.stream(
 # --------------------------------------------------------------
 print("=== Example 2: Stream Messages (token-by-token) ===")
 
-# --- 4. Stream individual tokens ---
+# --- 5. Stream individual tokens ---
 for chunk in agent.stream(
     {
         "messages": [

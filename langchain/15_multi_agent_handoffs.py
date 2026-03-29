@@ -3,9 +3,9 @@ from typing import Callable
 
 from langchain.agents import create_agent, AgentState
 from langchain.agents.middleware import wrap_model_call, ModelRequest, ModelResponse
-from langchain.chat_models import init_chat_model
 from langchain.messages import ToolMessage
 from langchain.tools import tool, ToolRuntime
+from langchain_openai import ChatOpenAI
 from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.types import Command
 
@@ -31,10 +31,16 @@ https://docs.langchain.com/oss/python/langchain/multi-agent/handoffs
 -------------------------------------------------------
 """
 
-model = init_chat_model(f"openai:{settings.OPENAI_MODEL_NAME}")
+# --- 1. Create the model ---
+model = ChatOpenAI(
+    model=settings.OPENAI_MODEL_NAME,
+    temperature=0.1,
+    max_tokens=1000,
+    timeout=30,
+)
 
 
-# --- 1. Define custom state with step tracking ---
+# --- 2. Define custom state with step tracking ---
 class SupportState(AgentState):
     """Track the current step in the support workflow."""
 
@@ -42,7 +48,7 @@ class SupportState(AgentState):
     issue_type: str = ""
 
 
-# --- 2. Define step-specific tools ---
+# --- 3. Define step-specific tools ---
 
 
 # Step 1: Collect information
@@ -91,7 +97,7 @@ def escalate_to_human(reason: str) -> str:
     return f"Escalated to human agent. Reason: {reason}"
 
 
-# --- 3. Middleware to switch behavior based on current_step ---
+# --- 4. Middleware to switch behavior based on current_step ---
 STEP_CONFIGS = {
     "collect_info": {
         "prompt": (
@@ -133,7 +139,7 @@ def apply_step_config(
     return handler(request)
 
 
-# --- 4. Create the agent ---
+# --- 5. Create the agent ---
 agent = create_agent(
     model=model,
     tools=[record_issue, provide_solution, escalate_to_human],
@@ -144,7 +150,7 @@ agent = create_agent(
 
 config = {"configurable": {"thread_id": "support-123"}}
 
-# --- 5. Step 1: Collect information ---
+# --- 6. Step 1: Collect information ---
 print("=== Step 1: Collect Information ===")
 result = agent.invoke(
     {
@@ -159,7 +165,7 @@ result = agent.invoke(
 )
 print(f"Agent: {result['messages'][-1].content}\n")
 
-# --- 6. Step 2: Resolve (agent should now be in resolve mode) ---
+# --- 7. Step 2: Resolve (agent should now be in resolve mode) ---
 print("=== Step 2: Resolution ===")
 result = agent.invoke(
     {
