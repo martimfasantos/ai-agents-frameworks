@@ -2,17 +2,17 @@ import os
 
 from crewai import Agent, Task, Crew
 from crewai.knowledge.source.string_knowledge_source import StringKnowledgeSource
-from crewai.knowledge.source.crew_docling_source import CrewDoclingSource
 from crewai.knowledge.knowledge_config import KnowledgeConfig
 
 from settings import settings
+
 os.environ["OPENAI_API_KEY"] = settings.OPENAI_API_KEY.get_secret_value()
 
 """
 -------------------------------------------------------
 In this example, we explore CrewAI's agents with the following features:
-- Knowledge sources for external information
-- Knowledge configuration options
+- Knowledge sources for external information (StringKnowledgeSource)
+- Knowledge configuration options (results_limit, score_threshold)
 - Agent-specific and crew-wide knowledge
 - Different embedding providers per agent's knowledge sources
 
@@ -25,22 +25,30 @@ https://docs.crewai.com/en/concepts/knowledge
 -------------------------------------------------------
 """
 
-# --- 1. Create a Agent Basic Knowledge Examples ---
+# --- 1. Create basic knowledge sources ---
 # 1.1 Basic String Knowledge
 user_info = StringKnowledgeSource(
     content="Users name is John. He is 30 years old and lives in San Francisco."
 )
 
-# 1.2 Simple CrewDoclingSource Example
-llm_info_source = CrewDoclingSource(
-    file_paths=[
-        "https://lilianweng.github.io/posts/2024-11-28-reward-hacking",
-        "https://lilianweng.github.io/posts/2024-07-07-hallucination",
-    ],
+# 1.2 Domain-specific knowledge as a second string source
+llm_info_source = StringKnowledgeSource(
+    content=(
+        "Reward hacking in reinforcement learning occurs when an agent exploits "
+        "flaws in its reward function to achieve high rewards without fulfilling "
+        "the intended objective. Common mitigation strategies include reward model "
+        "ensembles, constrained optimization, and iterative reward refinement. "
+        "Hallucination in large language models refers to the generation of "
+        "plausible-sounding but factually incorrect or fabricated information. "
+        "Techniques to reduce hallucination include retrieval-augmented generation "
+        "(RAG), improved training data curation, and self-consistency checking."
+    ),
 )
 
-# Text sources: Raw strings, text files (.txt), PDF documents
-# Structured data: CSV files, Excel spreadsheets, JSON documents
+# Other knowledge source types (require extra dependencies):
+# - CrewDoclingSource: web pages, PDFs via docling (pip install docling)
+# - TextFileKnowledgeSource: local .txt files
+# - CSVKnowledgeSource, JSONKnowledgeSource: structured data
 
 # --- 2. Define a Knowledge configuration (optional) ---
 knowledge_config = KnowledgeConfig(results_limit=10, score_threshold=0.5)
@@ -54,7 +62,10 @@ user_specialist = Agent(
     verbose=True,
     knowledge_sources=[user_info],  # Agent1-specific knowledge
     knowledge_config=knowledge_config,
-    # embedder=... # Agent can have its own embedder, see below
+    embedder={  # Explicit embedder for this agent's knowledge
+        "provider": "openai",
+        "config": {"model_name": "text-embedding-3-small"},
+    },
 )
 
 llm_info_specialist = Agent(
@@ -66,12 +77,12 @@ llm_info_specialist = Agent(
     knowledge_sources=[llm_info_source],  # Agent2-specific knowledge
     embedder={  # Agent can have its own embedder
         "provider": "openai",
-        "config": {"model": "text-embedding-3-small"}
-    }
+        "config": {"model_name": "text-embedding-3-small"},
+    },
 )
 
 generalist = Agent(
-    role="General Assistant", 
+    role="General Assistant",
     goal="Provide general assistance",
     backstory="General helper",
     llm=settings.OPENAI_MODEL_NAME,
@@ -99,10 +110,7 @@ task_llm = Task(
 )
 
 task_general = Task(
-    description=(
-        "Answer the general question: "
-        "What is the capital of Lisbon?"
-    ),
+    description=("Answer the general question: What is the capital of Lisbon?"),
     expected_output="A helpful answer to the question.",
     agent=generalist,
 )
@@ -117,7 +125,11 @@ crew_knowledge = StringKnowledgeSource(
 crew = Crew(
     agents=[user_specialist, llm_info_specialist, generalist],
     tasks=[task_user, task_llm, task_general],
-    knowledge_sources=[crew_knowledge]  # Crew-wide knowledge
+    knowledge_sources=[crew_knowledge],  # Crew-wide knowledge
+    embedder={  # Embedder for crew-wide knowledge
+        "provider": "openai",
+        "config": {"model_name": "text-embedding-3-small"},
+    },
 )
 # -> user_specialist/llm_info_specialist get: crew_knowledge + specific knowledge
 # -> generalist gets: crew_knowledge only
