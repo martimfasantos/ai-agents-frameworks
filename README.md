@@ -441,7 +441,8 @@ The repository is organized by framework, with each top-level folder containing 
 - `strands-agents-sdk/`
 - `study-agents-differences/`
 
-All modules use `uv` for dependency management (`pyproject.toml` + `uv.lock`). Always check the `README.md` in each module for specific setup and usage instructions.
+All modules use `uv` for dependency management (`pyproject.toml` + `uv.lock`). 
+Always check the `README.md` in each module for specific setup and usage instructions.
 
 ## 🚀 Getting Started
 
