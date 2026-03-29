@@ -1,31 +1,36 @@
 import os
-from httpx import codes
 from pydantic import BaseModel
 
 from crewai import Agent, Task, Crew
 from crewai_tools import CodeInterpreterTool
 
 from settings import settings
+
 os.environ["OPENAI_API_KEY"] = settings.OPENAI_API_KEY.get_secret_value()
 
 """
 -------------------------------------------------------
-In this example, we explore CrewAI's agents with the following features:
-- Using Pydantic models for structured responses
-- LLM with structured output
-- Agent with structured output
+In this example, we explore CrewAI tasks with the following features:
+- Async task execution
+- Task context (output of one task as input to another)
+- Structured output with output_pydantic
+- Task-specific tools
+- Markdown output formatting
 
-This demonstrates how to ensure LLMs and agents return data in specific,
-structured formats that can be easily processed by other systems.
+Tasks are the core units of work in CrewAI. This example shows
+advanced task patterns including asynchronous execution, task
+chaining via context, and structured Pydantic outputs.
 
 For more details, visit:
-https://docs.crewai.com/en/concepts/llms#structured-llm-calls
+https://docs.crewai.com/en/concepts/tasks
 -------------------------------------------------------
 """
+
 
 # --- 1. Define a Pydantic model for structured output ---
 class CodeSnippet(BaseModel):
     code: str
+
 
 # --- 2. Define the agent ---
 agent = Agent(
@@ -52,24 +57,30 @@ simplify_code_snippet_task = Task(
     description="Interpret and simplify code snippet using the tools",
     expected_output="A natural language description of the code snippet",
     agent=agent,
-    context=[generate_code_snippet_task],  # Other tasks whose outputs will be used as context for this task
+    context=[
+        generate_code_snippet_task
+    ],  # Other tasks whose outputs will be used as context for this task
     markdown=True,  # Enable automatic markdown formatting
-    tools=[CodeInterpreterTool()] # Limit the agent to only use this tool for this task
+    tools=[
+        CodeInterpreterTool()
+    ],  # Limit the agent to only use this tool for this task
     # (this tool will be added to the agent's tools automatically)
 )
 
-# --- 5. Create the crew with the event listener ---
+# --- 4. Create the crew ---
 crew = Crew(
     agents=[agent],
     tasks=[generate_code_snippet_task, simplify_code_snippet_task],
 )
 
-# -- 6. Run the crew (will print streaming events in real-time) ---
+# --- 5. Run the crew ---
 result = crew.kickoff(
     inputs={"topic": "fibonacci sequence in python"},
 )
 
 # Show the results of the tasks
 print("Task 1 Result (raw):\n", result.tasks_output[0].raw[:200], "...\n" + "-" * 50)
-print("Task 1 Result (pydantic):", type(result.tasks_output[0].pydantic), "\n"+ "-" * 50)
+print(
+    "Task 1 Result (pydantic):", type(result.tasks_output[0].pydantic), "\n" + "-" * 50
+)
 print("Task 2 Result (raw):\n", result.tasks_output[1].raw[:200])
