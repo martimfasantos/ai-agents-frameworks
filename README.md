@@ -24,7 +24,7 @@
   </p>
 </div>
 
-This repository provides a comprehensive, hands-on comparison of modern AI agent and multi-agent frameworks. Each framework is explored through practical examples, highlighting its unique features, capabilities, and use cases.
+This repository provides a comprehensive, hands-on comparison of modern AI agent and multi-agent frameworks. Each framework is explored through practical examples, showcasing both core functionality and its unique features, capabilities, and use cases.
 
 ## 🤖 Frameworks Included
 
@@ -423,7 +423,7 @@ This repository provides a comprehensive, hands-on comparison of modern AI agent
   
 ## 📁 Structure
 
-The repository is organized by framework, with each top-level folder containing examples, configuration, and a `README.md` for that framework. Examples range from simple agent tasks to advanced multi-agent workflows, RAG (Retrieval-Augmented Generation), API integration, and more.
+The repository is organized by framework, with each top-level folder containing examples, configuration, and a `README.md` for that framework. The examples range from simple agent tasks to more advanced scenarios, including multi-agent workflows, RAG (Retrieval-Augmented Generation), API integrations, support for state-of-the-art protocols such as A2A and MCP, and much more.
 
 **Main modules:**
 - `ag2/`
