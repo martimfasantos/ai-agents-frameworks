@@ -32,6 +32,7 @@ This repository provides a comprehensive, hands-on comparison of modern AI agent
   <thead>
     <tr>
       <th>Framework</th>
+      <th>Version</th>
       <th>Docs</th>
       <th>Repository</th>
     </tr>
@@ -45,6 +46,7 @@ This repository provides a comprehensive, hands-on comparison of modern AI agent
           <img src="res/ag2.svg" alt="AG2" width="52" style="vertical-align: middle;">
         </picture>
       </td>
+      <td><code>0.9.1</code></td>
       <td>
           <a href="https://docs.ag2.ai/latest/">
             <picture>
@@ -72,6 +74,7 @@ This repository provides a comprehensive, hands-on comparison of modern AI agent
           <img src="res/agno.svg" alt="Agno" width="68" style="vertical-align: middle;">
         </picture>
       </td>
+      <td><code>2.5.10</code></td>
       <td>
           <a href="https://docs.agno.com/introduction">
             <picture>
@@ -100,6 +103,7 @@ This repository provides a comprehensive, hands-on comparison of modern AI agent
         </picture>
     <strong style="vertical-align: middle; font-size: 1.2em;">Autogen</strong>
       </td>
+      <td><code>0.7.2</code></td>
       <td>
           <a href="https://microsoft.github.io/autogen/stable/index.html">
             <picture>
@@ -127,6 +131,7 @@ This repository provides a comprehensive, hands-on comparison of modern AI agent
           <img src="res/crewai.svg" alt="CrewAI" width="72">
         </picture>
       </td>
+      <td><code>1.7.2</code></td>
       <td>
           <a href="https://docs.crewai.com/">
             <picture>
@@ -155,6 +160,7 @@ This repository provides a comprehensive, hands-on comparison of modern AI agent
         </picture>
     <strong style="vertical-align: middle; font-size: 1.2em;">Google ADK</strong>
       </td>
+      <td><code>1.26.0</code></td>
       <td>
           <a href="https://google.github.io/adk-docs/">
             <picture>
@@ -177,6 +183,34 @@ This repository provides a comprehensive, hands-on comparison of modern AI agent
     <tr>
       <td style="vertical-align: middle;">
         <picture>
+          <source media="(prefers-color-scheme: dark)" srcset="res/langchain-dark.svg">
+          <source media="(prefers-color-scheme: light)" srcset="res/langchain.svg">
+          <img src="res/langchain.svg" alt="LangChain" width="120" style="vertical-align: middle;">
+        </picture>
+      </td>
+      <td><code>1.2.13</code></td>
+      <td>
+          <a href="https://docs.langchain.com/oss/python/langchain/">
+            <picture>
+              <source media="(prefers-color-scheme: dark)" srcset="res/book-open-dark.svg">
+              <source media="(prefers-color-scheme: light)" srcset="res/book-open.svg">
+              <img src="res/book-open.svg" alt="Docs" width="20">
+            </picture>
+          </a>
+      </td>
+      <td>
+          <a href="https://github.com/langchain-ai/langchain">
+            <picture>
+              <source media="(prefers-color-scheme: dark)" srcset="res/github-icon-dark.svg">
+              <source media="(prefers-color-scheme: light)" srcset="res/github-icon.svg">
+              <img src="res/github-icon.svg" alt="GitHub" width="20">
+            </picture>
+          </a>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: middle;">
+        <picture>
           <source media="(prefers-color-scheme: dark)" srcset="res/langgraph-dark.svg">
           <source media="(prefers-color-scheme: light)" srcset="res/langgraph.svg">
           <img src="res/langgraph.svg" alt="LangGraph" width="30" style="vertical-align: middle;">
@@ -187,6 +221,7 @@ This repository provides a comprehensive, hands-on comparison of modern AI agent
           <img src="res/langgraph-text.svg" alt="LangGraph" width="100" style="vertical-align: middle;">
         </picture>
       </td>
+      <td><code>0.2.68</code></td>
       <td>
           <a href="https://langchain-ai.github.io/langgraph/">
             <picture>
@@ -219,6 +254,7 @@ This repository provides a comprehensive, hands-on comparison of modern AI agent
           <img src="res/llamaindex-text.svg" alt="LlamaIndex" width="110" style="vertical-align: middle;">
         </picture>
       </td>
+      <td><code>0.14.14</code></td>
       <td>
           <a href="https://docs.llamaindex.ai/en/stable/">
             <picture>
@@ -241,12 +277,42 @@ This repository provides a comprehensive, hands-on comparison of modern AI agent
     <tr>
       <td style="vertical-align: middle;">
         <picture>
+          <source media="(prefers-color-scheme: dark)" srcset="res/microsoft-dark.svg">
+          <source media="(prefers-color-scheme: light)" srcset="res/microsoft.svg">
+          <img src="res/microsoft.svg" alt="Microsoft Agent Framework" width="30" style="vertical-align: middle;">
+        </picture>
+    <strong style="vertical-align: middle; font-size: 1.2em;">Agent Framework</strong>
+      </td>
+      <td><code>1.0.0rc5</code></td>
+      <td>
+          <a href="https://learn.microsoft.com/en-us/agent-framework/">
+            <picture>
+              <source media="(prefers-color-scheme: dark)" srcset="res/book-open-dark.svg">
+              <source media="(prefers-color-scheme: light)" srcset="res/book-open.svg">
+              <img src="res/book-open.svg" alt="Docs" width="20">
+            </picture>
+          </a>
+      </td>
+      <td>
+          <a href="https://github.com/microsoft/agent-framework">
+            <picture>
+              <source media="(prefers-color-scheme: dark)" srcset="res/github-icon-dark.svg">
+              <source media="(prefers-color-scheme: light)" srcset="res/github-icon.svg">
+              <img src="res/github-icon.svg" alt="GitHub" width="20">
+            </picture>
+          </a>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: middle;">
+        <picture>
           <source media="(prefers-color-scheme: dark)" srcset="res/openai-dark.svg">
           <source media="(prefers-color-scheme: light)" srcset="res/openai.svg">
           <img src="res/openai.svg" alt="OpenAI Agents SDK" width="30" style="vertical-align: middle;">
         </picture>
     <strong style="vertical-align: middle; font-size: 1.2em;">OpenAI Agents SDK</strong>
       </td>
+      <td><code>0.12.5</code></td>
       <td>
           <a href="https://openai.github.io/openai-agents-python/">
             <picture>
@@ -274,6 +340,7 @@ This repository provides a comprehensive, hands-on comparison of modern AI agent
           <img src="res/pydantic-ai.svg" alt="Pydantic-AI" width="120" style="vertical-align: middle;">
         </picture>
       </td>
+      <td><code>1.38.0</code></td>
       <td>
           <a href="https://ai.pydantic.dev/">
             <picture>
@@ -302,6 +369,7 @@ This repository provides a comprehensive, hands-on comparison of modern AI agent
         </picture>
     <strong style="vertical-align: middle; font-size: 1.2em;">smolagents</strong>
       </td>
+      <td><code>1.24.0</code></td>
       <td>
           <a href="https://huggingface.co/docs/smolagents/en/index">
             <picture>
@@ -313,6 +381,34 @@ This repository provides a comprehensive, hands-on comparison of modern AI agent
       </td>
       <td>
           <a href="https://github.com/huggingface/smolagents">
+            <picture>
+              <source media="(prefers-color-scheme: dark)" srcset="res/github-icon-dark.svg">
+              <source media="(prefers-color-scheme: light)" srcset="res/github-icon.svg">
+              <img src="res/github-icon.svg" alt="GitHub" width="20">
+            </picture>
+          </a>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: middle;">
+        <picture>
+          <source media="(prefers-color-scheme: dark)" srcset="res/strands-amazon-sdk-dark.svg">
+          <source media="(prefers-color-scheme: light)" srcset="res/strands-amazon-sdk.svg">
+          <img src="res/strands-amazon-sdk.svg" alt="Strands Agents SDK" width="120" style="vertical-align: middle;">
+        </picture>
+      </td>
+      <td><code>1.32.0</code></td>
+      <td>
+          <a href="https://strandsagents.com/latest/">
+            <picture>
+              <source media="(prefers-color-scheme: dark)" srcset="res/book-open-dark.svg">
+              <source media="(prefers-color-scheme: light)" srcset="res/book-open.svg">
+              <img src="res/book-open.svg" alt="Docs" width="20">
+            </picture>
+          </a>
+      </td>
+      <td>
+          <a href="https://github.com/strands-agents/sdk-python">
             <picture>
               <source media="(prefers-color-scheme: dark)" srcset="res/github-icon-dark.svg">
               <source media="(prefers-color-scheme: light)" srcset="res/github-icon.svg">
@@ -335,20 +431,24 @@ The repository is organized by framework, with each top-level folder containing 
 - `autogen/`
 - `crewai/`
 - `google-adk/`
+- `langchain/`
 - `langgraph/`
 - `llama-index/`
+- `microsoft-agent-framework/`
 - `openai-agents-sdk/`
 - `pydantic-ai/`
 - `smolagents/`
+- `strands-agents-sdk/`
 - `study-agents-differences/`
 
-Some modules are standalone, while others are PDM projects or use `requirements.txt` for dependency management. Always check the `README.md` in each module for specific setup and usage instructions.
+All modules use `uv` for dependency management (`pyproject.toml` + `uv.lock`). Always check the `README.md` in each module for specific setup and usage instructions.
 
 ## 🚀 Getting Started
 
 1. **Choose a framework**: Navigate to the relevant folder for the agent framework you want to explore.
-2. **Install dependencies**: See each module’s `README.md` for installation instructions.
-3. **Run examples**
+2. **Install dependencies**: Run `uv sync` inside the framework folder to install all dependencies.
+3. **Configure API keys**: Copy `.env.example` to `.env` and fill in your API keys.
+4. **Run examples**: Execute files with `uv run <filename>.py`.
 
 ---
 
@@ -369,6 +469,6 @@ All contributions are welcome! If you have suggestions for new examples, framewo
 
 #### Notes
 
-- Some modules use PDM (`pyproject.toml`), others use `requirements.txt`. **Check each module’s `README.md` for installation and usage.**
+- All modules use `uv` for dependency management (`pyproject.toml` + `uv.lock`). **Check each module's `README.md` for installation and usage.**
 - Install dependencies before running examples.
 - Example `.env.example` files are provided where needed for API keys and settings.
