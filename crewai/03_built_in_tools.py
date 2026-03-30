@@ -6,15 +6,16 @@ from crewai_tools import (
     FileReadTool,
     DirectoryReadTool,
     ScrapeWebsiteTool,
-    CodeInterpreterTool
+    CodeInterpreterTool,
 )
 
 from settings import settings
+
 os.environ["OPENAI_API_KEY"] = settings.OPENAI_API_KEY.get_secret_value()
 
 """
 -------------------------------------------------------
-In this example, we explore CrewAI's built-in tools from the crewai_tools package:
+In this example, we explore CrewAI with the following built-in tools from crewai_tools:
 - Web search and scraping tools
 - File and directory operations
 - Code interpretation
@@ -23,7 +24,7 @@ In this example, we explore CrewAI's built-in tools from the crewai_tools packag
 This example demonstrates the variety of built-in tools available in CrewAI
 and how to use them effectively in certain tasks.
 
-For more details, visit: 
+For more details, visit:
 https://docs.crewai.com/en/concepts/tools#available-crewai-tools
 -------------------------------------------------------
 """
@@ -38,12 +39,12 @@ multi_tool_agent = Agent(
     tools=(
         WebsiteSearchTool(),
         FileReadTool(),
-        DirectoryReadTool(directory='.'),
+        DirectoryReadTool(directory="."),
         ScrapeWebsiteTool(),
         CodeInterpreterTool(),
     ),
     llm=settings.OPENAI_MODEL_NAME,
-    verbose=True
+    verbose=True,
 )
 
 # --- 2. Define a simple web scraping task ---
@@ -56,14 +57,11 @@ simple_scrape_task = Task(
         "A concise summary in bullet points of CrewAI's main features and offerings "
         "as found on the official website."
     ),
-    agent=multi_tool_agent
+    agent=multi_tool_agent,
 )
 
 # --- 3. Create a crew with one agent ---
-crew = Crew(
-    agents=[multi_tool_agent],
-    tasks=[simple_scrape_task]
-)
+crew = Crew(agents=[multi_tool_agent], tasks=[simple_scrape_task])
 
 # --- 4. Run the crew ---
 result = crew.kickoff()

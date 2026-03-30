@@ -3,22 +3,20 @@ import os
 from crewai import Agent, Task, Crew, Process
 
 from settings import settings
+
 os.environ["OPENAI_API_KEY"] = settings.OPENAI_API_KEY.get_secret_value()
 
 """
 -------------------------------------------------------
-In this example, we explore CrewAI's agents with the following features:
-- 
+In this example, we explore CrewAI with the following memory features:
+- Short-Term Memory: RAG-based context for the current session
+- Long-Term Memory: Persistent storage of task results across sessions
+- Entity Memory: RAG-based tracking of entities (people, places, concepts)
+- Enabling memory with memory=True on a Crew
 
-The CrewAI framework provides a sophisticated memory system designed 
-to significantly enhance AI agent capabilities. 
-
-Types of memory available:
-- Short-Term Memory: Uses ChromaDB with RAG for current context
-- Long-Term Memory: Uses SQLite3 to store task results across sessions
-- Entity Memory: Uses RAG to track entities (people, places, concepts)
-- Storage Location: Platform-specific location via appdirs package
-- Custom Storage Directory: Set CREWAI_STORAGE_DIR environment variable
+The CrewAI framework provides a sophisticated memory system designed
+to significantly enhance AI agent capabilities. Enabling memory=True
+activates short-term, long-term, and entity memory by default.
 
 For more details, visit:
 https://docs.crewai.com/en/concepts/memory
@@ -38,7 +36,7 @@ agent = Agent(
 stock_price = Task(
     description="Search for the current stock price of {company}",
     expected_output="The current stock price of {company}",
-    agent=agent
+    agent=agent,
 )
 
 # --- 3. Create a crew with memory enabled ---
@@ -48,7 +46,7 @@ crew = Crew(
     tasks=[stock_price],
     process=Process.sequential,
     memory=True,  # Enables short-term, long-term, and entity memory
-    verbose=True
+    verbose=True,
 )
 
 # --- 4. Run the crew once ---

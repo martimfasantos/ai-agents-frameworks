@@ -3,6 +3,7 @@ import os
 from crewai import Agent, Crew, Task, Process
 
 from settings import settings
+
 os.environ["OPENAI_API_KEY"] = settings.OPENAI_API_KEY.get_secret_value()
 
 """
@@ -19,7 +20,7 @@ Their given 2 powerful tools to facilitate collaboration:
 1. Delegate Work tool
 2. Ask Question tool
 
-To learn more, visit:
+For more details, visit:
 https://docs.crewai.com/en/concepts/collaboration
 -------------------------------------------------------
 """
@@ -35,18 +36,19 @@ researcher = Agent(
     # 🔑 Key setting for collaboration,
     # - Enables delegation work to other agents
     # - Enables asking questions to other agents
+    llm=settings.OPENAI_MODEL_NAME,
     allow_delegation=True,
 )
 
-# When allow_delegation=True, CrewAI automatically provides agents 
+# When allow_delegation=True, CrewAI automatically provides agents
 # with two powerful tools:
 #
-# - `Delegate Work tool`: 
+# - `Delegate Work tool`:
 # Allows agents to assign tasks to teammates with specific expertise.
 # Agent automatically gets this tool:
 #   Delegate work to coworker(task: str, context: str, coworker: str)
 #
-# - `Ask Question tool`: 
+# - `Ask Question tool`:
 # Enables agents to ask specific questions to gather information from colleagues.
 # Agent automatically gets this tool:
 #   Ask question to coworker(question: str, coworker: str)
@@ -58,6 +60,7 @@ writer = Agent(
         "You're a skilled content writer who excels at transforming "
         "research into compelling, readable content for different audiences."
     ),
+    llm=settings.OPENAI_MODEL_NAME,
     allow_delegation=True,
 )
 
@@ -68,6 +71,7 @@ editor = Agent(
         "You're an experienced editor with an eye for detail, "
         "ensuring content meets high standards for clarity and accuracy."
     ),
+    llm=settings.OPENAI_MODEL_NAME,
     allow_delegation=True,
 )
 
@@ -76,6 +80,7 @@ manager = Agent(
     role="Project Manager",
     goal="Coordinate team efforts and ensure project success",
     backstory="Experienced project manager skilled at delegation and quality control",
+    llm=settings.OPENAI_MODEL_NAME,
     allow_delegation=True,
 )
 
@@ -98,17 +103,15 @@ article_task = Task(
         "A well-researched, engaging 1000-word article "
         "with proper structure and citations"
     ),
-    agent=writer  # Writer leads, but can delegate research to researcher
+    agent=writer,  # Writer leads, but can delegate research to researcher
 )
 
 project_task = Task(
-    description=(
-        "Create a comprehensive market analysis report with recommendations"
-    ),
+    description=("Create a comprehensive market analysis report with recommendations"),
     expected_output=(
         "Executive summary, detailed analysis, and strategic recommendations"
     ),
-    agent=manager  # Manager will delegate to specialists
+    agent=manager,  # Manager will delegate to specialists
 )
 
 # --- 3. Create the crews ---
@@ -117,7 +120,7 @@ crew_sequential = Crew(
     agents=[researcher, writer, editor],
     tasks=[article_task],
     process=Process.sequential,
-    verbose=True
+    verbose=True,
 )
 
 # 3.2. HIERARCHICAL pattern: Manager oversees the task and delegates to agents
@@ -127,10 +130,10 @@ crew_hierarchical = Crew(
     process=Process.hierarchical,
     manager_agent=manager,
     # manager_llm="gpt-4o",  # Specify LLM for manager
-    verbose=True
+    verbose=True,
 )
 
 # --- 4. Kickoff the crews ---
 result1 = crew_sequential.kickoff()
-print("\n" + "="*100 + "\n")
+print("\n" + "=" * 100 + "\n")
 result2 = crew_hierarchical.kickoff()

@@ -3,6 +3,7 @@ import os
 from crewai import Agent, Task, Crew
 
 from settings import settings
+
 os.environ["OPENAI_API_KEY"] = settings.OPENAI_API_KEY.get_secret_value()
 
 """
@@ -19,7 +20,7 @@ Configuration options:
 - max_reasoning_attempts: Limit the number of reasoning attempts to avoid infinite loops
 
 For more details, visit:
-https://docs.crewai.com/en/concepts/reasoning
+https://docs.crewai.com/en/concepts/agents#reasoning-agent
 -------------------------------------------------------
 """
 
@@ -30,15 +31,15 @@ feedback_analyst = Agent(
     backstory="You are skilled at understanding customer sentiment from short feedback messages.",
     llm=settings.OPENAI_MODEL_NAME,
     verbose=True,
-    reasoning=True,             # Enable reasoning capabilities
-    max_reasoning_attempts=2,   # Simpler task, fewer attempts needed
+    reasoning=True,  # Enable reasoning capabilities
+    max_reasoning_attempts=2,  # Simpler task, fewer attempts needed
 )
 
 # --- 2. Create a task ---
 feedback_task = Task(
     description="Given a list of customer feedback messages, classify each as positive, negative, or neutral.",
     expected_output="A list of feedback messages with their sentiment classification.",
-    agent=feedback_analyst
+    agent=feedback_analyst,
 )
 
 # --- 3. Create a crew and run the task ---

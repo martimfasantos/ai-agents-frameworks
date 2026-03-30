@@ -4,6 +4,7 @@ from pydantic import BaseModel
 from crewai import Agent, Task, Crew, LLM
 
 from settings import settings
+
 os.environ["OPENAI_API_KEY"] = settings.OPENAI_API_KEY.get_secret_value()
 
 """
@@ -21,7 +22,6 @@ https://docs.crewai.com/en/concepts/llms#structured-llm-calls
 -------------------------------------------------------
 """
 
-from crewai import LLM
 
 # --- 1. Define a Pydantic model for structured output ---
 class Dog(BaseModel):
@@ -29,12 +29,13 @@ class Dog(BaseModel):
     age: int
     breed: str
 
+
 # --- 2. Create an LLM with structured output ---
 llm = LLM(
     model=settings.OPENAI_MODEL_NAME,
     api_key=settings.OPENAI_API_KEY.get_secret_value(),
     temperature=0,
-    response_format=Dog  # Using Pydantic model for structured output
+    response_format=Dog,  # Using Pydantic model for structured output
 )
 
 # --- 3. Test the LLM with structured output ---
@@ -50,9 +51,7 @@ print(response)
 agent = Agent(
     role="Dog Expert",
     goal="You know everything about dogs.",
-    backstory=(
-        "You are a master at understanding dogs and their characteristics."
-    ),
+    backstory=("You are a master at understanding dogs and their characteristics."),
     llm=llm,
     verbose=True,
 )
@@ -72,7 +71,7 @@ result = crew.kickoff()
 
 # Accessing Properties of the Result in Two Ways
 print("Accessing Properties - Two Options")
-name = result["name"] # Dictionary-style indexing
-age = result.pydantic.age # Pydantic attribute access
-print("Name: (results[\"name\"])", name)
+name = result["name"]  # Dictionary-style indexing
+age = result.pydantic.age  # Pydantic attribute access
+print('Name: (results["name"])', name)
 print("Age: (results.pydantic.age)", age)
