@@ -1,0 +1,473 @@
+# Claude Agent SDK - Example Outputs
+
+All examples run with `claude-agent-sdk==0.1.52` and the Claude Code CLI (`claude` v2.1.12). The SDK auto-selects the model via `ANTHROPIC_API_KEY`.
+
+> **Note:** LLM responses are non-deterministic. Your outputs will differ in wording but should follow the same structure and demonstrate the same features.
+
+---
+
+## 00_hello_world.py
+
+```
+$ uv run python 00_hello_world.py
+
+## The Origin of "Hello, World!"
+
+The phrase **"Hello, World!"** as a programming tradition traces back to the early 1970s at Bell Labs.
+
+### Key Milestones
+
+1. **1972 – The earliest known use** comes from Brian Kernighan's internal Bell Labs memo,
+   *"A Tutorial Introduction to the Language B"*, where a simple program printed `hello, world`.
+
+2. **1974** – Kernighan used it again in a Bell Labs technical report,
+   *"Programming in C: A Tutorial"*.
+
+3. **1978 – The book that made it famous**: It appeared in ***The C Programming Language***
+   (often called "K&R C") by **Brian Kernighan and Dennis Ritchie**.
+
+### Why "Hello, World!"?
+
+Kernighan has said he doesn't remember a specific reason for choosing the phrase — it was
+simply a short, friendly, and clear way to demonstrate that a program could produce output.
+
+### Legacy
+
+The tradition spread because *The C Programming Language* became one of the most read
+programming books of all time. Now virtually every programming language, framework, or
+tutorial starts with a "Hello, World!" example as a rite of passage.
+```
+
+**Verdict:** PASS - One-shot `query()` call returns a complete response about "Hello, World!" history.
+
+---
+
+## 01_built_in_tools.py
+
+```
+$ uv run python 01_built_in_tools.py
+
+[Tool Call] Glob: {'pattern': '**/*.py'}
+[Tool Call] Read: {'file_path': '/Users/.../claude-agents-sdk/settings.py', 'limit': 5}
+[Tool Call] Bash: {'command': 'find ... -name "*.py" -not -path "*/.venv/*"', 'description': 'List Python files excluding .venv'}
+
+--- Result ---
+Here's a summary of the results:
+
+### Python Files in the Project (excluding `.venv`)
+
+| File |
+|------|
+| `00_hello_world.py` |
+| `01_built_in_tools.py` |
+| ... (15 total files) |
+| `settings.py` |
+
+### First 5 Lines of `settings.py`
+
+```python
+import pydantic
+from pydantic_settings import BaseSettings
+```
+
+The project contains **15 Python files** — a numbered series of example scripts
+plus a `settings.py` that uses **Pydantic's `BaseSettings`** for configuration.
+```
+
+**Verdict:** PASS - Built-in tools (Glob, Read, Bash) invoked via allowed_tools and bypassPermissions, agent lists files and reads content.
+
+---
+
+## 02_custom_tools.py
+
+```
+$ uv run python 02_custom_tools.py
+
+Here's the info for **Lisbon, Portugal**:
+
+- Weather: Sunny, 25°C
+- Population: ~545,000
+
+Sounds like a lovely day in Lisbon!
+```
+
+**Verdict:** PASS - Custom MCP tools (get_weather, get_population) created via @tool decorator and create_sdk_mcp_server(), both invoked correctly.
+
+---
+
+## 03_structured_outputs.py
+
+```
+$ uv run python 03_structured_outputs.py
+
+=== Example 1: Raw JSON Schema ===
+Structured output: {
+  "name": "Paris",
+  "country": "France",
+  "population_millions": 2.1,
+  "famous_for": [
+    "Eiffel Tower",
+    "The Louvre Museum",
+    "Notre-Dame Cathedral",
+    "Fashion and haute couture",
+    "Cuisine and fine dining",
+    "Art and culture",
+    "River Seine",
+    "Champs-Élysées"
+  ]
+}
+
+=== Example 2: Pydantic Model Schema ===
+Title: 1984
+Author: George Orwell
+Rating: 9.5/5
+Summary: George Orwell's *1984* is a chilling and prescient masterpiece of dystopian
+fiction. Set in the totalitarian superstate of Oceania, it follows Winston Smith...
+Themes: Totalitarianism, Surveillance and Privacy, Propaganda and Truth, Psychological
+Manipulation, Resistance and Conformity, Loss of Individual Identity, Language as a
+Tool of Control
+```
+
+**Verdict:** PASS - Both raw JSON schema and Pydantic model-derived schema produce valid structured output matching the defined schemas.
+
+---
+
+## 04_system_prompts.py
+
+```
+$ uv run python 04_system_prompts.py
+
+=== Example 1: Custom String System Prompt ===
+Arrr, Python be a high-level programming language, easy to read and write like a fine
+treasure map! It be used fer web development, data plunderin', AI sorcery, and
+automation. A fine tool in any code pirate's chest, it be!
+
+=== Example 2: Preset System Prompt (claude_code) ===
+Here are the tools available to me:
+
+**File Operations**
+- `Read` — read files
+- `Write` — create/overwrite files
+- `Edit` — make targeted edits to files
+- `Glob` — find files by pattern
+- `Grep` — search file contents
+
+**Execution**
+- `Bash` — run shell commands
+
+**Research & Planning**
+- `Agent` — launch specialized subagents
+- `WebFetch` — fetch a URL
+- `WebSearch` — search the web
+...
+
+=== Example 3: Preset with Append ===
+A Python list comprehension is a concise way to create lists using a single expression.
+
+**Syntax:**
+```python
+[expression for item in iterable if condition]
+```
+
+**Examples:**
+```python
+squares = [x**2 for x in range(5)]    # [0, 1, 4, 9, 16]
+even_sq = [x**2 for x in range(10) if x % 2 == 0]  # [0, 4, 16, 36, 64]
+```
+
+Happy coding!
+```
+
+**Verdict:** PASS - All three system prompt modes work: custom string (pirate persona), preset claude_code, and preset with appended instructions (concise + beginner-friendly).
+
+---
+
+## 05_permissions.py
+
+```
+$ uv run python 05_permissions.py
+
+=== Example 1: Permission Mode with Allow/Deny Lists ===
+[Tool Call] Glob
+
+Result: The Glob tool returned many results (truncated), largely because it picked up
+`.py` files from within the `.venv` directory...
+
+=== Example 2: can_use_tool Callback ===
+
+Result: Here are the contents of `settings.py`:
+
+```python
+import pydantic
+from pydantic_settings import BaseSettings
+
+class Settings(BaseSettings):
+    ANTHROPIC_API_KEY: pydantic.SecretStr
+    class Config:
+        env_file = ".env"
+        env_file_encoding = "utf-8"
+
+settings: Settings = Settings()
+```
+
+Audit log (0 calls): []
+```
+
+**Verdict:** PASS - Example 1 uses allowed_tools/disallowed_tools with permission_mode. Example 2 demonstrates can_use_tool callback with AsyncIterable streaming prompt (required by the SDK for this feature).
+
+---
+
+## 06_hooks.py
+
+```
+$ uv run python 06_hooks.py
+
+  [PreToolUse] About to call: Glob
+               Input: {'pattern': '*.py'}
+  [PostToolUse] Finished: Glob
+  [PreToolUse] About to call: Bash
+               Input: {'command': 'ls *.py 2>/dev/null || ...'}
+  [PreToolUse] BLOCKED: Bash tool is not allowed!
+  [PreToolUse] About to call: Glob
+               Input: {'pattern': '[!.]*.py'}
+  [PostToolUse] Finished: Glob
+  [PreToolUse] About to call: Agent
+               Input: {'description': 'Find top-level .py files', ...}
+  [PreToolUse] About to call: Bash
+               Input: {'command': 'ls -1 *.py 2>/dev/null'}
+  [PreToolUse] BLOCKED: Bash tool is not allowed!
+  [PreToolUse] About to call: Glob
+               Input: {'pattern': '*.py'}
+  [PostToolUse] Finished: Glob
+  [PostToolUse] Finished: Agent
+
+--- Result ---
+Here are the **15 `.py` files** found in the current directory:
+| # | File |
+|---|------|
+| 1 | `00_hello_world.py` |
+| ... |
+| 15 | `settings.py` |
+```
+
+**Verdict:** PASS - PreToolUse hooks log tool calls before execution, Bash calls are blocked by the deny hook, PostToolUse hooks fire after completion. All three hook types demonstrated correctly.
+
+---
+
+## 07_sessions.py
+
+```
+$ uv run python 07_sessions.py
+
+=== Step 1: Start a new session ===
+Response: I've noted it: the secret code is **ALPHA-7**. Confirmed!
+Session ID: 5da80ee6-679a-4871-b550-1603375bc2a9
+
+=== Step 2: Resume the session ===
+Response: The secret code you told me earlier is **ALPHA-7**.
+
+=== Step 3: Fork the session ===
+Forked session response: The answer to 2 + 2 is **4**!
+New session ID: 421f2380-1045-448c-ad19-dde6b75c9865
+(Original session '5da80ee6-679a-4871-b550-1603375bc2a9' is unchanged)
+```
+
+**Verdict:** PASS - Session created with unique ID, resumed by ID (remembers ALPHA-7), forked to new session with independent ID while preserving original.
+
+---
+
+## 08_multi_turn.py
+
+```
+$ uv run python 08_multi_turn.py
+
+=== Turn 1 ===
+Response: Got it! I'll keep in mind that you're building a REST API with **FastAPI**.
+I'm ready to help you with routing, data validation, authentication, database
+integration, middleware, testing, and project structure.
+Session: aa3522d1-8a8c-473b-998f-91a8f561f3a7
+
+=== Turn 2 ===
+Response: For a **FastAPI** project, here are the top recommendations:
+- `python-jose` + `passlib` (Most Common for Custom JWT Auth)
+- `fastapi-users` (Batteries-Included)
+- `authlib` (OAuth2 / OpenID Connect)
+- External Auth Services (Auth0, Clerk, Supabase Auth)
+
+For most FastAPI projects, **`python-jose` + `passlib`** is the go-to starting point.
+
+=== Turn 3 ===
+Response: ```python
+from fastapi import FastAPI, Depends, HTTPException
+from fastapi.security import OAuth2PasswordBearer
+from jose import jwt, JWTError
+from passlib.context import CryptContext
+
+app = FastAPI()
+...
+```
+```
+
+**Verdict:** PASS - ClaudeSDKClient maintains context across 3 turns: sets FastAPI context (Turn 1), recommends auth library building on context (Turn 2), provides code example for recommended library (Turn 3).
+
+---
+
+## 09_subagents.py
+
+```
+$ uv run python 09_subagents.py
+
+  [task_started] {'type': 'system', 'subtype': 'task_started', 'task_id': 'a39127f5c1dd049e1',
+    'description': 'Review Python calc function', 'task_type': 'local_agent', ...}
+  [task_started] {'type': 'system', 'subtype': 'task_started', 'task_id': 'a540bad4ba94b6489',
+    'description': 'Write docstring for calc function', 'task_type': 'local_agent', ...}
+  [task_notification] {'task_id': 'a540bad4ba94b6489', 'status': 'completed',
+    'summary': 'Write docstring for calc function', ...}
+  [task_notification] {'task_id': 'a39127f5c1dd049e1', 'status': 'completed',
+    'summary': 'Review Python calc function', ...}
+
+--- Final Result ---
+## Code Review — Issues Found
+1. **Division by zero** — no handling for `y == 0`
+2. **Silent `None` return** — unknown `op` returns `None`
+3. **No input validation**, **Fragile string-based dispatch**
+4. **Missing type hints**, **Missing docstring**
+
+## Doc Writer — Suggested Docstring
+```python
+def calc(x, y, op):
+    """Perform basic arithmetic operations on two numbers.
+    Args:
+        x (float): The first operand.
+        y (float): The second operand.
+        op (str): The operation to perform ("add", "sub", "mul", "div").
+    Returns:
+        float: The result of the arithmetic operation.
+    Raises:
+        ValueError: If op is not one of the supported operations.
+        ZeroDivisionError: If op is "div" and y is 0.
+    """
+```
+```
+
+**Verdict:** PASS - Two AgentDefinition subagents (code_reviewer with sonnet, doc_writer with haiku) delegated via the Agent tool. Both complete their tasks and results are aggregated by the orchestrator.
+
+---
+
+## 10_mcp_servers.py
+
+```
+$ uv run python 10_mcp_servers.py
+
+[MCP Tool] ToolSearch: {'query': 'select:mcp__filesystem__list_directory,...'}
+[MCP Tool] mcp__filesystem__list_directory: {'path': '.'}
+[MCP Tool] mcp__filesystem__read_file: {'path': './settings.py'}
+
+--- Result ---
+### Current Directory Contents
+
+| Type | Name |
+|------|------|
+| FILE | `.env`, `.env.example`, `.python-version` |
+| DIR  | `.venv`, `__pycache__` |
+| FILE | `00_hello_world.py` through `13_file_checkpointing.py` |
+| FILE | `pyproject.toml`, `settings.py`, `uv.lock` |
+
+### `settings.py`
+
+```python
+import pydantic
+from pydantic_settings import BaseSettings
+...
+```
+```
+
+**Verdict:** PASS - External MCP server (@modelcontextprotocol/server-filesystem via npx stdio) connected, tools mcp__filesystem__list_directory and mcp__filesystem__read_file invoked successfully.
+
+---
+
+## 11_streaming.py
+
+```
+$ uv run python 11_streaming.py
+
+Streaming response:
+
+Here's a haiku about Python programming:
+
+*Indentation rules*
+*Whitespace whispers the structure*
+*Serpent speaks clearly*
+
+--- Stream complete ---
+Characters streamed: 122
+Final result: Here's a haiku about Python programming:
+
+*Indentation rules*
+*Whitespace whispers the structure*
+*Serpent speaks clearly*
+```
+
+**Verdict:** PASS - Real-time streaming with include_partial_messages=True delivers text deltas via StreamEvent, character count tracked, final ResultMessage matches streamed content.
+
+---
+
+## 12_cost_tracking.py
+
+```
+$ uv run python 12_cost_tracking.py
+
+=== Example 1: Cost and Usage Tracking ===
+Result: A REST API (Representational State Transfer Application Programming Interface) is
+a standardized architectural style for building web services that allows different systems
+to communicate over HTTP using standard methods like GET, POST, PUT, and DELETE.
+Cost: $0.007165
+Turns: 1
+Duration: 3036ms (API: 3030ms)
+Usage: {'input_tokens': 3, 'cache_creation_input_tokens': 905, 'cache_read_input_tokens':
+8242, 'output_tokens': 86, 'server_tool_use': {'web_search_requests': 0, ...},
+'service_tier': 'standard', ...}
+
+=== Example 2: Limit Max Turns ===
+Stopped after 3 turns
+Stop reason: end_turn
+Result: Here's a summary of all the Python files found in the project...
+
+=== Example 3: Budget Cap ===
+Result: Paris is the capital of France.
+Cost: $0.006112
+Budget limit: $0.05
+
+=== Example 4: Effort Level ===
+[Low effort] Result: 4
+Duration: 2043ms
+```
+
+**Verdict:** PASS - All four controls demonstrated: cost/usage tracking with total_cost_usd and usage dict, max_turns=3 limiting agent rounds, max_budget_usd=0.05 capping spend, and effort="low" for fast simple answers.
+
+---
+
+## 13_file_checkpointing.py
+
+```
+$ uv run python 13_file_checkpointing.py
+
+Working directory: /var/folders/.../claude_checkpoint_s24rlq_a
+Initial file content: Original content: Hello World
+
+=== Turn 1: Modify the file ===
+Checkpoint UUID: 7a7f23c7-6580-4060-9f6f-fed40fd62f4c
+Result: Done! Read example.txt (contained "Original content: Hello World"),
+then overwrote it with "Modified by agent: version 2".
+File now contains: Modified by agent: version 2
+
+=== Turn 2: Modify again ===
+File now contains: Modified again: version 3
+
+=== Rewinding to Turn 1 checkpoint ===
+File after rewind: Original content: Hello World
+```
+
+**Verdict:** PASS - File checkpointing enabled with `enable_file_checkpointing=True` and `extra_args={"replay-user-messages": None}`. Agent modifies file across two turns, then `rewind_files()` restores the file to its original state by resuming the session with an empty prompt.
+
+---
