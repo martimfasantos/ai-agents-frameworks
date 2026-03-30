@@ -125,9 +125,12 @@ This repository provides a comprehensive, hands-on comparison of modern AI agent
     </tr>
     <tr>
       <td style="vertical-align: middle;">
-        <img src="res/claude-logo.svg" alt="Claude" width="28" style="vertical-align: middle;">
-        <img src="res/claude-text.svg" alt="Claude Agent SDK" width="100" style="vertical-align: middle;">
-      </td>
+          <picture>
+            <source media="(prefers-color-scheme: dark)" srcset="res/claude-logo-dark.svg">
+            <source media="(prefers-color-scheme: light)" srcset="res/claude-logo.svg">
+            <img src="res/claude-logo.svg" alt="Claude Agent SDK" width="30" style="vertical-align: middle;">
+          </picture>
+      <strong style="vertical-align: middle; font-size: 1.2em;">Claude Agent SDK</strong>
       <td><code>0.1.52</code></td>
       <td>
           <a href="https://platform.claude.com/docs/en/agent-sdk/overview">
