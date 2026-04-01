@@ -1,34 +1,85 @@
 # AG2
 
-- AG2 Repo: https://github.com/ag2ai/ag2
-- AG2 Documentation: https://docs.ag2.ai/latest/
+- Repo: https://github.com/ag2ai/ag2
+- Documentation: https://docs.ag2.ai/latest/
+- Version: **0.11.4**
 
-## AG2 Examples
+## About AG2
 
-### How to setup
+AG2 (formerly AutoGen) is an open-source framework for building multi-agent AI systems. It provides a flexible, high-level API for creating conversable agents that can collaborate through various orchestration patterns.
 
-#### Virtual environment
+Key features:
+- **ConversableAgent** - Core agent class with LLM integration and tool support
+- **Structured outputs** - Pydantic model responses via `response_format`
+- **Human-in-the-loop** - Configurable human input modes for agent oversight
+- **Group chat** - Multi-agent orchestration with AutoPattern, RoundRobin, etc.
+- **Sequential chat** - Chained conversations with automatic carryover
+- **Nested chat** - Encapsulate workflows inside a single agent
+- **Code execution** - Local and Docker-based code executors
+- **Guardrails (Maris)** - Policy-based content filtering and safeguards
+- **MCP tools** - Model Context Protocol integration
+- **A2A protocol** - Agent-to-Agent communication over HTTP
+- **Observability** - Runtime logging to SQLite with event capture
 
-Create a simple virtual environment with:
+## Setup
+
+### Prerequisites
+
+- Python 3.13+
+- [uv](https://docs.astral.sh/uv/) package manager
+
+### Install dependencies
 
 ```bash
-python3 -m venv .venv
+uv sync
 ```
 
-Then activate it with:
+### Configure environment
+
+Copy `.env.example` to `.env` and add your credentials:
+
 ```bash
-# On Linux/macOS
-source .venv/bin/activate
-# On Windows
-.venv\Scripts\activate
+cp .env.example .env
+# Edit .env with your API keys
 ```
 
-And install the requirements with:
+### Run examples
+
 ```bash
-pip install -r requirements.txt
+uv run python 00_simple_agent.py
+uv run python 01_agent_with_tools.py
+uv run python 02_structured_outputs.py
+uv run python 03_human_in_the_loop.py
+uv run python 04_multi_agent.py
+uv run python 05_sequential_chat.py
+uv run python 06_nested_chat.py
+uv run python 07_code_execution.py
+uv run python 08_guardrails.py
+uv run python 09_mcp_tools.py
+uv run python 10_observability.py
+uv run python 11_a2a.py
 ```
 
-#### .env
+## Examples
 
-See .env.example and create a .env (on the root of the repository).
-You need to get an open AI endpoint and key and fill them in.
+| # | File | Topics |
+|---|------|--------|
+| 0 | `00_simple_agent.py` | Basic ConversableAgent, `run()` / `process()`, LLMConfig |
+| 1 | `01_agent_with_tools.py` | `functions=` parameter, tool registration, multi-tool agents |
+| 2 | `02_structured_outputs.py` | Pydantic `response_format`, schema-conforming JSON responses |
+| 3 | `03_human_in_the_loop.py` | Simulated human approval, `register_reply()`, conversation flow |
+| 4 | `04_multi_agent.py` | `AutoPattern`, `initiate_group_chat()`, multi-agent collaboration |
+| 5 | `05_sequential_chat.py` | `initiate_chats()` pipeline, carryover summaries, specialist agents |
+| 6 | `06_nested_chat.py` | `register_nested_chats()`, encapsulated workflows, inner delegation |
+| 7 | `07_code_execution.py` | `LocalCommandLineCodeExecutor`, code writer/executor agent pattern |
+| 8 | `08_guardrails.py` | Safeguard policies (Maris), regex filtering, inter-agent safeguards |
+| 9 | `09_mcp_tools.py` | `create_toolkit()`, `stdio_client`, FastMCP server integration |
+| 10 | `10_observability.py` | `runtime_logging` to SQLite, event capture, post-hoc analysis |
+| 11 | `11_a2a.py` | `A2aAgentServer`, `A2aRemoteAgent`, distributed agents over HTTP |
+
+## Key dependencies
+
+- `ag2[openai,mcp,a2a]>=0.11.4` - AG2 framework with OpenAI, MCP, and A2A extras
+- `mcp>=1.9.2` - Model Context Protocol SDK (for MCP server)
+- `pydantic-settings` - Settings management from .env
+- `uvicorn` - ASGI server for A2A examples
