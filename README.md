@@ -124,6 +124,34 @@ This repository provides a comprehensive, hands-on comparison of modern AI agent
       </td>
     </tr>
     <tr>
+      <td style="vertical-align: middle;">
+          <picture>
+            <source media="(prefers-color-scheme: dark)" srcset="res/claude-logo-dark.svg">
+            <source media="(prefers-color-scheme: light)" srcset="res/claude-logo.svg">
+            <img src="res/claude-logo.svg" alt="Claude Agent SDK" width="30" style="vertical-align: middle;">
+          </picture>
+      <strong style="vertical-align: middle; font-size: 1.2em;">Claude Agent SDK</strong>
+      <td><code>0.1.52</code></td>
+      <td>
+          <a href="https://platform.claude.com/docs/en/agent-sdk/overview">
+            <picture>
+              <source media="(prefers-color-scheme: dark)" srcset="res/book-open-dark.svg">
+              <source media="(prefers-color-scheme: light)" srcset="res/book-open.svg">
+              <img src="res/book-open.svg" alt="Docs" width="20">
+            </picture>
+          </a>
+      </td>
+      <td>
+          <a href="https://github.com/anthropics/claude-agent-sdk-python">
+            <picture>
+              <source media="(prefers-color-scheme: dark)" srcset="res/github-icon-dark.svg">
+              <source media="(prefers-color-scheme: light)" srcset="res/github-icon.svg">
+              <img src="res/github-icon.svg" alt="GitHub" width="20">
+            </picture>
+          </a>
+      </td>
+    </tr>
+    <tr>
       <td>
         <picture>
           <source media="(prefers-color-scheme: dark)" srcset="res/crewai-dark.svg">
@@ -131,7 +159,7 @@ This repository provides a comprehensive, hands-on comparison of modern AI agent
           <img src="res/crewai.svg" alt="CrewAI" width="72">
         </picture>
       </td>
-      <td><code>1.7.2</code></td>
+      <td><code>1.12.2</code></td>
       <td>
           <a href="https://docs.crewai.com/">
             <picture>
@@ -417,6 +445,7 @@ This repository provides a comprehensive, hands-on comparison of modern AI agent
           </a>
       </td>
     </tr>
+
   </tbody>
 </table>
 
@@ -429,6 +458,7 @@ The repository is organized by framework, with each top-level folder containing 
 - `ag2/`
 - `agno/`
 - `autogen/`
+- `claude-agents-sdk/`
 - `crewai/`
 - `google-adk/`
 - `langchain/`

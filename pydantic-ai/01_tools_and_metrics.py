@@ -26,6 +26,9 @@ This example demonstrates comprehensive tool usage and metrics tracking with Pyd
 The example shows how tools extend agent capabilities beyond simple text generation,
 enabling real-world integrations while maintaining control over resource usage through
 different tool registration patterns and comprehensive monitoring capabilities.
+
+For more details, visit:
+https://ai.pydantic.dev/tools/
 -----------------------------------------------------------------------------
 """
 
@@ -44,20 +47,23 @@ dice_agent = Agent(
     ),
 )
 
+
 # --- 2. Define the custom tools ---
 # 2.1 Using @tool_plain decorator for tools that don't require context
-@dice_agent.tool_plain  
+@dice_agent.tool_plain
 def roll_dice() -> str:
     """Roll a six-sided die and return the result."""
     result = random.randint(1, 6)
     print(f"🎲 Die rolled: {result}")
     return str(result)
 
+
 # 2.2 Using @tool decorator for tools that require context
-@dice_agent.tool  
+@dice_agent.tool
 def get_player_name(ctx: RunContext[str]) -> str:
     """Get the player's name from the context."""
     return ctx.deps
+
 
 # --- 3. Run the agent ---
 dice_result = dice_agent.run_sync("My guess is 4", deps="Alice")
@@ -73,17 +79,20 @@ show_metrics(usage)  # from utils.py
 # --------------------------------------------------------------
 print("=== Example 2: Advanced Tool Registration Patterns and Usage Limits ===")
 
+
 # --- 1. Define a Pydantic model for tool structured output ---
 class WeatherData(BaseModel):
     """Weather information for a location."""
+
     temperature: int
     condition: str
     humidity: int
 
+
 # --- 2. Define the custom tool with the structured output ---
 def get_weather(location: str) -> WeatherData:
     """Get current weather for a location.
-    
+
     Args:
         location: The city name to get weather for
     """
@@ -92,8 +101,9 @@ def get_weather(location: str) -> WeatherData:
     return WeatherData(
         temperature=random.randint(-10, 35),
         condition=random.choice(conditions),
-        humidity=random.randint(30, 90)
+        humidity=random.randint(30, 90),
     )
+
 
 # --- 3. Define the agent ---
 # Method 1: Tools via Agent constructor with functions
@@ -109,24 +119,22 @@ weather_agent = Agent(
     system_prompt=(
         "You're a helpful weather assistant. "
         "Provide weather updates with the current time."
-    ),   
+    ),
 )
 
 # --- 4. Run the agent ---
 print("🌤️  Weather Agent:")
 result = weather_agent.run_sync(
-    "What's the weather in London?", 
+    "What's the weather in London?",
     deps={"user_location": "London"},  # Context dependencies
     usage_limits=UsageLimits(  # Set the usage limits for this run
         request_limit=5,
-        tool_calls_limit=1,
-        input_tokens_limit=200,
-        output_tokens_limit=50
-    )
+        tool_calls_limit=3,
+    ),
 )
 print(f"   Response: {result.output}")
 print(f"   Tool Calls: {result.usage().tool_calls} tool calls")
-print("\n" + "="*60 + "\n")
+print("\n" + "=" * 60 + "\n")
 
 
 # --------------------------------------------------------------
@@ -137,23 +145,23 @@ print("=== Example 3: Message History and Tool Inspection ===")
 # Create a more complex agent
 research_agent = Agent(
     model=settings.OPENAI_MODEL_NAME,
-    system_prompt=(
-        "You're a database searcher. Only use the provided tools."
-    )
+    system_prompt=("You're a database searcher. Only use the provided tools."),
 )
+
 
 @research_agent.tool_plain
 def search_database(query: str) -> str:
     """Search a knowledge database.
-    
+
     Args:
         query: The search query to look for
     """
     # Simulate database search
     if "ai" in query.lower():
         return "AI is cool"
-    
+
     return "No relevant information found in database."
+
 
 # Run research query and analyze message history
 research_result = research_agent.run_sync("Tell me about AI")

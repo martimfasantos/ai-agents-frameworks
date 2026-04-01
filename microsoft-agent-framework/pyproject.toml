@@ -1,0 +1,17 @@
+[project]
+name = "microsoft-agent-framework"
+version = "0.1.0"
+description = "Hands-on examples for the Microsoft Agent Framework"
+requires-python = ">=3.13"
+dependencies = [
+    "agent-framework>=1.0.0rc5",
+    "graphviz>=0.21",
+    "pydantic>=2.13.0b2",
+    "pydantic-settings>=2.13.1",
+    "python-dotenv>=1.2.2",
+]
+
+[dependency-groups]
+dev = [
+    "graphviz>=0.21",
+]
