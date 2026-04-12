@@ -59,6 +59,7 @@ uv run python 00_hello_world.py
 | `16_workflows_agents.py` | Workflows: Agents | Chain LLM-powered agents in a workflow graph |
 | `17_workflows_human_in_the_loop.py` | Workflows: HITL | Pause workflows for human approval via `request_info` |
 | `18_workflows_visualization.py` | Workflows: Visualization | Export workflow graphs as Mermaid diagrams and PNG images |
+| `19_token_usage.py` | Token Usage | Track input/output/total tokens via `AgentResponse.usage_details` |
 
 ## Key dependencies
 

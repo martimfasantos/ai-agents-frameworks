@@ -386,3 +386,33 @@ Input: 'Tell me a joke' -> Response(message='General response for: Tell me a jok
 Generated workflow graph:
 
 ![Workflow Graph](res/workflow_graph.png)
+
+## 19_token_usage.py
+
+```
+=== Microsoft Agent Framework Token Usage ===
+
+--- Running agent ---
+Response: London is currently cloudy with a temperature of 14°C and light rain expected,
+while Tokyo is sunny with a temperature of 28°C and clear skies.
+
+--- Usage Details (AgentResponse.usage_details) ---
+  Input tokens:  258
+  Output tokens: 76
+  Total tokens:  334
+
+--- Scanning Message Contents for Usage ---
+  No usage Content items in messages
+
+--- Response Message Structure ---
+  Message 0: author=weather_agent, contents=2
+    Content 0: type=function_call
+    Content 1: type=function_call
+  Message 1: author=weather_agent, contents=2
+    Content 0: type=function_result
+    Content 1: type=function_result
+  Message 2: author=weather_agent, contents=1
+    Content 0: type=text
+
+=== Token Usage Demo Complete ===
+```

@@ -100,6 +100,7 @@ uv run python 22_crew_simplification.py
 | 20 | `20_flows_with_agents.py` | Flows with integrated agents and async |
 | 21 | `21_human_feedback_in_flows.py` | @human_feedback decorator in flows |
 | 22 | `22_crew_simplification.py` | @CrewBase decorators, YAML config |
+| 23 | `23_token_usage.py` | Token usage tracking (prompt, completion, cached, total) |
 
 ## Key dependencies
 

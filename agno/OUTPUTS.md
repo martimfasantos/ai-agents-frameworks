@@ -438,3 +438,38 @@ Secure MCP Filesystem Server running on stdio
   3. [INPUT] Who invented the telephone?
   4. [OUTPUT] The telephone was invented by Alexander Graham Bell in 1876.
 ```
+
+---
+
+## 16_usage_metrics.py
+
+```
+=== Agno Usage Metrics ===
+
+--- Running agent ---
+Response: The weather in London is cloudy with a temperature of 14°C, while Tokyo is sunny and 28°C.
+
+--- Run-Level Metrics ---
+  Input tokens:   223
+  Output tokens:  68
+  Total tokens:   291
+  Duration:       3.362s
+  TTFT:           1.678s
+
+--- Tool Call Metrics ---
+  Tool: get_weather
+    Duration: 0.0001s
+
+  Tool: get_weather
+    Duration: 0.0000s
+
+--- Per-Model Details ---
+
+  model:
+    Input tokens:  223
+    Output tokens: 68
+    Total tokens:  291
+    Provider:      OpenAI Chat
+
+=== Usage Metrics Demo Complete ===
+```

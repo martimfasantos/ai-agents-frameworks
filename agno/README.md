@@ -58,6 +58,7 @@ cp .env.example .env
 | 13 | `13_session_state.py` | Session State | Stateful tools with `session_state` |
 | 14 | `14_mcp_tools.py` | MCP Tools | External tool servers via Model Context Protocol |
 | 15 | `15_hooks.py` | Hooks | Pre-hooks and post-hooks for logging and transforms |
+| 16 | `16_usage_metrics.py` | Usage Metrics | Token counts, TTFT, duration, per-model details |
 
 ### Running examples
 
