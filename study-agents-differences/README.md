@@ -1,229 +1,271 @@
-# Comparison and Study of the agents from different Frameworks
+# Comparison and Study of AI Agent Frameworks
 
-In this section, we explore the differences between the agents from different frameworks. We will compare the agents from **[Agno](https://docs.agno.com/introduction)**, **[LangGraph](https://www.langchain.com/langgraph)**, **[LlamaIndex](https://docs.llamaindex.ai/en/stable/)**, and **[OpenAI](https://platform.openai.com/docs/guides/function-calling?api-mode=responses#tool-choice)**.
+A comprehensive study comparing **14 AI agent frameworks** using a standardized agent interface. Each framework is evaluated on implementation complexity, response time, token usage, tool calling, RAG retrieval accuracy, and multi-agent coordination.
 
-We design the agents using a consistent structure but with different tools and evaluate them across various metrics. The comparison focuses on response time, token usage, and tool utilization. Additionally, we assess their performance with specific tools, such as RAG and API integrations.
+**Frameworks included:**
 
-If you want to see the results of the study, you can jump to the [Results](#results) section.
+| Framework | Basic Agent | RAG+API Agent | Multi-Agent |
+|---|---|---|---|
+| [Agno](https://docs.agno.com/introduction) | `agno_agent.py` | `agno_rag_api_agent.py` | - |
+| [AG2](https://docs.ag2.ai/) | `ag2_agent.py` | - | - |
+| [Claude Agent SDK](https://docs.anthropic.com/en/docs/agents-and-tools/claude-agent-sdk) | `claude_sdk_agent.py` | - | - |
+| [CrewAI](https://docs.crewai.com/) | `crewai_agent.py` | `crewai_rag_api_agent.py` | Yes |
+| [Google ADK](https://google.github.io/adk-docs/) | `google_adk_agent.py` | - | - |
+| [LangChain](https://python.langchain.com/docs/) | `langchain_agent.py` | `langchain_rag_api_agent.py` | - |
+| [LangGraph](https://www.langchain.com/langgraph) | `langgraph_agent.py` | `langgraph_rag_api_agent.py` | Yes |
+| [LlamaIndex](https://docs.llamaindex.ai/en/stable/) | `llama_index_agent.py` | `llama_index_rag_api_agent.py` | - |
+| [Microsoft Agent Framework](https://github.com/microsoft/agent-framework) | `microsoft_agent.py` | - | - |
+| [OpenAI (raw API)](https://platform.openai.com/docs/guides/function-calling) | `openai_agent.py` | - | - |
+| [OpenAI Agents SDK](https://openai.github.io/openai-agents-python/) | `openai_agents_sdk_agent.py` | - | Yes |
+| [PydanticAI](https://ai.pydantic.dev/) | `pydantic_ai_agent.py` | - | - |
+| [Smolagents](https://huggingface.co/docs/smolagents/) | `smolagents_agent.py` | - | - |
+| [Strands Agents SDK](https://strandsagents.com/) | `strands_agent.py` | - | - |
+
+> For a detailed analysis, see [REPORT.md](REPORT.md).
 
 ---
 
 ## Setup
 
-First, create a python virtual environment with:
+### Prerequisites
+
+- Python >= 3.12
+- [uv](https://docs.astral.sh/uv/) (recommended) or pip
+
+### Installation
 
 ```bash
-python3 -m venv .venv
+# Navigate to the study directory
+cd study-agents-differences
+
+# Install with uv (recommended)
+uv sync
+
+# Or with pip
+pip install -e .
 ```
 
-Then, activate the virtual environment with:
+### Configuration
+
+Create a `.env` file based on `.env.example`:
 
 ```bash
-source .venv/bin/activate
+cp .env.example .env
 ```
 
-Install the dependencies with:
-
-```bash
-pip install -r requirements.txt 
-```
-
-Create a `.env` file in the root of the project based on the `.env.example` file.
-
-
-Now, you can run the examples by running each file.
+Required keys depend on your provider:
+- **Azure OpenAI**: `azure_endpoint`, `azure_deployment_name`, `azure_api_version`, `azure_api_key`
+- **OpenAI**: `openai_api_key`, `openai_model_name`
+- **Anthropic** (Claude SDK only): `anthropic_api_key`
+- **Google** (Google ADK only): `google_api_key`
+- **Tavily** (web search): `tavily_api_key`
 
 ---
 
-## Agents
+## Running Agents
 
-Each agent can be run by executing the corresponding file.
-Some flags can be passed to the agents to change their behavior when running independently.
+Each agent can be run independently as a CLI chatbot:
 
-### Flags
-- `--provider [provider]`: The LLM provider to be used for the agent. It can be `azure`, `openai` or `other`. Default is `azure`.
-- `--mode [mode]`: The mode in which the agent will run. It can be None, `metrics` or `metrics-loop`. Both these methods will return the execution time and token usage of the agent. Default is `None`, which will run a simple chatbot interface in the terminal.
-- `--iter [int]`: Number of iterations the agent will run. Default is 1. (Only needed for `metrics-loop` mode).
-- `--no-memory`: If you want to run the agent without memory. Default is False.
-- `--create`: If you want to create an Agent's instance in every iteration. Default is False.
-- `--verbose`: If you want to see the agent's logs and responses. Default is True for Normal mode and False for `metrics` and `metrics-loop` modes.
-- `--file [output file]`: If you want to save the agent's responses to a file. Default is False. (Only needed for `metrics` and `metrics-loop` modes)
-
-
-*Example:*
 ```bash
-python llama_index_rag_api_agent.py --mode metrics-loop --iter 30 --create --no-memory --verbose --file tests/test100_llamaindex_rag.txt
+# Run with default settings (Azure provider, memory enabled)
+python agno_agent.py
+
+# Run with OpenAI provider
+python crewai_agent.py --provider openai
+
+# Run in metrics mode (single question, outputs timing + tokens)
+python pydantic_ai_agent.py --mode metrics --provider openai
+
+# Run benchmark loop (N iterations of the same question)
+python langgraph_agent.py --mode metrics-loop --iter 50 --provider azure --no-memory --create
 ```
+
+### CLI Flags
+
+| Flag | Description | Default |
+|---|---|---|
+| `--provider [azure\|openai\|other]` | LLM provider | `azure` |
+| `--mode [metrics\|metrics-loop]` | Execution mode | None (chatbot) |
+| `--iter N` | Iterations for metrics-loop | 1 |
+| `--no-memory` | Disable conversation memory | False |
+| `--create` | Recreate agent each iteration | False |
+| `--verbose` | Show agent logs and responses | Auto |
+| `--file PATH` | Save output to file | None |
+
+---
+
+## Benchmark Suite
+
+### Standard Benchmarks
+
+The `benchmark_runner.py` script runs standardized tests across all agents:
+
+```bash
+# Run all benchmarks on all agents
+python benchmark_runner.py --provider openai --benchmark all
+
+# Run only basic benchmarks with 20 iterations
+python benchmark_runner.py --provider openai --benchmark basic --iterations 20
+
+# Run RAG benchmarks on specific agents
+python benchmark_runner.py --provider azure --benchmark rag --agents agno langgraph llama_index
+
+# Save results to custom directory
+python benchmark_runner.py --provider openai --benchmark target --output my_results/
+```
+
+**Benchmark suites:**
+
+| Suite | Questions | Tests |
+|---|---|---|
+| `basic` | 5 | Web search (explicit/implicit), date query, greeting, factual |
+| `rag` | 3 | Ball possession, match score, Arsenal score |
+| `api` | 2 | Combined Metro+F1 query, single F1 query |
+| `target` | 3 | US president (factual), train distance (reasoning), AI regulation (web search) |
+| `all` | 13 | All of the above |
+
+**Agents registered:**
+- Basic (14): agno, ag2, claude_sdk, crewai, google_adk, langchain, langgraph, llama_index, microsoft, openai, openai_agents_sdk, pydantic_ai, smolagents, strands
+- RAG+API (5): agno, crewai, langchain, langgraph, llama_index
+
+### Multi-Agent Benchmarks
+
+```bash
+# Run multi-agent benchmarks
+python benchmark_multi_agent.py --provider openai --iterations 5
+```
+
+Tests CrewAI (researcher + analyst crew), LangGraph (tool-augmented agent), and OpenAI Agents SDK (agent handoffs) on coordination tasks.
 
 ---
 
 ## Results
 
-We evaluate the agents based on the following metrics:
-- **Response Time (with Memory)**: The response time of the agents when they have memory.
-- **Response Time (without Memory)**: The response time of the agents when they don't have memory.
-- **Tokens**: The number of tokens used by the agent to respond to a prompt.
-- **RAG & API**: The response time, number of tokens and number of misses of the agents when they use RAG and API tools.
+> The results below were collected with Azure OpenAI (GPT-4o-mini) on the original four frameworks. Run `benchmark_runner.py` to generate updated results across all 14 frameworks.
 
-We create agents with the following tools:
-- **Web Search tool**: A tool that searches the web for information.
-- **RAG tool**: A tool that does RAG over a local database.
-- **API tools**: Tools that query APIs for information.
+### Response Time with Memory
 
+**Prompt:** _search the web for who won the Champions League final in 2024?_
 
-> 💡 Agent Performance metrics are influenced significantly by the system prompts provided to the agents.
+| Iterations | Agno | LangGraph | LlamaIndex |
+|---|---|---|---|
+| 20x | 5.41 +/- 1.19s | 6.04 +/- 2.61s | 5.36 +/- 2.02s |
+| 50x | 4.24 +/- 0.78s | 8.48 +/- 2.56s | 3.00 +/- 3.24s |
+| 100x | 4.39 +/- 0.73s | 9.45 +/- 4.73s | 2.64 +/- 2.29s |
 
----
+**LangGraph** shows degrading performance over iterations due to memory accumulation. **LlamaIndex** remains stable.
 
-### Response Time (with Memory)  
-**Prompt:** _search the web for who won the Champions League final in 2024?_  
+### Response Time without Memory
 
-| Metrics                 | Agno          | LangGraph      | LlamaIndex     |
-|-------------------------|--------------|---------------|---------------|
-| Response time - 20x     | 5.41 ± 1.19s  | 6.04 ± 2.61s  | 5.36 ± 2.02s  |
-| Response time - 30x     | 5.84 ± 1.01s  | 6.17 ± 1.14s  | 5.32 ± 2.26s  |
-| Response time - 50x     | 4.24 ± 0.78s  | 8.48 ± 2.56s  | 3.00 ± 3.24s  |
-| Response time - 100x    | 4.39 ± 0.73s  | 9.45 ± 4.73s  | 2.64 ± 2.29s  |
+**Prompt:** _search the web for who won the Champions League final in 2024?_
 
-#### **Comments:**  
-**Agno:**
-- Consistent and organized answers
-- Formatted directly in markdown (if needed)
-- No errors  
+| Iterations | Agno | LangGraph | LlamaIndex | OpenAI (raw) |
+|---|---|---|---|---|
+| 50x | 4.58 +/- 1.03s | 4.22 +/- 1.11s | 4.12 +/- 1.01s | 3.83 +/- 0.99s |
+| 100x | 4.28 +/- 0.76s | 3.31 +/- 0.59s | 3.63 +/- 0.66s | 3.61 +/- 0.83s |
 
-**LangGraph:**
-- Well-structured responses
-- First runs seem faster than the following
-- **Bottleneck:** Memory - storing the conversation in memory negatively affects performance
-- This effect scales with memory size; at iteration 100, performance drops significantly  
+### Token Usage (100x, without Memory)
 
-**LlamaIndex:**
-- No unnecessary verbosity, just answers the prompt
-- Consistent and direct answers
-- No errors in 100 iterations  
+| Metric | Agno | LangGraph | LlamaIndex | OpenAI (raw) |
+|---|---|---|---|---|
+| Prompt Tokens | 1999.2 | 1946.1 | 2121.7 | 1888.5 |
+| Completion Tokens | 65.3 | 53.5 | 76.9 | 58.3 |
+| Total Tokens | 2064.5 | 1999.7 | 2198.6 | 1946.7 |
 
----
+### RAG (100x)
 
-### Response Time - More abstract prompt 
-**Prompt:** _who won the Champions League final in 2024?_  
+**Prompt:** _Ball possession in Benfica's game?_
 
-| Metrics                | Agno          | LangGraph      | LlamaIndex     | OpenAI         |
-|------------------------|--------------|---------------|---------------|---------------|
-| Response time - 100x   | 1.95 ± 1.34s  | 0.96 ± 0.72s  | 0.78 ± 0.55s  | 3.51 ± 0.83s  |
+| Metric | Agno | LangGraph | LlamaIndex |
+|---|---|---|---|
+| Response Time | 3.30 +/- 0.75s | 2.68 +/- 1.35s | 2.86 +/- 1.05s |
+| Total Tokens | 4439.3 | 4877.2 | 3279.9 |
+| Misses | 2/100 | 4/100 | 2/100 |
 
-#### **Comments:**  
-**Agno:**
-- Recalls the tool after some iterations
-- Can override by activating: `read_tool_call_history`
-- Starts by calling the `web_search` tool
-- Can read tool call history
-- Answers are consistent - tool calling and memory work effectively  
+### API (100x)
 
-**LlamaIndex & LangGraph:**
-- Consistent short answers
-- Fast information retrieval if stored in memory
-- Sometimes redoes the tool call; ideally, it shouldn't and should answer correctly in one go  
+**Prompt:** _Tell me the waiting time at the CG station and the status of the red line, and also give me information about Formula 1 driver number 44!_
+
+| Metric | Agno | LangGraph | LlamaIndex |
+|---|---|---|---|
+| Response Time | 5.49 +/- 1.40s | 4.24 +/- 1.35s | 6.41 +/- 2.47s |
+| Total Tokens | 1849.2 | 1412.2 | 3913.4 |
+| Misses | 0/100 | 0/100 | 0/100 |
 
 ---
 
-### Response Time (without Memory)  
-**(Delete and recreate the agent)**  
+## Implementation Complexity
 
-**Prompt:** _search the web for who won the Champions League final in 2024?_  
+Lines of code per basic agent (sorted by simplicity):
 
-| Metrics                | Agno          | LangGraph      | LlamaIndex     | OpenAI         |
-|------------------------|--------------|---------------|---------------|---------------|
-| Response time - 50x    | 4.58 ± 1.03s  | 4.22 ± 1.11s | 4.12 ± 1.01s  | 3.83 ± 0.99s  |
-| Response time - 100x   | 4.28 ± 0.76s  | 3.31 ± 0.59s  | 3.63 ± 0.66s  | 3.61 ± 0.83s  |
-
-**Prompt:** _who won the Champions League final in 2024?_  
-
-| Metrics                | Agno          | LangGraph      | LlamaIndex     | OpenAI         |
-|------------------------|--------------|---------------|---------------|---------------|
-| Response time - 100x   | 4.16 ± 0.65s  | 3.35 ± 0.56s  | 3.60 ± 0.61s  | 3.34 ± 0.51s  |
-
-#### **Comments:**  
-**All options:**
-- 100% of the time, the tools are called
-- Not specifying "search the web for" doesn’t affect response time  
-
-**LlamaIndex:**
-- Very straight to the point  
-
-**LangGraph:**
-- More verbose  
-
----
-
-### Tokens  
-
-| Metrics                | Agno                     | LangGraph                | LlamaIndex                | OpenAI                   |
-|------------------------|-------------------------|-------------------------|-------------------------|-------------------------|
-| LLM Prompt Tokens     | 1999.2                  | 1946.1                  | 2121.7                  | 1888.5                  |
-| LLM Completion Tokens | 65.3                    | 53.5                    | 76.9                    | 58.3                    |
-| Total LLM Token Count | 2064.5                  | 1999.7                  | 2198.6                  | 1946.7                  |
-
-#### **Comments:**  
-- Tokens heavily depend on the system prompt and agent context
-- **Agno and LangGraph:** Each response contains metrics like time, tokens, time_to_first_token, etc., for **each step**
-- **LlamaIndex:** Add a token counter to the LLM model constructor to track tokens ([Reference](https://docs.llamaindex.ai/en/stable/examples/observability/TokenCountingHandler/))
-
----
-
-## RAG & API Times  
-
-### **RAG**  
-
-**Prompt:** _Ball possession in Benfica's game?_ (from `matches-1.md`)  
-
-| Metrics                | Agno          | LangGraph      | LlamaIndex     |
-|------------------------|--------------|---------------|---------------|
-| Response time - 100x   | 3.30 ± 0.75s  | 2.68 ± 1.35s  | 2.86 ± 1.05s  |
-| Tokens - 100x         | 4439.3       | 4877.2        | 3279.9        |
-| Missed - 100x         | 2 / 100       | 4 / 100       | 2 / 100       |
-
-**Prompt:** _Benfica's UCL match score?_  
-
-| Metrics                | Agno          | LangGraph      | LlamaIndex     |
-|------------------------|--------------|---------------|---------------|
-| Response time - 100x   | 3.17 ± 0.74s  | 2.43 ± 1.09s  | 2.74 ± 0.79s  |
-| Tokens - 100x         | 4515.9       | 5053.3        | 3341.0        |
-| Misses - 100x         | 0 / 100       | 0 / 100       | 0 / 100       |
-
-#### **Comments:**  
-**LangGraph:** Had to modify text preprocessing before creating the VectorDB:
-```python
-text_splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
-    model_name=settings.embeddings_model_name,
-    chunk_size=800, chunk_overlap=80
-)
-doc_splits = text_splitter.split_documents(documents)
 ```
-- Initial retrieval failure rate was ~50%
-- Likely needs fine-tuning for better retrieval accuracy
+openai_agents_sdk_agent.py  137  ████████
+claude_sdk_agent.py         140  ████████
+crewai_agent.py             144  █████████
+ag2_agent.py                150  █████████
+microsoft_agent.py          150  █████████
+strands_agent.py            156  █████████
+langchain_agent.py          161  ██████████
+smolagents_agent.py         166  ██████████
+google_adk_agent.py         170  ██████████
+pydantic_ai_agent.py        172  ██████████
+agno_agent.py               203  ████████████
+llama_index_agent.py        217  █████████████
+langgraph_agent.py          243  ██████████████
+openai_agent.py             281  ████████████████
+```
 
----
-
-### **API**  
-**Prompt:** _Tell me the waiting time at the CG station and the status of the red line, and also give me information about Formula 1 driver number 44!_  
-
-| Metrics                | Agno          | LangGraph      | LlamaIndex     |
-|------------------------|--------------|---------------|---------------|
-| Response time - 100x   | 5.49 ± 1.40s  | 4.24 ± 1.35s  | 6.41 ± 2.47s  |
-| Tokens - 100x         | 1849.2        | 1412.2        | 3913.4        |
-| Misses - 100x         | 0 / 100       | 0 / 100       | 0 / 100       |
-
-#### **Comments:**  
-- **LlamaIndex:** The prompt was not fine-tuned so the number of tokens might be higher than expected, which leads to a higher response time.
-  - This might need to be addressed by better customizing the prompt for the agent / LLM model.
 ---
 
 ## UI
 
-To run the streamlit UI, run the following command:
+Run the Streamlit chat interface to interact with all agents:
 
 ```bash
 streamlit run agent-ui.py
 ```
 
-This will open a new tab in your browser with the UI where you can interact with the agents.
+The UI auto-discovers all `*_agent.py` files and presents them in a sidebar for selection.
+
+---
+
+## Project Structure
+
+```
+study-agents-differences/
+├── settings.py              # Environment configuration
+├── prompts.py               # Shared system prompts
+├── utils.py                 # CLI parsing & execution utilities
+├── shared_functions/        # Shared API tools (F1, Metro)
+├── knowledge_base/          # RAG data (Champions League matches)
+│
+├── agno_agent.py            # Agno basic agent
+├── agno_rag_api_agent.py    # Agno RAG+API agent
+├── ag2_agent.py             # AG2 basic agent
+├── claude_sdk_agent.py      # Claude Agent SDK basic agent
+├── crewai_agent.py          # CrewAI basic agent
+├── crewai_rag_api_agent.py  # CrewAI RAG+API agent
+├── google_adk_agent.py      # Google ADK basic agent
+├── langchain_agent.py       # LangChain basic agent
+├── langchain_rag_api_agent.py # LangChain RAG+API agent
+├── langgraph_agent.py       # LangGraph basic agent
+├── langgraph_rag_api_agent.py # LangGraph RAG+API agent
+├── llama_index_agent.py     # LlamaIndex ReAct agent
+├── llama_index_fc_agent.py  # LlamaIndex Function Calling agent
+├── llama_index_rag_api_agent.py # LlamaIndex RAG+API agent
+├── microsoft_agent.py       # Microsoft Agent Framework basic agent
+├── openai_agent.py          # OpenAI raw API agent
+├── openai_agents_sdk_agent.py # OpenAI Agents SDK basic agent
+├── pydantic_ai_agent.py     # PydanticAI basic agent
+├── smolagents_agent.py      # Smolagents basic agent
+├── strands_agent.py         # Strands Agents SDK basic agent
+│
+├── benchmark_runner.py      # Standard benchmark suite
+├── benchmark_multi_agent.py # Multi-agent benchmark
+├── agent-ui.py              # Streamlit chat UI
+│
+├── REPORT.md                # Detailed comparison report
+├── pyproject.toml           # Project dependencies
+├── tests/                   # Historical test outputs
+└── res/                     # Screenshots
+```

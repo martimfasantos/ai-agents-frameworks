@@ -1,0 +1,35 @@
+{
+  "prompt": "What day of the week is it today?",
+  "timestamp": "2026-04-06T11:12:25.329431",
+  "today": "2026-04-06",
+  "results": {
+    "OpenAI Agents SDK": {
+      "display_name": "OpenAI Agents SDK",
+      "module_name": "openai_agents_sdk_agent",
+      "iterations": 1,
+      "errors": 0,
+      "tool_calls": 0,
+      "tool_call_rate": "0/1",
+      "sample_response": "Sorry, I encountered an error processing your request.",
+      "response_time_mean": 0.0,
+      "response_time_std": 0.0,
+      "avg_prompt_tokens": 0.0,
+      "avg_completion_tokens": 0.0,
+      "avg_total_tokens": 0.0
+    },
+    "PydanticAI": {
+      "display_name": "PydanticAI",
+      "module_name": "pydantic_ai_agent",
+      "iterations": 1,
+      "errors": 1,
+      "tool_calls": 0,
+      "tool_call_rate": "0/1",
+      "sample_response": "",
+      "response_time_mean": 0.0,
+      "response_time_std": 0.0,
+      "avg_prompt_tokens": 0.0,
+      "avg_completion_tokens": 0.0,
+      "avg_total_tokens": 0.0
+    }
+  }
+}

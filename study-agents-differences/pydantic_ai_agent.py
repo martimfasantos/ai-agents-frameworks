@@ -1,14 +1,11 @@
 from datetime import date
-from langchain_huggingface import HuggingFaceEndpoint
-from langchain_openai import AzureChatOpenAI, ChatOpenAI
 from tavily import TavilyClient
 import json
-import asyncio
+import time
 
-# Pydantic AI imports
-from pydantic_ai.models.openai import OpenAIModel
+# Pydantic AI imports (aligned with pydantic-ai/ folder patterns)
+from pydantic_ai import Agent as PydanticAgent
 from pydantic_ai.tools import Tool
-from pydantic_ai import Agent as PydanticAgent, RunContext
 
 # Prompt components
 from prompts import role, goal, instructions, knowledge
@@ -24,118 +21,135 @@ tavily_client = TavilyClient(api_key=settings.tavily_api_key.get_secret_value())
 
 class Agent:
     def __init__(
-        self, 
+        self,
         provider: str = "openai",
         memory: bool = True,
-        verbose: bool = False
-        ):
+        verbose: bool = False,
+        tokens: bool = False,
+    ):
         """
         Initialize the Pydantic AI agent.
+        Uses string model names and run_sync() (aligned with pydantic-ai/ folder patterns).
         """
         self.name = "PydanticAI Agent"
+        self.tokens = tokens
 
-        # Initialize the language model
-        self.model = (
-            AzureChatOpenAI(
+        # Determine the model name string (pydantic-ai uses plain string model names)
+        if provider == "azure" and settings.azure_api_key:
+            # Azure requires OpenAIModel with explicit base_url
+            from pydantic_ai.models.openai import OpenAIModel
+
+            self.model = OpenAIModel(
+                settings.azure_deployment_name,
                 base_url=f"{settings.azure_endpoint}/deployments/{settings.azure_deployment_name}",
-                api_version=settings.azure_api_version,
                 api_key=settings.azure_api_key.get_secret_value(),
             )
-            if provider == "azure" and settings.azure_api_key
-            else ChatOpenAI(
-                api_key=settings.openai_api_key.get_secret_value(),
-                id=settings.openai_model_name,
-            )
-            if provider == "openai" and settings.openai_api_key
-            else HuggingFaceEndpoint(
-                model=settings.open_source_model_name
-            )
-        )
+        elif provider == "openai" and settings.openai_api_key:
+            # For OpenAI, use the string model name directly
+            self.model = settings.openai_model_name
+        else:
+            self.model = settings.open_source_model_name
 
         # Create tools
-        #   - We dont use dependency injection because we cannot define tool metadata
         self.tools = self._create_tools()
-        
-        # Create the agent with a comprehensive system prompt
+
+        # Create the agent with instructions (not system_prompt)
         self.agent = PydanticAgent(
             model=self.model,
-            tools=self.tools, # this could be ignored if we used dependency injection
-            system_prompt="\n".join([
-                role,
-                goal,
-                instructions,
-                "You have access to two primary tools: date and web_search.",
-                knowledge
-            ]),
-            deps_type=str,
-            result_type=str
+            tools=self.tools,
+            instructions="\n".join(
+                [
+                    role,
+                    goal,
+                    instructions,
+                    "You have access to two primary tools: date and web_search.",
+                    knowledge,
+                ]
+            ),
+            output_type=str,
         )
 
         # Conversation history
-        self.messages = []
+        self.messages = [] if memory else None
+        self.memory = memory
 
         # Extras:
         self.tools_descriptions = get_tools_descriptions(
             [(tool.name, tool.description) for tool in self.tools]
         )
 
-
     def _create_tools(self):
         """
         Create and register tools for the agent.
         """
-        # @self.agent.tool_plain
-        async def date_tool() -> str:
+
+        def date_tool() -> str:
             """Get the current date"""
             today = date.today()
             return today.strftime("%B %d, %Y")
 
-        # @self.agent.tool_plain
-        async def web_search_tool(query: str) -> str:
+        def web_search_tool(query: str) -> str:
             """Search the web for information"""
-            # Call Tavily's search and dump the results as a JSON string
             search_response = tavily_client.search(query)
-            results = json.dumps(search_response.get('results', []))
-            # print(f"Web Search Results for '{query}':")
-            # print(results)
+            results = json.dumps(search_response.get("results", []))
             return results
-        
+
         return [
             Tool(date_tool, name="date_tool", description="Gets the current date"),
-            Tool(web_search_tool, name="web_search_tool", description="Searches the web for information")
+            Tool(
+                web_search_tool,
+                name="web_search_tool",
+                description="Searches the web for information",
+            ),
         ]
 
     def chat(self, message):
         """
         Send a message and get a response.
+        Uses run_sync() (aligned with pydantic-ai/ folder patterns).
 
         Args:
             message (str): User's input message
 
         Returns:
-            str: Assistant's response
+            tuple: (response_text, exec_time, tokens_dict)
         """
         try:
-            # Create new event loop
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
-
-            # Run the async function in the loop
-            result = loop.run_until_complete(
-                self.agent.run(message, deps=message, message_history=self.messages)
+            start = time.perf_counter()
+            result = self.agent.run_sync(
+                message, message_history=self.messages if self.memory else None
             )
-
-            # Close the loop
-            loop.close()
+            end = time.perf_counter()
+            exec_time = end - start
 
             # Maintain conversation history
-            self.messages.extend(result.new_messages())
+            if self.memory and self.messages is not None:
+                self.messages.extend(result.new_messages())
 
-            return result.data
+            if self.tokens:
+                try:
+                    usage = result.usage()
+                    tokens = {
+                        "total_embedding_token_count": 0,
+                        "prompt_llm_token_count": getattr(usage, "request_tokens", 0)
+                        or 0,
+                        "completion_llm_token_count": getattr(
+                            usage, "response_tokens", 0
+                        )
+                        or 0,
+                        "total_llm_token_count": getattr(usage, "total_tokens", 0) or 0,
+                    }
+                except Exception:
+                    tokens = {}
+            else:
+                tokens = {}
+
+            # result.output is the new API (replacing result.data)
+            return result.output, exec_time, tokens
 
         except Exception as e:
             print(f"Error in chat: {e}")
-            return "Sorry, I encountered an error processing your request."
+            return "Sorry, I encountered an error processing your request.", 0.0, {}
 
     def clear_chat(self):
         """
@@ -156,13 +170,13 @@ def main():
     """
     Example usage demonstrating the agent interface.
     """
-
     args = parse_args()
 
     agent = Agent(
         provider=args.provider,
-        memory=False if args.no_memory else True,
-        verbose=args.verbose
+        memory=not args.no_memory,
+        verbose=args.verbose,
+        tokens=args.mode in ["metrics", "metrics-loop"],
     )
 
     execute_agent(agent, args)
@@ -170,4 +184,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    

@@ -1,23 +1,20 @@
+import asyncio
 import tiktoken
 from datetime import date
 from tavily import TavilyClient
 import json
 import time
 
-
-# Llama-Index imports
+# Llama-Index imports (aligned with llama-index/ folder patterns)
+from llama_index.core.agent.workflow import FunctionAgent
 from llama_index.llms.openai import OpenAI
 from llama_index.llms.azure_openai import AzureOpenAI
 from llama_index.llms.huggingface_api import HuggingFaceInferenceAPI
-from llama_index.core.agent import ReActAgent, FunctionCallingAgent
 from llama_index.core.tools import FunctionTool
-from llama_index.core.memory import ChatMemoryBuffer
-from llama_index.core import PromptTemplate
 from llama_index.core.callbacks import CallbackManager, TokenCountingHandler
 
 # Prompt components
 from prompts import role, goal, instructions, knowledge
-from prompts import llama_index_react_prompt # extra import
 
 from utils import get_tools_descriptions, parse_args, execute_agent
 
@@ -27,80 +24,74 @@ from settings import settings
 # Initialize Tavily client
 tavily_client = TavilyClient(api_key=settings.tavily_api_key.get_secret_value())
 
-# logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
-# # logging.getLogger().addHandler(logging.StreamHandler(stream=sys.stdout))
-
-token_counter = TokenCountingHandler(
-    tokenizer=tiktoken.encoding_for_model("gpt-4").encode
-)
 
 class Agent:
     def __init__(
-        self, 
-        provider: str = "openai", 
+        self,
+        provider: str = "openai",
         memory: bool = True,
         verbose: bool = False,
-        tokens: bool = False
+        tokens: bool = False,
     ):
         """
-        Initialize the Llama-Index agent.
+        Initialize the Llama-Index FunctionAgent.
+        Uses the new FunctionAgent from llama_index.core.agent.workflow (replacing
+        the deprecated ReActAgent).
         """
-        self.name = "Llama-Index ReAct Agent"
+        self.name = "Llama-Index FunctionAgent"
+        self.tokens = tokens
+
+        # Initialize token counter per instance
+        self.token_counter = TokenCountingHandler(
+            tokenizer=tiktoken.encoding_for_model("gpt-4").encode
+        )
+        callback_manager = CallbackManager([self.token_counter]) if tokens else None
 
         # Initialize the language model
-        self.model = (
-            AzureOpenAI(
+        if provider == "azure" and settings.azure_api_key:
+            self.model = AzureOpenAI(
                 engine=settings.azure_deployment_name,
                 api_base=f"{settings.azure_endpoint}/deployments/{settings.azure_deployment_name}",
                 api_version=settings.azure_api_version,
                 api_key=settings.azure_api_key.get_secret_value(),
-                callback_manager=CallbackManager([token_counter]) if tokens else None
+                callback_manager=callback_manager,
             )
-            if provider == "azure" and settings.azure_api_key
-            else OpenAI(
+        elif provider == "openai" and settings.openai_api_key:
+            self.model = OpenAI(
+                model=settings.openai_model_name,
                 api_key=settings.openai_api_key.get_secret_value(),
-                id=settings.openai_model_name,
+                callback_manager=callback_manager,
             )
-            if provider == "openai" and settings.openai_api_key
-            else HuggingFaceInferenceAPI(
-                model=settings.open_source_model_name
+        else:
+            self.model = HuggingFaceInferenceAPI(
+                model_name=settings.open_source_model_name,
+                callback_manager=callback_manager,
             )
-        )
 
         # Create tools
         self.tools = self._create_tools()
 
-        # Initialize the memory
-        if memory:
-            chat_memory = ChatMemoryBuffer.from_defaults(
-                token_limit=4096
-            )
-        else:
-            chat_memory = None
-
-        self.tokens = tokens
-
-        # Create the agent
-        self.agent = ReActAgent.from_tools(
+        # Create the FunctionAgent (new API, replacing ReActAgent)
+        self.agent = FunctionAgent(
+            name="llama_index_agent",
+            description="A general-purpose agent with web search and date tools.",
             llm=self.model,
             tools=self.tools,
-            memory=chat_memory,
-            # context="If the user asks a question the you already know the answer"
-            #         "just respond without calling any tools.",
-            verbose=True if verbose else False
+            system_prompt="\n".join(
+                [
+                    role,
+                    goal,
+                    instructions,
+                    "You have access to two primary tools: date_tool and web_search_tool.",
+                    knowledge,
+                ]
+            ),
         )
-
-        # Customize the system prompt with our own instructions - ReActAgent specific
-        updated_system_prompt = PromptTemplate("\n".join([role, goal, instructions, knowledge, llama_index_react_prompt]))
-        self.agent.update_prompts({"agent_worker:system_prompt": updated_system_prompt})
-        self.agent.reset()
 
         # Extras:
         self.tools_descriptions = get_tools_descriptions(
             [(tool.metadata.name, tool.metadata.description) for tool in self.tools]
         )
-
-
 
     @staticmethod
     def date_tool():
@@ -115,11 +106,8 @@ class Agent:
         """
         This function searches the web for the given query and returns the results.
         """
-        # Call Tavily's search and dump the results as a JSON string
         search_response = tavily_client.search(query)
-        results = json.dumps(search_response.get('results', []))
-        # print(f"Web Search Results for '{query}':")
-        # print(results)
+        results = json.dumps(search_response.get("results", []))
         return results
 
     def _create_tools(self):
@@ -127,50 +115,51 @@ class Agent:
         Create tools for the agent.
 
         Returns:
-            List of tools
+            List of FunctionTool instances
         """
         return [
             FunctionTool.from_defaults(
                 fn=self.date_tool,
                 name="date_tool",
-                description="Useful for getting the current date"
+                description="Useful for getting the current date",
             ),
             FunctionTool.from_defaults(
                 fn=self.web_search_tool,
                 name="web_search_tool",
-                description="Useful for searching the web for information"
-            )
+                description="Useful for searching the web for information",
+            ),
         ]
-        # ] + TavilyToolSpec(
-        #         api_key=settings.tavily_api_key.get_secret_value(),
-        #     ).to_tool_list()
-        
 
     def chat(self, message):
         """
         Send a message and get a response.
+        Uses async agent.run() internally via an event loop.
 
         Args:
             message (str): User's input message
 
         Returns:
-            str: Assistant's response
+            tuple: (response_text, exec_time, tokens_dict)
         """
         try:
-            # Send message to the agent
             start = time.perf_counter()
-            response = self.agent.chat(message)
+
+            async def _run():
+                handler = self.agent.run(message)
+                return await handler
+
+            response = asyncio.run(_run())
             end = time.perf_counter()
             exec_time = end - start
 
             if self.tokens:
                 tokens = {
-                    "total_embedding_token_count": token_counter.total_embedding_token_count,
-                    "prompt_llm_token_count": token_counter.prompt_llm_token_count,
-                    "completion_llm_token_count": token_counter.completion_llm_token_count,
-                    "total_llm_token_count": token_counter.total_llm_token_count
+                    "total_embedding_token_count": self.token_counter.total_embedding_token_count,
+                    "prompt_llm_token_count": self.token_counter.prompt_llm_token_count,
+                    "completion_llm_token_count": self.token_counter.completion_llm_token_count,
+                    "total_llm_token_count": self.token_counter.total_llm_token_count,
                 }
-                token_counter.reset_counts()
+                self.token_counter.reset_counts()
             else:
                 tokens = {}
 
@@ -178,7 +167,7 @@ class Agent:
 
         except Exception as e:
             print(f"Error in chat: {e}")
-            return "Sorry, I encountered an error processing your request."
+            return "Sorry, I encountered an error processing your request.", 0.0, {}
 
     def clear_chat(self):
         """
@@ -188,8 +177,8 @@ class Agent:
             bool: True if reset was successful
         """
         try:
-            # Reset the agent's chat history
-            self.agent.reset()
+            # FunctionAgent doesn't maintain persistent state between runs
+            # by default, so clearing is a no-op. Re-create if needed.
             return True
         except Exception as e:
             print(f"Error clearing chat: {e}")
@@ -207,11 +196,11 @@ def main():
         provider=args.provider,
         memory=not args.no_memory,
         verbose=args.verbose,
-        tokens=args.mode in ["metrics", "metrics-loop"]
+        tokens=args.mode in ["metrics", "metrics-loop"],
     )
 
     execute_agent(agent, args)
 
+
 if __name__ == "__main__":
     main()
-    

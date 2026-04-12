@@ -1,0 +1,49 @@
+{
+  "prompt": "What day of the week is it today?",
+  "timestamp": "2026-04-10T00:05:44.261389",
+  "today": "2026-04-10",
+  "results": {
+    "OpenAI Agents SDK": {
+      "display_name": "OpenAI Agents SDK",
+      "module_name": "openai_agents_sdk_agent",
+      "iterations": 3,
+      "errors": 0,
+      "tool_calls": 3,
+      "tool_call_rate": "3/3",
+      "sample_response": "Today is Friday.",
+      "response_time_mean": 2.676095125003485,
+      "response_time_std": 0.5632346464262245,
+      "avg_prompt_tokens": 696.0,
+      "avg_completion_tokens": 22.333333333333332,
+      "avg_total_tokens": 718.3333333333334
+    },
+    "Smolagents": {
+      "display_name": "Smolagents",
+      "module_name": "smolagents_agent",
+      "iterations": 3,
+      "errors": 0,
+      "tool_calls": 3,
+      "tool_call_rate": "3/3",
+      "sample_response": "Friday",
+      "response_time_mean": 5.270503569331292,
+      "response_time_std": 0.08546063443659264,
+      "avg_prompt_tokens": 4731.666666666667,
+      "avg_completion_tokens": 163.66666666666666,
+      "avg_total_tokens": 4895.333333333333
+    },
+    "Strands": {
+      "display_name": "Strands",
+      "module_name": "strands_agent",
+      "iterations": 3,
+      "errors": 0,
+      "tool_calls": 3,
+      "tool_call_rate": "3/3",
+      "sample_response": "{'role': 'assistant', 'content': [{'text': 'Today is Friday, April 10, 2026.'}]}",
+      "response_time_mean": 1.6628459166628697,
+      "response_time_std": 0.35614079721450786,
+      "avg_prompt_tokens": 693.0,
+      "avg_completion_tokens": 20.333333333333332,
+      "avg_total_tokens": 713.3333333333334
+    }
+  }
+}

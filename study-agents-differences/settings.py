@@ -5,9 +5,9 @@ from pydantic_settings import BaseSettings
 # Use pydantic base settings for basic settings read from a .env file
 class Settings(BaseSettings):
     openai_api_key: pydantic.SecretStr
-    openai_model_name: str = "gpt-4o-mini"
+    openai_model_name: str = "gpt-4.1-mini"
     azure_endpoint: str
-    azure_deployment_name: str = "gpt-4o-mini"
+    azure_deployment_name: str = "gpt-4.1-mini"
     azure_api_version: str = "2024-10-21"
     azure_api_key: pydantic.SecretStr
     open_source_model_name: str = "watt-ai/watt-tool-70B"

@@ -1,0 +1,21 @@
+{
+  "prompt": "What day of the week is it today?",
+  "timestamp": "2026-04-10T00:06:09.251259",
+  "today": "2026-04-10",
+  "results": {
+    "Claude SDK": {
+      "display_name": "Claude SDK",
+      "module_name": "claude_sdk_agent",
+      "iterations": 3,
+      "errors": 0,
+      "tool_calls": 3,
+      "tool_call_rate": "3/3",
+      "sample_response": "Today, April 10, 2026, is a **Friday**.",
+      "response_time_mean": 6.022010916329843,
+      "response_time_std": 0.506074650701265,
+      "avg_prompt_tokens": 3.0,
+      "avg_completion_tokens": 68.33333333333333,
+      "avg_total_tokens": 71.33333333333333
+    }
+  }
+}

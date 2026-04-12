@@ -4,11 +4,12 @@ import tiktoken
 from typing import Tuple
 import argparse
 
+
 # Function to get available agent modules and their names
 def get_available_agents():
     agents = {}
-    for file in os.listdir('.'):
-        if file.endswith('_agent.py'):
+    for file in os.listdir("."):
+        if file.endswith("_agent.py"):
             module_name = file[:-3]  # Remove .py
             try:
                 module = importlib.import_module(module_name)
@@ -17,6 +18,7 @@ def get_available_agents():
             except Exception as e:
                 print(f"Error loading {module_name}: {str(e)}")
     return agents
+
 
 # Generate a list of the available tools
 def get_tools_descriptions(tools_tuple: list[Tuple[str, str]]) -> str:
@@ -28,6 +30,7 @@ def get_tools_descriptions(tools_tuple: list[Tuple[str, str]]) -> str:
     """
     return f"{'\n'.join([f'- {tool} ({desc})' for tool, desc in tools_tuple])}"
 
+
 def parse_args():
     """
     Parse command line arguments.
@@ -38,44 +41,36 @@ def parse_args():
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
-        "--provider", 
-        type=str, 
+        "--provider",
+        type=str,
         choices=["azure", "openai", "other"],
-        default="azure", 
-        help="The LLM provider to use in the agent."
+        default="azure",
+        help="The LLM provider to use in the agent.",
     )
     parser.add_argument(
-        "--mode", 
-        type=str, 
-        choices=["metrics", "metrics-loop"], 
-        help="Mode. Should be either 'metrics' or 'metrics-loop'"
+        "--mode",
+        type=str,
+        choices=["metrics", "metrics-loop"],
+        help="Mode. Should be either 'metrics' or 'metrics-loop'",
     )
     parser.add_argument(
-        "--iter", 
-        type=int, 
-        help="Number of iterations. Required if mode is 'metrics-loop'."
+        "--iter",
+        type=int,
+        help="Number of iterations. Required if mode is 'metrics-loop'.",
     )
     parser.add_argument(
         "--no-memory",
         action="store_true",
-        help="Maintain conversation history in the agent."
+        help="Maintain conversation history in the agent.",
     )
     parser.add_argument(
-        "--create",
-        action="store_true",
-        help="Create a new agent instance each time."
+        "--create", action="store_true", help="Create a new agent instance each time."
     )
     parser.add_argument(
-        "--verbose",
-        action="store_true",
-        help="Print the Agent's logs and messages."
+        "--verbose", action="store_true", help="Print the Agent's logs and messages."
     )
-    parser.add_argument(
-        "--file",
-        type=str,
-        help="File to save the chat history."
-    )
-    
+    parser.add_argument("--file", type=str, help="File to save the chat history.")
+
     args = parser.parse_args()
 
     if args.mode is None:
@@ -83,8 +78,9 @@ def parse_args():
 
     if args.mode == "metrics-loop" and args.iter is None:
         parser.error("--iter is required when --mode is 'metrics-loop'.")
-    
+
     return args
+
 
 def execute_agent(agent: object, args: argparse.Namespace):
     """
@@ -93,7 +89,7 @@ def execute_agent(agent: object, args: argparse.Namespace):
     while True:
         query = input("You: ")
 
-        if query.lower() in ['exit', 'quit']:
+        if query.lower() in ["exit", "quit"]:
             break
 
         iterations = args.iter if args.mode == "metrics-loop" else 1
@@ -102,7 +98,7 @@ def execute_agent(agent: object, args: argparse.Namespace):
             "total_embedding_token_count": 0,
             "prompt_llm_token_count": 0,
             "completion_llm_token_count": 0,
-            "total_llm_token_count": 0
+            "total_llm_token_count": 0,
         }
 
         if args.mode in ["metrics", "metrics-loop"]:
@@ -111,12 +107,12 @@ def execute_agent(agent: object, args: argparse.Namespace):
 
             for _ in range(iterations):
                 if args.create:
-                    Agent = type(agent) 
+                    Agent = type(agent)
                     agent = Agent(
-                        provider=args.provider, 
+                        provider=args.provider,
                         memory=False if args.no_memory else True,
                         verbose=args.verbose,
-                        tokens=True
+                        tokens=True,
                     )
                     if args.verbose:
                         print("New agent created.")
@@ -125,25 +121,25 @@ def execute_agent(agent: object, args: argparse.Namespace):
                 response_times.append(exec_time)
                 for key, value in token_counter.items():
                     tokens_counter[key] += value
-                
+
                 if args.verbose:
                     if args.file:
                         with open(args.file, "a") as f:
                             f.write(f"Assistant: {response}\n")
                     else:
                         print(f"Assistant: {response}\n")
-            
+
             print(
-                f"{'-'*50}\n"
+                f"{'-' * 50}\n"
                 f"Mode: {args.mode}\n"
                 f"Iterations: {iterations}\n"
                 f"\033[92mResponse Time: {np.mean(response_times):.2f} ± {np.std(response_times):.2f}s\033[0m\n"
-                f"{'-'*50}\n"
-                f"Embedding Tokens: {(tokens_counter["total_embedding_token_count"]/iterations):.1f}\n"
-                f"LLM Prompt Tokens: {(tokens_counter["prompt_llm_token_count"]/iterations):.1f}\n"
-                f"LLM Completion Tokens: {(tokens_counter["completion_llm_token_count"]/iterations):.1f}\n"
-                f"\033[36mTotal LLM Token Count: {(tokens_counter["total_llm_token_count"]/iterations):.1f}\033[0m\n"
-                f"{'-'*50}\n"
+                f"{'-' * 50}\n"
+                f"Embedding Tokens: {(tokens_counter['total_embedding_token_count'] / iterations):.1f}\n"
+                f"LLM Prompt Tokens: {(tokens_counter['prompt_llm_token_count'] / iterations):.1f}\n"
+                f"LLM Completion Tokens: {(tokens_counter['completion_llm_token_count'] / iterations):.1f}\n"
+                f"\033[36mTotal LLM Token Count: {(tokens_counter['total_llm_token_count'] / iterations):.1f}\033[0m\n"
+                f"{'-' * 50}\n"
             )
 
             # Reset times and token counts
@@ -152,14 +148,18 @@ def execute_agent(agent: object, args: argparse.Namespace):
                 "total_embedding_token_count": 0,
                 "prompt_llm_token_count": 0,
                 "completion_llm_token_count": 0,
-                "total_llm_token_count": 0
+                "total_llm_token_count": 0,
             }
 
         else:
-            response = agent.chat(query)
+            result = agent.chat(query)
+            # Handle both tuple returns (response, time, tokens) and plain strings
+            if isinstance(result, tuple):
+                response = result[0]
+            else:
+                response = str(result)
             if args.verbose:
                 print(f"Assistant: {response}")
-
 
 
 def get_tokens(

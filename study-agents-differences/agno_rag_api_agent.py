@@ -9,18 +9,12 @@ from agno.agent import Agent as AgnoAgent
 from agno.memory import AgentMemory
 from agno.tools import tool
 from agno.models.huggingface import HuggingFace
-from agno.agent import Agent
-from agno.models.openai import OpenAIChat
-from agno.models.azure import AzureOpenAI
-from agno.models.openai import OpenAIChat
-from agno.tools import tool
 from agno.document.base import Document
 from agno.document.chunking.fixed import FixedSizeChunking
 from agno.knowledge.document import DocumentKnowledgeBase
 from agno.vectordb.chroma import ChromaDb
 from agno.embedder.openai import OpenAIEmbedder
 from agno.embedder.azure_openai import AzureOpenAIEmbedder
-from agno.memory import AgentMemory
 
 from settings import settings
 from utils import get_tools_descriptions, parse_args, execute_agent
@@ -31,35 +25,31 @@ from prompts import knowledge, role, goal, instructions
 # Tools
 from shared_functions import F1API, MetroAPI
 
-# Load environment variables
-from settings import settings
-
 
 class AgnoRAGandAPIAgent:
     def __init__(
-        self, 
-        provider: str = "openai", 
+        self,
+        provider: str = "openai",
         memory: bool = True,
         verbose: bool = False,
-        tokens: bool = False
+        tokens: bool = False,
     ):
         """
         Initialize the Agno agent.
         """
         self.name = "Agno RAG & API Agent"
 
-        self.model = ( #    NOTE: available in v1.1.8 after the PR: https://github.com/agno-agi/agno/pull/2273
+        self.model = (  #    NOTE: available in v1.1.8 after the PR: https://github.com/agno-agi/agno/pull/2273
             AzureOpenAI(
                 base_url=f"{settings.azure_endpoint}/deployments/{settings.azure_deployment_name}",
                 api_version=settings.azure_api_version,
                 api_key=settings.azure_api_key.get_secret_value(),
-            ) 
-            if provider == "azure" and settings.azure_api_key 
-            else 
-            OpenAIChat(
+            )
+            if provider == "azure" and settings.azure_api_key
+            else OpenAIChat(
                 api_key=settings.openai_api_key.get_secret_value(),
                 id=settings.openai_model_name,
-            ) 
+            )
             if provider == "openai" and settings.openai_api_key
             else HuggingFace(
                 model_name=settings.open_source_model_name,
@@ -81,35 +71,37 @@ class AgnoRAGandAPIAgent:
             name="Agno Agent",
             model=self.model,
             tools=self.tools,
-            knowledge=knowledge_base, # <-- RAG is passed here as knowledge base
+            knowledge=knowledge_base,  # <-- RAG is passed here as knowledge base
             # Add a tool to search the knowledge base which enables agentic RAG.
             # This is enabled by default when `knowledge` is provided to the Agent.
             # instructions="Always include sources",
-            system_message="\n".join([
-                knowledge,
-                role,
-                goal,
-                instructions,
-                "You have access to the knowledge base about the matches of the 2025 UEFA Champions League "
-                "and the provided tools to get information about F1 drivers, the state of the subway, and the times "
-                "of the next two subways in a station.",
-            ]),
-            memory=AgentMemory(), # <-- even if memory is None, it will still be created when the agent runs
+            instructions="\n".join(
+                [
+                    knowledge,
+                    role,
+                    goal,
+                    instructions,
+                    "You have access to the knowledge base about the matches of the 2025 UEFA Champions League "
+                    "and the provided tools to get information about F1 drivers, the state of the subway, and the times "
+                    "of the next two subways in a station.",
+                ]
+            ),
+            memory=AgentMemory(),  # <-- even if memory is None, it will still be created when the agent runs
             add_history_to_messages=True if memory else False,
             read_chat_history=True if memory else False,
             respond_directly=True,
             markdown=True,
             # to show the tools calls in the response
-            show_tool_calls=True if verbose else False
+            show_tool_calls=True if verbose else False,
         )
 
         self.tokens = tokens
 
-        # Extras: 
+        # Extras:
         self.tools_descriptions = get_tools_descriptions(
-            [("RAG_tool", "Knowledge base for the 2025 UEFA Champions League matches")] \
-            + [(self.get_date.name, self.get_date.description)] \
-            + F1API.list_functions() \
+            [("RAG_tool", "Knowledge base for the 2025 UEFA Champions League matches")]
+            + [(self.get_date.name, self.get_date.description)]
+            + F1API.list_functions()
             + MetroAPI.list_functions()
         )
 
@@ -133,7 +125,7 @@ class AgnoRAGandAPIAgent:
                         Document(content=content, meta_data={"file_name": file_name})
                     )
         return documents
-    
+
     @staticmethod
     def create_knowledge_base(documents: list[Document]) -> DocumentKnowledgeBase:
         """
@@ -145,7 +137,7 @@ class AgnoRAGandAPIAgent:
             DocumentKnowledgeBase
         """
         vector_db = ChromaDb(
-            embedder = (
+            embedder=(
                 AzureOpenAIEmbedder(
                     base_url=f"{settings.azure_endpoint}/deployments/{settings.embeddings_model_name}",
                     api_version=settings.embeddings_api_version,
@@ -154,30 +146,28 @@ class AgnoRAGandAPIAgent:
                 if settings.azure_api_key
                 else f"local:{settings.local_embeddings_model_name}"
             ),
-            collection="local-rag"
+            collection="local-rag",
         )
 
-        chunking_strategy = FixedSizeChunking(
-            chunk_size=1024, overlap=50
-        )
+        chunking_strategy = FixedSizeChunking(chunk_size=1024, overlap=50)
 
         return DocumentKnowledgeBase(
             documents=documents,
             vector_db=vector_db,
             chunking_strategy=chunking_strategy,
-            num_documents=2
+            num_documents=2,
         )
-    
 
     @staticmethod
-    @tool(name="date_tool", description="Gets the current date")
+    @tool
     def get_date():
-        """
-        Function to get the current date.
+        """Gets the current date.
+
+        Returns:
+            str: The current date formatted as 'Month Day, Year'.
         """
         today = date.today()
         return today.strftime("%B %d, %Y")
-
 
     def _create_tools(self):
         """
@@ -194,7 +184,7 @@ class AgnoRAGandAPIAgent:
             # API tools
             F1API.get_driver_info,
             MetroAPI.get_state_subway,
-            MetroAPI.get_times_next_two_subways_in_station
+            MetroAPI.get_times_next_two_subways_in_station,
         ]
 
     def chat(self, message):
@@ -215,12 +205,21 @@ class AgnoRAGandAPIAgent:
             exec_time = end - start
 
             if self.tokens:
-                tokens = {
-                    "total_embedding_token_count": 0,
-                    "prompt_llm_token_count": sum(response.metrics["prompt_tokens"]),
-                    "completion_llm_token_count": sum(response.metrics["completion_tokens"]),
-                    "total_llm_token_count": sum(response.metrics["total_tokens"]),
-                }
+                try:
+                    tokens = {
+                        "total_embedding_token_count": 0,
+                        "prompt_llm_token_count": sum(
+                            response.metrics.get("prompt_tokens", [0])
+                        ),
+                        "completion_llm_token_count": sum(
+                            response.metrics.get("completion_tokens", [0])
+                        ),
+                        "total_llm_token_count": sum(
+                            response.metrics.get("total_tokens", [0])
+                        ),
+                    }
+                except (AttributeError, TypeError):
+                    tokens = {}
             else:
                 tokens = {}
 
@@ -228,7 +227,7 @@ class AgnoRAGandAPIAgent:
 
         except Exception as e:
             print(f"Error in chat: {e}")
-            return "Sorry, I encountered an error processing your request."
+            return "Sorry, I encountered an error processing your request.", 0.0, {}
 
     def clear_chat(self):
         """
@@ -247,7 +246,6 @@ class AgnoRAGandAPIAgent:
 
 
 def main():
-
     """
     Example usage demonstrating the agent interface.
     """
@@ -256,9 +254,9 @@ def main():
 
     agent = AgnoRAGandAPIAgent(
         provider=args.provider,
-        memory=False if args.no_memory else True,
+        memory=not args.no_memory,
         verbose=args.verbose,
-        tokens=args.mode in ["metrics", "metrics-loop"]
+        tokens=args.mode in ["metrics", "metrics-loop"],
     )
 
     execute_agent(agent, args)
@@ -266,4 +264,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    
