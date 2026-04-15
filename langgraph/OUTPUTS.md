@@ -615,3 +615,46 @@ Saved in checkpoint: The report on Artificial Intelligence Ethics examines the m
     Words: 50
     Status: published
 ```
+
+---
+
+## 22_token_usage.py
+
+> **Feature:** Token usage tracking via `AIMessage.usage_metadata`. Per-message input/output/total token counts, aggregated totals across the full agent conversation, and optional detail breakdowns (cached tokens, reasoning tokens).
+
+```
+=== LangGraph Token Usage Tracking ===
+
+--- Running tool-calling agent ---
+
+--- Conversation ---
+  System: You are a helpful weather assistant. Be concise.
+  Human: What's the weather in Tokyo and London?
+  AI: [Calling tools: ['get_weather', 'get_weather']]
+  Tool: Sunny, 28°C, 45% humidity
+  Tool: Cloudy, 14°C, 70% humidity
+  AI: The weather in Tokyo is sunny with a temperature of 28°C and 45% humidity. In London, it is cloudy
+  with a temperature of 14°C and 70% humidity.
+
+--- Per-Message Token Usage (AIMessage.usage_metadata) ---
+
+  AIMessage 1 (tool call request):
+    Input tokens:  63
+    Output tokens: 44
+    Total tokens:  107
+    Cached input tokens: 0
+
+  AIMessage 2 (final answer):
+    Input tokens:  142
+    Output tokens: 39
+    Total tokens:  181
+    Cached input tokens: 0
+
+--- Aggregated Token Usage ---
+  Total input tokens:  205
+  Total output tokens: 83
+  Total tokens:        288
+  LLM calls:           2
+
+=== Token Usage Demo Complete ===
+```

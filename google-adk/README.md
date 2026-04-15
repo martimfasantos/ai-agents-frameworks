@@ -64,6 +64,7 @@ uv run python 00_hello_world.py
 | `12_grounding.py` | Grounding | Ground responses in Google Search results with source citations |
 | `13_safety.py` | Safety Guardrails | Block unsafe inputs and redact PII from outputs via callbacks |
 | `14_evaluation.py` | Evaluation | Score agent behavior against expected tool trajectories and responses |
+| `15_token_usage.py` | Token Usage | Track prompt, candidate, and thoughts tokens via `Event.usage_metadata` |
 
 ## Key dependencies
 

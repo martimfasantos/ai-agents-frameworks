@@ -648,3 +648,73 @@ French:   Bonjour, comment ça va aujourd'hui ?
 
 === A2A Demo Complete ===
 ```
+
+---
+
+## 11_token_usage.py
+
+```
+=== Token Usage Tracking ===
+
+--- Conversation 1 ---
+user (to assistant):
+
+What is the speed of light?
+
+--------------------------------------------------------------------------------
+assistant (to user):
+
+The speed of light in a vacuum is approximately 299,792 kilometers per second (about 186,282 miles per second).
+
+--------------------------------------------------------------------------------
+
+>>>>>>>> TERMINATING RUN (...): Maximum turns (1) reached
+
+--- Usage after conversation 1 ---
+  Model: gpt-4o-mini-2024-07-18
+    Prompt tokens:     37
+    Completion tokens: 26
+    Total tokens:      63
+
+--- Conversation 2 ---
+user (to assistant):
+
+What is the largest planet in our solar system?
+
+--------------------------------------------------------------------------------
+assistant (to user):
+
+The largest planet in our solar system is Jupiter.
+
+--------------------------------------------------------------------------------
+
+>>>>>>>> TERMINATING RUN (...): Maximum turns (1) reached
+
+--- Cumulative usage after 2 conversations ---
+  Model: gpt-4o-mini-2024-07-18
+    Prompt tokens:     77
+    Completion tokens: 36
+    Total tokens:      113
+
+--- Aggregated usage (gather_usage_summary) ---
+
+  usage_including_cached_inference:
+    total_cost: 3.315e-05
+    gpt-4o-mini-2024-07-18: {'cost': 3.315e-05, 'prompt_tokens': 77, 'completion_tokens': 36, 'total_tokens': 113}
+
+  usage_excluding_cached_inference:
+    total_cost: 3.315e-05
+    gpt-4o-mini-2024-07-18: {'cost': 3.315e-05, 'prompt_tokens': 77, 'completion_tokens': 36, 'total_tokens': 113}
+
+--- Built-in print_usage_summary ---
+Agent 'assistant':
+----------------------------------------------------------------------------------------------------
+Usage summary excluding cached usage:
+Total cost: 3e-05
+* Model 'gpt-4o-mini-2024-07-18': cost: 3e-05, prompt_tokens: 77, completion_tokens: 36, total_tokens: 113
+
+All completions are non-cached: the total cost with cached completions is the same as actual cost.
+----------------------------------------------------------------------------------------------------
+
+=== Token Usage Demo Complete ===
+```

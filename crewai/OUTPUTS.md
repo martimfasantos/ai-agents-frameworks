@@ -721,3 +721,41 @@ Crew Execution Completed
 ```
 
 **Verdict:** PASS - @CrewBase decorators with YAML config used to define agents/tasks declaratively; two-agent crew (researcher + analyst) executed sequentially with context passing
+
+---
+
+## 23_token_usage.py
+
+```
+=== CrewAI Token Usage Tracking ===
+
+--- Running crew (2 agents, 2 tasks) ---
+
+Final output:
+Renewable energy sources, such as solar and wind, significantly reduce greenhouse gas
+emissions, thereby mitigating climate change and enhancing air quality. They also bolster
+energy security by lessening reliance on imported fuels and diversifying the energy supply.
+Additionally, the renewable energy sector generates jobs in manufacturing, installation,
+and maintenance, fostering economic growth and sustainability.
+
+--- Token Usage (CrewOutput.token_usage) ---
+  Prompt tokens:        296
+  Completion tokens:    140
+  Cached prompt tokens: 0
+  Total tokens:         436
+  Successful requests:  2
+
+--- Per-Task Outputs ---
+
+  Task 1: Research the main benefits of renewable energy. List 3 key p...
+    Agent: Research Analyst
+    Output preview: 1. Renewable energy sources, such as solar and wind, help reduce greenhouse gas emissions, mitigatin...
+
+  Task 2: Using the research findings, write a 2-3 sentence summary ab...
+    Agent: Technical Writer
+    Output preview: Renewable energy sources, such as solar and wind, significantly reduce greenhouse gas emissions, the...
+
+=== Token Usage Demo Complete ===
+```
+
+**Verdict:** PASS - CrewOutput.token_usage provides prompt, completion, cached, and total token counts plus successful request counting across a 2-agent sequential crew

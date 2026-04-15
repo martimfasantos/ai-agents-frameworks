@@ -76,6 +76,7 @@ uv run python 11_a2a.py
 | 9 | `09_mcp_tools.py` | `create_toolkit()`, `stdio_client`, FastMCP server integration |
 | 10 | `10_observability.py` | `runtime_logging` to SQLite, event capture, post-hoc analysis |
 | 11 | `11_a2a.py` | `A2aAgentServer`, `A2aRemoteAgent`, distributed agents over HTTP |
+| 11 | `11_token_usage.py` | `get_total_usage()`, `gather_usage_summary()`, per-model token tracking |
 
 ## Key dependencies
 
