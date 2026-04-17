@@ -1385,7 +1385,7 @@ wheels = [
 
 [[package]]
 name = "strands-agents"
-version = "1.32.0"
+version = "1.35.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "boto3" },
@@ -1401,9 +1401,9 @@ dependencies = [
     { name = "typing-extensions" },
     { name = "watchdog" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/d4/b9/c18d13bbf85c23eb66d9f61bced0c1f5a3ac18916331eabde049f6c4dd33/strands_agents-1.32.0.tar.gz", hash = "sha256:2e399bc5ea98d91dbcdf79913115aa579a6bb3251dfe6c15be114821cad893a4", size = 776171, upload-time = "2026-03-20T14:07:41.75Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/ed/30/e183d3e7b170c9579eb315fc598ea7fea86670f8f1fe9541dba8ecc29812/strands_agents-1.35.0.tar.gz", hash = "sha256:913a598529bf73fe48c47b15aedb31679192cbe218e2d4aa71c62a06d63d5d73", size = 801382, upload-time = "2026-04-08T20:05:33.157Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/6b/a9/7e00371130dec1ae16df3fd0f7450aa2b92859b625818c793d178b2f1835/strands_agents-1.32.0-py3-none-any.whl", hash = "sha256:60c0eaae32ee1fc366ecebb10bca07681015104c111472a7378f71bbcdedbba4", size = 387030, upload-time = "2026-03-20T14:07:39.754Z" },
+    { url = "https://files.pythonhosted.org/packages/96/4a/0599f483220b08772000ec8fdb86b8cb1d624f51bab546af41bce3a0eac2/strands_agents-1.35.0-py3-none-any.whl", hash = "sha256:d34c749742b63bbaef90057ac1cbd5c04fb9e1e50fcda58741eb0af0ab0aeb91", size = 394806, upload-time = "2026-04-08T20:05:30.871Z" },
 ]
 
 [[package]]
