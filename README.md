@@ -311,7 +311,7 @@ This repository provides a comprehensive, hands-on comparison of modern AI agent
         </picture>
     <strong style="vertical-align: middle; font-size: 1.2em;">Agent Framework</strong>
       </td>
-      <td><code>1.0.0rc5</code></td>
+      <td><code>1.0.1</code></td>
       <td>
           <a href="https://learn.microsoft.com/en-us/agent-framework/">
             <picture>
