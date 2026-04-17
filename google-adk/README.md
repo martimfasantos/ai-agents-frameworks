@@ -69,8 +69,8 @@ uv run python 00_hello_world.py
 
 | Package | Version | Purpose |
 |---------|---------|---------|
-| `google-adk` | 1.26.0 | Core framework |
-| `google-adk[eval]` | 1.26.0 | Evaluation extras (rouge-score, scikit-learn, pandas) |
+| `google-adk` | 1.31.0 | Core framework |
+| `google-adk[eval]` | 1.31.0 | Evaluation extras (rouge-score, scikit-learn, pandas) |
 | `pydantic` | ≥2.0 | Structured output schemas and settings |
 | `pydantic-settings` | ≥2.0 | `.env` file loading via `BaseSettings` |
 | `litellm` | latest | Third-party model routing (required for `09_litellm.py`) |
