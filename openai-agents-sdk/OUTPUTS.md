@@ -1,6 +1,6 @@
 # OpenAI Agents SDK — Example Outputs
 
-All examples run with `openai-agents>=0.12.5`, `openai>=2.0.0`, model `gpt-4o-mini`.
+All examples run with `openai-agents>=0.14.1`, `openai>=2.0.0`, model `gpt-4o-mini`.
 
 ---
 

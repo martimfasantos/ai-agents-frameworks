@@ -2,7 +2,7 @@
 
 - Repo: https://github.com/openai/openai-agents-python
 - Documentation: https://openai.github.io/openai-agents-python/
-- SDK Version: >= 0.12.5
+- SDK Version: >= 0.14.1
 
 ## Key Features
 
