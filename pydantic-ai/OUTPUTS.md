@@ -1,6 +1,6 @@
 # Pydantic AI — Example Outputs
 
-All examples run with `pydantic-ai>=1.70.0`, model `gpt-4o-mini`.
+All examples run with `pydantic-ai>=1.84.0`, model `gpt-4o-mini`.
 
 > **Note:** LLM responses are non-deterministic. Your outputs will differ in wording
 > but should follow the same structure and demonstrate the same features.
@@ -10,8 +10,9 @@ All examples run with `pydantic-ai>=1.70.0`, model `gpt-4o-mini`.
 ## 00. Hello World (`00_hello_world.py`)
 
 ```
-"Hello, World!" is a simple program often used as a beginner's introduction to programming,
-popularized by the 1978 book "The C Programming Language" by Brian Kernighan and Dennis Ritchie.
+"Hello, World!" originated from the 1972 programming language tutorial for the B
+programming language and has since become a standard example for demonstrating
+basic syntax in many programming languages.
 ```
 
 > The agent responds concisely in one sentence, as instructed.
@@ -22,29 +23,29 @@ popularized by the 1978 book "The C Programming Language" by Brian Kernighan and
 
 ```
 === Example 1: Basic Tool Usage ===
-🎲 Die rolled: 6
-🎮 Game Result: The die rolled a 6, but your guess was 4. Better luck next time, Alice!
-    Want to play again?
+🎲 Die rolled: 5
+🎮 Game Result: The die rolled a 5, but your guess was 4. Better luck next time, Alice!
 
 📈 Final Metrics:
    - Total requests: 2
    - Tool calls executed: 2
    - Input tokens used: 241
-   - Output tokens generated: 68
+   - Output tokens generated: 63
 
 ============================================================
 
 === Example 2: Advanced Tool Registration Patterns and Usage Limits ===
 🌤️  Weather Agent:
-   Response: The current weather in London is rainy, with a temperature of 15°C
-   and humidity at 82%.
+   Response: The current weather in London is snowy, with a temperature of 19°C
+   and humidity at 38%.
    Tool Calls: 1 tool calls
 
 ============================================================
 
 === Example 3: Message History and Tool Inspection ===
-🔍 Research Result: AI, or artificial intelligence, refers to the simulation of human
-   intelligence processes by machines, particularly computer systems...
+🔍 Research Result: AI, or Artificial Intelligence, is a fascinating field that
+   focuses on creating systems capable of performing tasks that typically require
+   human intelligence...
 
 📋 Message History Analysis:
    Message 1: ModelRequest
@@ -61,7 +62,7 @@ popularized by the 1978 book "The C Programming Language" by Brian Kernighan and
    - Total requests: 2
    - Tool calls executed: 1
    - Input tokens used: 157
-   - Output tokens generated: 126
+   - Output tokens generated: 97
 
 ============================================================
 ```
@@ -74,17 +75,16 @@ popularized by the 1978 book "The C Programming Language" by Brian Kernighan and
 
 ```
 === Example 1: Free-Tier Customer ===
-Response: You are eligible for a Pro upgrade at $9.99 per month.
+Response: You are eligible for an upgrade to the Pro plan for $9.99 per month.
     Would you like more information about the benefits of the Pro plan?
 
 === Example 2: Pro Customer with Purchases ===
-Response: Your Premium Gadget order was delivered on March 15, 2025,
-    and the order number is #ORD-42178. If you need any further assistance,
-    feel free to ask!
+Response: Your Premium Gadget was delivered on March 15, 2025, and the order
+    number is #ORD-42178. If you need any further assistance, feel free to ask!
 
 === Example 3: Enterprise Customer ===
 Response: You are currently on the 'enterprise' plan, which is the highest tier
-    available. Therefore, you are not eligible for an upgrade.
+    available. Therefore, there are no upgrade options for you at this time.
 ```
 
 > Each example injects different customer data via `deps_type` and `RunContext`, showing how the agent adapts behavior based on runtime dependencies.
@@ -95,8 +95,8 @@ Response: You are currently on the 'enterprise' plan, which is the highest tier
 
 ```
 === Example 1: Web Search Tool ===
-Response: As of March 24, 2026, Pydantic AI is at version 1.0.1,
-    released on September 5, 2025.
+Response: As of April 17, 2026, the latest stable release of Pydantic AI is
+    version 1.83.0, released on April 16, 2026.
 
 === Example 2: Code Execution Tool ===
 Response: The first 10 Fibonacci numbers are:
@@ -146,8 +146,8 @@ Email: new@example.com
 --------------------------------------------------
 
 === Test 2: Existing Username (will retry) ===
-Output: username='admin123' email='fresh@example.com' age=30
-New username suggested: admin123
+Output: username='user_admin' email='fresh@example.com' age=30
+New username suggested: user_admin
 
 --------------------------------------------------
 
@@ -159,15 +159,29 @@ New username suggested: admin123
 
 ============================================================
 
-Once upon a time, in a quaint little village nestled between lush green hills
-and a shimmering river, there lived a cat named Whiskers...
-...
-One sunny afternoon, as Whiskers lounged in the meadow chasing after
-butterflies, he overheard a group of children laughing and whispering about a
-hidden treasure...
+(Streaming output — incremental chunks omitted, final story shown below)
+
+Once upon a time, in a bustling town nestled between rolling hills and whispering
+streams, lived a plump and curious tabby cat named Oliver. With a coat as soft as
+a cloud and eyes that sparkled like emeralds, Oliver's presence brought joy to
+everyone he encountered...
+
+Oliver lived with a kind elderly woman named Mrs. Hargrove in a cozy cottage at
+the end of Maple Street... Mrs. Hargrove would often read books to Oliver, and he
+would curl up on her lap, purring contentedly.
+
+One sunny afternoon, Oliver ventured out into the world, chasing leaves and
+playing hide-and-seek with a chipmunk. He wandered into a bustling park where
+children exclaimed "Look, it's a kitty!" and showered him with affection.
+
+A scruffy dog named Rufus challenged him to a race, and the two became unlikely
+friends. As the sun set, Oliver trotted home to Mrs. Hargrove, his heart full.
+
+From that day forward, Oliver's life was a tapestry woven with laughter, courage,
+and companionship — truly the greatest journey of all.
 ```
 
-> Test 1 passes validation immediately. Test 2 triggers `ModelRetry` because "admin" is taken — the agent retries and suggests "admin123". The streaming section shows partial output validation accepting incremental chunks.
+> Test 1 passes validation immediately. Test 2 triggers `ModelRetry` because "admin" is taken — the agent retries and suggests "user_admin". The streaming section shows partial output validation accepting incremental chunks, producing a complete story about Oliver the cat.
 
 ---
 
@@ -176,13 +190,13 @@ hidden treasure...
 ```
 === Example 1: TextOutput Post-Processing ===
 Output: {'text': 'Python is a high-level, interpreted programming language known
-    for its readability and simplicity...', 'word_count': 74, 'char_count': 574}
+    for its simplicity and readability...', 'word_count': 66, 'char_count': 495}
 Type: <class 'dict'>
 
 === Example 2: TextOutput for Format Conversion ===
 Output lines: ['IMPROVES CARDIOVASCULAR HEALTH.',
-    'BOOSTS MENTAL WELL-BEING AND REDUCES ANXIETY.',
-    'ENHANCES STRENGTH AND FLEXIBILITY.']
+    'ENHANCES MENTAL WELL-BEING AND REDUCES STRESS.',
+    'AIDS IN WEIGHT MANAGEMENT AND BODY COMPOSITION.']
 Type: <class 'list'>
 
 === Example 3: Mixed Output Types ===
@@ -198,7 +212,7 @@ Type: StructuredAnswer
 
 ```
 === Streaming with Custom Handler ===
-[EVENT] Tool called: get_weather with args: {"location":"Paris","date":"2023-10-05"}
+[EVENT] Tool called: get_weather with args: {"location":"Paris","date":"2023-10-08"}
 [EVENT] Final result started (tool: None)
 Tomorrow in Paris, the weather will be sunny with a temperature of 24°C.
 
@@ -215,8 +229,9 @@ Tomorrow in Paris, the weather will be sunny with a temperature of 24°C.
 
 ```
 === Basic Conversation ===
-Response: The joke is a play on words that combines a well-known brand (Colgate)
-    with the idea of a "scandal." The humor comes from the pun...
+Response: The joke is a play on words combining "Colgate," a well-known
+    toothpaste brand, with the word "colgate," which sounds like "cold gate."
+    The humor comes from the unexpected connection...
 
 === Message Inspection ===
 Total messages in conversation: 3
@@ -228,10 +243,10 @@ Total messages in conversation: 3
       Part 1: TextPart
 
 === Storing and Loading Messages ===
-Serialized 2226 bytes to JSON
+Serialized 2067 bytes to JSON
 Loaded 3 messages from JSON
-Response of History Agent using loaded history: We discussed a joke that involved
-    a play on words related to the Colgate brand...
+Response of History Agent using loaded history: We discussed a joke involving the
+    word "Colgate" and its play on sound with "cold gate."...
 
 === New History after Context-Aware Processing ===
    Message 1: ModelRequest
@@ -253,16 +268,13 @@ Response of History Agent using loaded history: We discussed a joke that involve
 
   Generating 5 jokes...
 Selected joke:
-Here's a cat joke that I think is the best:
-
-**Why was the cat sitting on the computer? Because it wanted to keep an eye
-on the mouse!**
+Here's a great one: **What do you call a pile of cats? A meowtain!**
 
 📈 Final Metrics:
    - Total requests: 3
    - Tool calls executed: 1
-   - Input tokens used: 294
-   - Output tokens generated: 163
+   - Input tokens used: 303
+   - Output tokens generated: 142
 
 ============================================================
 ```
@@ -308,12 +320,12 @@ Step 3: Booking Summary
 
 ```
 === Example 1: FunctionToolset ===
-Response: The weather in Paris is sunny with a temperature of 22°C.
-    The population of Paris is approximately 2.1 million.
+Response: The weather in Paris is sunny with a temperature of 22°C, and its
+    population is approximately 2.1 million.
 
 === Example 2: PrefixedToolset ===
-Response: The weather in London is cloudy with a temperature of 14°C.
-    Additionally, 100 USD is equivalent to 92.00 EUR.
+Response: The weather in London is cloudy with a temperature of 14°C. Also,
+    100 USD is equal to 92.00 EUR.
 
 === Example 3: FilteredToolset ===
 Response: The weather in Tokyo is currently rainy with a temperature of 18°C.
@@ -352,7 +364,7 @@ The example demonstrates the MCP client configuration pattern.
   Step 5: CallToolsNode
   Step 6: End
 
-Final output: The temperature in Lisbon is 26°C.
+Final output: The temperature in Lisbon is currently 26°C.
 Total steps: 6
 
 === Example 2: Inspect Messages During Iteration ===
@@ -364,7 +376,7 @@ Total steps: 6
   Node: CallToolsNode | Messages so far: 4
   Node: End | Messages so far: 4
 
-Final output: The temperature in Paris is 22°C, and in Tokyo, it is 18°C.
+Final output: The current temperature in Paris is 22°C, while in Tokyo it is 18°C.
 Total messages: 4
 
 === Example 3: Usage Tracking During Iteration ===
@@ -373,14 +385,11 @@ Total messages: 4
   ModelRequestNode: requests=0, tool_calls=0, tokens=0
   CallToolsNode: requests=1, tool_calls=0, tokens=115
   ModelRequestNode: requests=1, tool_calls=2, tokens=115
-  CallToolsNode: requests=2, tool_calls=2, tokens=281
-  End: requests=2, tool_calls=2, tokens=281
+  CallToolsNode: requests=2, tool_calls=2, tokens=278
+  End: requests=2, tool_calls=2, tokens=278
 
-Final output: The current temperatures are as follows:
-- London: 14°C
-- Lisbon: 26°C
-
-Lisbon is significantly warmer than London at the moment.
+Final output: The current temperature in London is 14°C, while in Lisbon it is
+26°C. Lisbon is significantly warmer than London at the moment.
 Final usage: 2 requests, 2 tool calls
 ```
 
@@ -442,21 +451,23 @@ stateDiagram-v2
 
 ============================================================
   [Writer] Draft v1: Open source software offers numerous benefits,
-      including enhanced collaboration...
+      including enhanced security, as t...
   [Reviewer] APPROVED
 
 ============================================================
 
 Final content: Open source software offers numerous benefits, including
-    enhanced collaboration and innovation, as developers worldwide can
-    contribute and improve the code. It promotes transparency, allowing
-    users to inspect, modify, and secure the software according to their
-    needs...
+    enhanced security, as the code is publicly accessible for review and
+    improvement by a global community. It fosters innovation through
+    collaboration and allows users to customize the software to meet their
+    specific needs. Furthermore, open source solutions often reduce costs,
+    making high-quality technology accessible to individuals and
+    organizations alike.
 Revisions: 1
 Approved: True
 
 Revision history (1 versions):
-  - Draft v1: Open source software offers numerous benefits, including enhanced coll...
+  - Draft v1: Open source software offers numerous benefits, including enhanced secu...
 
 Mermaid Diagram:
 ---
@@ -495,9 +506,8 @@ Step 3: Continue execution with approved Reads but denied Deletes
 ============================================================
 
 Final result:
-I was able to read the contents of both the README.md and .env files
-successfully. However, I couldn't delete the temp.log file as file
-deletion is not permitted.
+I successfully read the content of the README.md and .env files. However,
+I wasn't able to delete temp.log, as file deletion is not allowed.
 ```
 
 > Uses `DeferredToolRequests` to intercept tool calls before execution, simulating human approval/denial of sensitive operations.
@@ -515,15 +525,15 @@ Evaluating ask_capital ━━━━━━━━━━━━━━━━━━━
 ┏━━━━━━━━━━━┳━━━━━━━━━━┓
 ┃ Case ID   ┃ Duration ┃
 ┡━━━━━━━━━━━╇━━━━━━━━━━┩
-│ france    │  607.2ms │
+│ france    │  575.9ms │
 ├───────────┼──────────┤
-│ japan     │  607.5ms │
+│ japan     │     1.1s │
 ├───────────┼──────────┤
-│ portugal  │  606.8ms │
+│ portugal  │     1.8s │
 ├───────────┼──────────┤
-│ australia │  607.5ms │
+│ australia │  552.1ms │
 ├───────────┼──────────┤
-│ Averages  │  607.2ms │
+│ Averages  │  996.2ms │
 └───────────┴──────────┘
 ```
 
@@ -534,10 +544,34 @@ Evaluating ask_capital ━━━━━━━━━━━━━━━━━━━
 ## 18. A2A Protocol (`18_a2a.py`)
 
 ```
-(Server file — not auto-executed)
+(Server file — starts a long-running ASGI server, timed out during batch run)
 
 Verified: imports succeed and FastA2A app is created.
 Run with: uvicorn 18_a2a:app
 ```
 
-> Exposes a Pydantic AI agent as an A2A-compatible ASGI server using `agent.to_a2a()` from the `fasta2a` package.
+> Exposes a Pydantic AI agent as an A2A-compatible ASGI server using `agent.to_a2a()` from the `fasta2a` package. This is a server process and does not produce terminal output when run directly.
+
+---
+
+## 19. Capabilities (`19_capabilities.py`)
+
+```
+(Not executed — batch run timed out on previous example)
+
+Run individually with: python 19_capabilities.py
+```
+
+> Demonstrates Pydantic AI agent capability declarations and feature discovery. Run this example individually as it was not reached during the batch execution.
+
+---
+
+## 20. Agent Spec (`20_agent_spec.py`)
+
+```
+(Not executed — batch run timed out on previous example)
+
+Run individually with: python 20_agent_spec.py
+```
+
+> Demonstrates Pydantic AI agent specification patterns for defining agent contracts and interfaces. Run this example individually as it was not reached during the batch execution.

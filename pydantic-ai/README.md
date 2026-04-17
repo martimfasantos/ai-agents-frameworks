@@ -57,13 +57,15 @@ uv run python 00_hello_world.py
 | `16_human_in_the_loop.py` | Human-in-the-Loop | Deferred tool approval with `DeferredToolRequests` and `ToolApproved`/`ToolDenied` |
 | `17_evals.py` | Evaluation | `pydantic-evals` Dataset, Case, and evaluate_sync for systematic agent testing |
 | `18_a2a.py` | A2A Protocol | Expose agents as A2A-compatible HTTP servers with `agent.to_a2a()` |
+| `19_capabilities.py` | Capabilities | Composable behavior units: built-in Thinking/Hooks, custom capabilities with tools and instructions |
+| `20_agent_spec.py` | Agent Spec | Declarative agent definitions via YAML/JSON/dict with `AgentSpec` and `Agent.from_spec()` |
 
 ## Key dependencies
 
 | Package | Version | Purpose |
 |---------|---------|---------|
-| `pydantic-ai` | 1.70.0 | Core agent framework |
-| `pydantic-ai-slim[a2a]` | 1.70.0 | A2A protocol support (required for `18_a2a.py`) |
+| `pydantic-ai` | 1.84.0 | Core agent framework |
+| `pydantic-ai-slim[a2a]` | 1.84.0 | A2A protocol support (required for `18_a2a.py`) |
 | `pydantic-evals` | >=0.2.0 | Evaluation framework (required for `17_evals.py`) |
 | `pydantic-graph` | >=0.2.0 | Graph/FSM library (required for `14_stateful_graphs.py`, `15_graphs_with_genai.py`) |
 | `pydantic` | >=2.10.0 | Data validation and structured output schemas |
