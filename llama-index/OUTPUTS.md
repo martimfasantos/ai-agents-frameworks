@@ -133,7 +133,7 @@ Long-term memory blocks: 1
 ## 06_agent_types.py
 
 ```
-warning: `VIRTUAL_ENV=/Users/martimsantos/Projects/ai-agents-frameworks/google-adk/.venv` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+(No output — example creates agents without running them)
 ```
 
 ## 07_multi_modal_agents.py

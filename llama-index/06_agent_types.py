@@ -47,6 +47,7 @@ react_agent = ReActAgent(
     description="A ReAct agent that reasons step-by-step using tools.",
     tools=[multiply_tool],
     llm=llm,
+    verbose=True,
 )
 
 # 3.2 Function Agent
