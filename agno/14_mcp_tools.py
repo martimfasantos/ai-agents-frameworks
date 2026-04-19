@@ -45,9 +45,9 @@ async def main() -> None:
             instructions=[
                 "You are a file system assistant.",
                 "Use the available MCP tools to interact with the filesystem.",
-                "Be helpful and concise.",
+                "Be helpful and concise. Keep responses to 3-5 lines max.",
             ],
-            markdown=True,
+            markdown=False,
         )
 
         # Ask the agent to list files in /tmp

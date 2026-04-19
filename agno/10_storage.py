@@ -42,6 +42,7 @@ agent = Agent(
         "You are a helpful coding tutor.",
         "Remember what the student has been learning.",
         "Build on previous topics in the conversation.",
+        "Keep responses concise — 3-5 sentences max.",
     ],
     markdown=True,
 )
