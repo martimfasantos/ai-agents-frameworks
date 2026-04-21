@@ -64,9 +64,9 @@ uv run python 00_hello_world.py
 
 | Package | Version | Purpose |
 |---------|---------|---------|
-| `agent-framework` | 1.0.0rc5 | Core framework (agents, tools, middleware, workflows) |
-| `agent-framework-declarative` | 1.0.0b260319 | YAML/JSON declarative agent definitions |
-| `agent-framework-orchestrations` | 1.0.0b260319 | Sequential and Handoff orchestration builders |
+| `agent-framework` | 1.0.1 | Core framework (agents, tools, middleware, workflows) |
+| `agent-framework-declarative` | 1.0.0b260409 | YAML/JSON declarative agent definitions |
+| `agent-framework-orchestrations` | 1.0.0b260409 | Sequential and Handoff orchestration builders |
 | `pydantic` | >=2.0 | Structured output schemas |
 | `pydantic-settings` | >=2.0 | `.env` file loading via `BaseSettings` |
 | `python-dotenv` | >=1.0 | Explicit `.env` loading (framework does not auto-load) |

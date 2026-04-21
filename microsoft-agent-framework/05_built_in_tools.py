@@ -3,7 +3,7 @@ import asyncio
 from dotenv import load_dotenv
 
 from agent_framework import Agent
-from agent_framework.openai import OpenAIResponsesClient
+from agent_framework.openai import OpenAIChatClient
 
 from settings import settings
 
@@ -15,12 +15,11 @@ In this example, we explore Microsoft Agent Framework
 with the following features:
 - Built-in code interpreter tool
 - Built-in web search tool
-- Using OpenAIResponsesClient for hosted tool support
+- Using OpenAIChatClient for hosted tool support
 
 Built-in tools are hosted by the model provider and run
 server-side. Code interpreter executes Python in a sandbox,
-and web search retrieves live information. These require
-the Responses API client (not the Chat Completions client).
+and web search retrieves live information.
 
 For more details, visit:
 https://learn.microsoft.com/en-us/agent-framework/agents/tools/?pivots=programming-language-python
@@ -29,9 +28,9 @@ https://learn.microsoft.com/en-us/agent-framework/agents/tools/?pivots=programmi
 
 
 async def main() -> None:
-    # --- 1. Create the Responses client (required for built-in tools) ---
-    client = OpenAIResponsesClient(
-        model_id=settings.OPENAI_MODEL_NAME,
+    # --- 1. Create the client ---
+    client = OpenAIChatClient(
+        model=settings.OPENAI_MODEL_NAME,
         api_key=settings.OPENAI_API_KEY.get_secret_value(),
     )
 

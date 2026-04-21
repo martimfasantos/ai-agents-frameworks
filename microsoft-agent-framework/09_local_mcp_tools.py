@@ -31,7 +31,7 @@ https://learn.microsoft.com/en-us/agent-framework/agents/tools/local-mcp-tools?p
 async def main() -> None:
     # --- 1. Create the client ---
     client = OpenAIChatClient(
-        model_id=settings.OPENAI_MODEL_NAME,
+        model=settings.OPENAI_MODEL_NAME,
         api_key=settings.OPENAI_API_KEY.get_secret_value(),
     )
 

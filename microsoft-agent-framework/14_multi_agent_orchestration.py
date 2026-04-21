@@ -50,7 +50,7 @@ def search_hotels(destination: str) -> str:
 
 async def main() -> None:
     client = OpenAIChatClient(
-        model_id=settings.OPENAI_MODEL_NAME,
+        model=settings.OPENAI_MODEL_NAME,
         api_key=settings.OPENAI_API_KEY.get_secret_value(),
     )
 
@@ -109,6 +109,7 @@ async def main() -> None:
         description="Specialist for finding flights",
         instructions="You find flights. Use your search_flights tool and report results concisely.",
         tools=[search_flights],
+        require_per_service_call_history_persistence=True,
     )
 
     hotel_agent = client.as_agent(
@@ -116,6 +117,7 @@ async def main() -> None:
         description="Specialist for finding hotels",
         instructions="You find hotels. Use your search_hotels tool and report results concisely.",
         tools=[search_hotels],
+        require_per_service_call_history_persistence=True,
     )
 
     triage = client.as_agent(
@@ -125,6 +127,7 @@ async def main() -> None:
             "You are a triage agent. Determine what the user needs and "
             "hand off to the appropriate specialist."
         ),
+        require_per_service_call_history_persistence=True,
     )
 
     # --- 5. Build and run a handoff orchestration ---
