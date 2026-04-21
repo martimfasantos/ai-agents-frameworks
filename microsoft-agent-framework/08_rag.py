@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 from agent_framework import (
     Agent,
     AgentSession,
-    BaseContextProvider,
+    ContextProvider,
     Message,
     SessionContext,
     SupportsAgentRun,
@@ -23,7 +23,7 @@ In this example, we explore Microsoft Agent Framework
 with the following features:
 - RAG using custom context providers
 - Injecting retrieved context via extend_instructions
-- BaseContextProvider.before_run for pre-query retrieval
+- ContextProvider.before_run for pre-query retrieval
 
 Context providers let you inject relevant documents or
 data into the agent's context before each LLM call. This
@@ -58,7 +58,7 @@ KNOWLEDGE_BASE = {
 
 
 # --- 2. Create a custom context provider ---
-class PolicyContextProvider(BaseContextProvider):
+class PolicyContextProvider(ContextProvider):
     """Retrieves relevant policy documents and injects them as extra instructions."""
 
     async def before_run(
@@ -100,7 +100,7 @@ class PolicyContextProvider(BaseContextProvider):
 async def main() -> None:
     # --- 3. Create the agent with the context provider ---
     client = OpenAIChatClient(
-        model_id=settings.OPENAI_MODEL_NAME,
+        model=settings.OPENAI_MODEL_NAME,
         api_key=settings.OPENAI_API_KEY.get_secret_value(),
     )
 
