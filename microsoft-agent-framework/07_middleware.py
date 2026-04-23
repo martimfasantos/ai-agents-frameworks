@@ -87,7 +87,7 @@ def get_population(city: str) -> str:
 async def main() -> None:
     # --- 5. Create the client with chat + function middleware ---
     client = OpenAIChatClient(
-        model_id=settings.OPENAI_MODEL_NAME,
+        model=settings.OPENAI_MODEL_NAME,
         api_key=settings.OPENAI_API_KEY.get_secret_value(),
         middleware=[logging_chat_middleware, tool_logging_middleware],
     )

@@ -55,7 +55,7 @@ def get_restaurant(city: str, cuisine: str) -> str:
 async def main() -> None:
     # --- 2. Create specialist agents ---
     client = OpenAIChatClient(
-        model_id=settings.OPENAI_MODEL_NAME,
+        model=settings.OPENAI_MODEL_NAME,
         api_key=settings.OPENAI_API_KEY.get_secret_value(),
     )
 

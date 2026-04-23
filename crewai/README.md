@@ -2,7 +2,7 @@
 
 - Repo: https://github.com/crewAIInc/crewAI
 - Documentation: https://docs.crewai.com/
-- Version: **1.12.2**
+- Version: **1.14.2**
 
 ## About CrewAI
 
@@ -103,6 +103,6 @@ uv run python 22_crew_simplification.py
 
 ## Key dependencies
 
-- `crewai[tools]>=1.12.2` - CrewAI framework with built-in tools
+- `crewai[tools]>=1.14.2` - CrewAI framework with built-in tools
 - `pydantic>=2.11.7` - Data validation and structured outputs
 - `pydantic-settings>=2.10.1` - Settings management from .env
