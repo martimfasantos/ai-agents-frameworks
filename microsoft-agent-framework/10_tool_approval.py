@@ -78,7 +78,7 @@ async def approval_middleware(
 async def main() -> None:
     # --- 3. Create the client with approval middleware ---
     client = OpenAIChatClient(
-        model_id=settings.OPENAI_MODEL_NAME,
+        model=settings.OPENAI_MODEL_NAME,
         api_key=settings.OPENAI_API_KEY.get_secret_value(),
         middleware=[approval_middleware],
     )

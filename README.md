@@ -46,7 +46,7 @@ This repository provides a comprehensive, hands-on comparison of modern AI agent
           <img src="res/ag2.svg" alt="AG2" width="52" style="vertical-align: middle;">
         </picture>
       </td>
-      <td><code>0.11.4</code></td>
+      <td><code>0.11.5</code></td>
       <td>
           <a href="https://docs.ag2.ai/latest/">
             <picture>
@@ -74,7 +74,7 @@ This repository provides a comprehensive, hands-on comparison of modern AI agent
           <img src="res/agno.svg" alt="Agno" width="68" style="vertical-align: middle;">
         </picture>
       </td>
-      <td><code>2.5.10</code></td>
+      <td><code>2.5.17</code></td>
       <td>
           <a href="https://docs.agno.com/introduction">
             <picture>
@@ -159,7 +159,7 @@ This repository provides a comprehensive, hands-on comparison of modern AI agent
           <img src="res/crewai.svg" alt="CrewAI" width="72">
         </picture>
       </td>
-      <td><code>1.12.2</code></td>
+      <td><code>1.14.2</code></td>
       <td>
           <a href="https://docs.crewai.com/">
             <picture>
@@ -311,7 +311,7 @@ This repository provides a comprehensive, hands-on comparison of modern AI agent
         </picture>
     <strong style="vertical-align: middle; font-size: 1.2em;">Agent Framework</strong>
       </td>
-      <td><code>1.0.0rc5</code></td>
+      <td><code>1.0.1</code></td>
       <td>
           <a href="https://learn.microsoft.com/en-us/agent-framework/">
             <picture>
@@ -340,7 +340,7 @@ This repository provides a comprehensive, hands-on comparison of modern AI agent
         </picture>
     <strong style="vertical-align: middle; font-size: 1.2em;">OpenAI Agents SDK</strong>
       </td>
-      <td><code>0.12.5</code></td>
+      <td><code>0.14.2</code></td>
       <td>
           <a href="https://openai.github.io/openai-agents-python/">
             <picture>
