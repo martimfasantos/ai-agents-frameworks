@@ -2,14 +2,17 @@
 name = "openai-agents-sdk-examples"
 version = "0.1.0"
 description = "OpenAI Agents SDK examples"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 dependencies = [
-    "openai>=2.0.0",
-    "openai-agents[viz]>=0.12.5",
-    "pydantic>=2.10.0",
-    "pydantic-settings>=2.9.0",
-    "python-dotenv>=1.0.0",
-    "requests>=2.32.0",
-    "aiosqlite>=0.20.0",
-    "websockets>=15.0",
+    "openai==2.29.0",
+    "openai-agents[viz,voice]==0.14.2",
+    "pydantic==2.12.5",
+    "pydantic-settings==2.9.1",
+    "python-dotenv==1.1.0",
+    "requests==2.32.3",
+    "aiosqlite==0.22.1",
+    "websockets==15.0.1",
+    "numpy==2.4.4",
+    "sounddevice==0.5.5",
+    "griffe==1.15.0",
 ]

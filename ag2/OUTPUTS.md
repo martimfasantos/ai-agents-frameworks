@@ -1,6 +1,6 @@
 # AG2 Example Outputs
 
-Captured outputs from running all 12 examples against ag2 v0.11.4 with `gpt-4o-mini`.
+Captured outputs from running all 12 examples against ag2 v0.11.5 with `gpt-4o-mini`.
 
 > These outputs may vary between runs due to LLM non-determinism. The structure and tool invocations should remain consistent.
 

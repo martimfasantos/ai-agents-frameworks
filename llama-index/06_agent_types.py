@@ -30,10 +30,12 @@ llm = OpenAI(
     api_key=settings.OPENAI_API_KEY.get_secret_value(),
 )
 
+
 # --- 2. Create an example tool ---
 def multiply(a: int, b: int) -> int:
     """Multiple two integers and returns the result integer"""
     return a * b
+
 
 multiply_tool = FunctionTool.from_defaults(fn=multiply)
 
@@ -41,6 +43,8 @@ multiply_tool = FunctionTool.from_defaults(fn=multiply)
 # --- 3. Create the 3 agent types ---
 # 3.1 ReAct Agent
 react_agent = ReActAgent(
+    name="react_agent",
+    description="A ReAct agent that reasons step-by-step using tools.",
     tools=[multiply_tool],
     llm=llm,
     verbose=True,
@@ -48,9 +52,12 @@ react_agent = ReActAgent(
 
 # 3.2 Function Agent
 function_agent = FunctionAgent(
+    name="function_agent",
+    description="A function-calling agent that invokes tools directly.",
     tools=[multiply_tool],
     llm=llm,
 )
+
 
 # 3.3 CodeAct Agent
 class SimpleCodeExecutor:
@@ -65,7 +72,7 @@ class SimpleCodeExecutor:
         # State that persists between executions
         self.globals = globals
         self.locals = locals
-    
+
     def execute(self, code: str) -> Tuple[bool, str, Any]:
         """
         Execute Python code and capture output and return values.
@@ -73,11 +80,12 @@ class SimpleCodeExecutor:
         """
         return True, "Execution successful", eval(code, self.globals, self.locals)
 
+
 code_agent = CodeActAgent(
+    name="code_agent",
     code_execute_fn=SimpleCodeExecutor(locals={}, globals={}).execute,
     tools=[multiply_tool],
     llm=llm,
-    verbose=True,
 )
 
 # 3.4 Agent Workflow
@@ -85,8 +93,6 @@ from llama_index.core.agent.workflow import AgentWorkflow
 
 multi_agent = AgentWorkflow(
     agents=[react_agent, function_agent],
-    root_agent=react_agent,
-    initial_state={
-        "state": "start"
-    }
+    root_agent="react_agent",
+    initial_state={"state": "start"},
 )

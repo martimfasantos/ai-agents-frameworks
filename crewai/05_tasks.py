@@ -2,7 +2,7 @@ import os
 from pydantic import BaseModel
 
 from crewai import Agent, Task, Crew
-from crewai_tools import CodeInterpreterTool
+from crewai_tools import FileReadTool
 
 from settings import settings
 
@@ -61,9 +61,7 @@ simplify_code_snippet_task = Task(
         generate_code_snippet_task
     ],  # Other tasks whose outputs will be used as context for this task
     markdown=True,  # Enable automatic markdown formatting
-    tools=[
-        CodeInterpreterTool()
-    ],  # Limit the agent to only use this tool for this task
+    tools=[FileReadTool()],  # Limit the agent to only use this tool for this task
     # (this tool will be added to the agent's tools automatically)
 )
 

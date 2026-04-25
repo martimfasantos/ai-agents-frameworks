@@ -4,7 +4,7 @@ import time
 from dotenv import load_dotenv
 
 from agent_framework import Agent
-from agent_framework.openai import OpenAIResponsesClient
+from agent_framework.openai import OpenAIChatClient
 
 from settings import settings
 
@@ -30,9 +30,9 @@ https://learn.microsoft.com/en-us/agent-framework/agents/background-responses?pi
 
 
 async def main() -> None:
-    # --- 1. Create a Responses client (background mode requires it) ---
-    client = OpenAIResponsesClient(
-        model_id=settings.OPENAI_MODEL_NAME,
+    # --- 1. Create a client ---
+    client = OpenAIChatClient(
+        model=settings.OPENAI_MODEL_NAME,
         api_key=settings.OPENAI_API_KEY.get_secret_value(),
     )
 

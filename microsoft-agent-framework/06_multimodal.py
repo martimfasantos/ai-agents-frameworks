@@ -33,7 +33,7 @@ SAMPLE_IMAGE_URL = "https://upload.wikimedia.org/wikipedia/commons/4/47/PNG_tran
 async def main() -> None:
     # --- 1. Create the client and agent ---
     client = OpenAIChatClient(
-        model_id=settings.OPENAI_MODEL_NAME,
+        model=settings.OPENAI_MODEL_NAME,
         api_key=settings.OPENAI_API_KEY.get_secret_value(),
     )
 
