@@ -1,10 +1,10 @@
 # OpenAI Agents SDK — Example Outputs
 
-All examples run with `openai-agents>=0.12.5`, `openai>=2.0.0`, model `gpt-4o-mini`.
+All examples run with `openai-agents>=0.14.2`, `openai>=2.0.0`, model `gpt-4o-mini`.
 
 ---
 
-## 0. Hello World (`0_hello_world.py`)
+## 0. Hello World (`00_hello_world.py`)
 
 ```
 A function calls self,
@@ -14,7 +14,7 @@ Echoes through code's depths.
 
 ---
 
-## 1. Tools and Metrics (`1_tools_and_metrics.py`)
+## 1. Tools and Metrics (`01_tools_and_metrics.py`)
 
 ```
 [debug] get_weather called
@@ -38,7 +38,7 @@ Metrics:
 
 ---
 
-## 2. Structured Outputs (`2_structured_outputs.py`)
+## 2. Structured Outputs (`02_structured_outputs.py`)
 
 ```
 [debug] get_user_profile called
@@ -59,7 +59,7 @@ Final response:
 
 ---
 
-## 3. Parallelization in Workflow (`3_parallelization_in_workflow.py`)
+## 3. Parallelization in Workflow (`03_parallelization_in_workflow.py`)
 
 **Input:** `The sun rises over the mountains`
 
@@ -78,7 +78,7 @@ El sol sale sobre las montañas.
 
 ---
 
-## 4. Handoffs and Streaming (`4_handoffs_and_streaming.py`)
+## 4. Handoffs and Streaming (`04_handoffs_and_streaming.py`)
 
 **Input:** `Hello, can you speak Portuguese?` then `exit`
 
@@ -94,7 +94,7 @@ Enter a message: Exiting...
 
 ---
 
-## 5. Agents as Tools (`5_agents_as_tools.py`)
+## 5. Agents as Tools (`05_agents_as_tools.py`)
 
 **Input:** `Translate 'hello world' to Spanish, French, and Italian`
 
@@ -119,7 +119,7 @@ Here are the translations for "hello world":
 
 ---
 
-## 6. Output Guardrails (`6_output_guardrails.py`)
+## 6. Output Guardrails (`06_output_guardrails.py`)
 
 ```
 First message passed - guardrail didn't trip as expected.
@@ -132,7 +132,7 @@ Guardrail tripped. Info: {'phone_number_in_response': False,
 
 ---
 
-## 7. LLM as a Judge (`7_llm_as_a_judge.py`)
+## 7. LLM as a Judge (`07_llm_as_a_judge.py`)
 
 **Input:** `A detective story in a futuristic city`
 
@@ -185,7 +185,7 @@ Final story outline:
 
 ---
 
-## 8. Tracing (`8_tracing.py`)
+## 8. Tracing (`08_tracing.py`)
 
 ```
 Joke: Sure! Why did the scarecrow win an award?
@@ -201,7 +201,7 @@ on your face.
 
 ---
 
-## 9. Sessions (`9_sessions.py`)
+## 9. Sessions (`09_sessions.py`)
 
 ```
 === Sessions Example ===
@@ -382,3 +382,31 @@ Open res/agent_graph.png to see the visual graph!
 > and tool connections (dotted arrows).
 
 ![Agent Graph](res/agent_graph.png)
+
+---
+
+## 14. Voice Agent (`14_voice_agent.py`)
+
+```
+Voice Pipeline created
+  Workflow: SingleAgentVoiceWorkflow
+  Agent: VoiceAssistant
+  Model: gpt-4o-mini
+
+Audio input: 3s of silence at 24000Hz
+Running pipeline (STT → Agent → TTS)...
+
+  [lifecycle] turn_started
+  [lifecycle] turn_ended
+  [lifecycle] session_ended
+
+Pipeline complete!
+  Audio chunks received: 7
+  Total audio bytes: 391200
+  Lifecycle events: ['turn_started', 'turn_ended', 'session_ended']
+```
+
+> Demonstrates the `VoicePipeline` (STT → Agent → TTS) with `SingleAgentVoiceWorkflow`.
+> Sends 3 seconds of silence as input and collects streamed audio output events
+> without requiring audio hardware. In production, feed real microphone data and
+> play back audio chunks via `sounddevice`.

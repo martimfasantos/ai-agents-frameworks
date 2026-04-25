@@ -2,7 +2,7 @@
 
 - Repo: https://github.com/strands-agents/sdk-python
 - Documentation: https://strandsagents.com/latest/
-- Version: **1.32.0**
+- Version: **1.35.0**
 
 ## About Strands Agents SDK
 
@@ -92,6 +92,6 @@ uv run python 16_skills_plugin.py
 
 ## Key dependencies
 
-- `strands-agents>=1.32.0` - Strands Agents SDK
+- `strands-agents>=1.35.0` - Strands Agents SDK
 - `strands-agents-tools>=0.2.23` - Community tools (calculator, current_time, shell, etc.)
 - `pydantic-settings` - Settings management from .env
