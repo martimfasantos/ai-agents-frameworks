@@ -245,7 +245,7 @@ This repository provides a comprehensive, hands-on comparison of modern AI agent
           <img src="res/langchain.svg" alt="LangChain" width="120" style="vertical-align: middle;">
         </picture>
       </td>
-      <td><code>1.3.14</code></td>
+      <td><code>1.4.0</code></td>
       <td>
           <a href="https://docs.langchain.com/oss/python/langchain/">
             <picture>
