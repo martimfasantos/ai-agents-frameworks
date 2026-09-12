@@ -2,7 +2,7 @@
 
 - Repo: https://github.com/run-llama/llama_index
 - Documentation: https://developers.llamaindex.ai/
-- Version: **0.14.23**
+- Version: **0.14.24**
 
 ## What is LlamaIndex?
 
@@ -157,8 +157,8 @@ uv run agent_workflows/15_testing_workflows.py
 
 | Package | Version |
 |---------|---------|
-| `llama-index` / `llama-index-core` | 0.14.23 |
-| `llama-index-workflows` | 2.23.0 |
+| `llama-index` / `llama-index-core` | 0.14.24 |
+| `llama-index-workflows` | 2.23.3 |
 | `llama-agents-server` | 0.7.0 |
 | `llama-index-utils-workflow` | 0.11.0 |
 | `llama-index-llms-openai` | 0.7.10 |

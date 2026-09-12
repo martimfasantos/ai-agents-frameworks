@@ -2,7 +2,7 @@ import asyncio
 import logging
 import sys
 
-from mcp.server.fastmcp import FastMCP
+from mcp.server.mcpserver import MCPServer
 
 from llama_index.core.agent.workflow import FunctionAgent
 from llama_index.core.workflow import (
@@ -40,11 +40,11 @@ https://developers.llamaindex.ai/python/framework/module_guides/mcp/convert_exis
 -------------------------------------------------------
 """
 
-# FastMCP configures logging at INFO on import, which would drown the demo output
+# MCPServer configures logging at INFO on import, which would drown the demo output
 logging.disable(logging.INFO)
 
 # --- 1. A tiny MCP server with mock data ---
-mcp_server = FastMCP(name="Weather MCP Server")
+mcp_server = MCPServer(name="Weather MCP Server")
 
 
 @mcp_server.tool()
@@ -125,7 +125,7 @@ async def main():
     print("\nWorkflow published as MCP tools:")
     for tool in await mcp_app.list_tools():
         # The start event model becomes the schema of the tool's run_args argument
-        schemas = tool.inputSchema.get("$defs", {})
+        schemas = tool.input_schema.get("$defs", {})
         for name, schema in schemas.items():
             print(f"  {tool.name}(run_args: {name}) fields={sorted(schema['properties'])}")
     # Serve it with: mcp_app.run("streamable-http")
