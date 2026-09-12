@@ -1,6 +1,6 @@
 # Pydantic AI
 
-Version: **2.24.0**
+Version: **2.43.0**
 
 - Repo: https://github.com/pydantic/pydantic-ai
 - Documentation: https://pydantic.dev/docs/ai/overview/
@@ -72,15 +72,16 @@ uv run python 00_hello_world.py
 | `24_cost_and_usage_limits.py` | Cost & Usage Limits | `RunUsage.cost`, `UsageLimits(cost_limit=)`, `per_request_input_tokens_limit` |
 | `25_agentic_evals.py` | Agentic Evals | ToolCorrectness, TrajectoryMatch, ArgumentCorrectness, MaxToolCalls, GEval |
 | `26_tool_failures.py` | Tool Failures | `ToolFailed` vs `ModelRetry`, retry budgets, `RunContext.is_tool_available` |
+| `27_run_cancellation.py` | Run Cancellation | `AgentRun.cancel()`, `RunContext.cancel()`, `RunCancelled` |
 
 ## Key dependencies
 
 | Package | Version | Purpose |
 |---------|---------|---------|
-| `pydantic-ai[spec]` | 2.24.0 | Core agent framework; the `spec` extra is required for `20_agent_spec.py` |
+| `pydantic-ai[spec]` | 2.43.0 | Core agent framework; the `spec` extra is required for `20_agent_spec.py` |
 | `fasta2a` | 0.6.1 | A2A protocol support (required for `18_a2a.py`) |
-| `pydantic-evals` | 2.24.0 | Evaluation framework (required for `17_evals.py`, `25_agentic_evals.py`) |
-| `pydantic-graph` | 2.24.0 | Graph/FSM library (required for `14_stateful_graphs.py`, `15_graphs_with_genai.py`) |
+| `pydantic-evals` | 2.43.0 | Evaluation framework (required for `17_evals.py`, `25_agentic_evals.py`) |
+| `pydantic-graph` | 2.43.0 | Graph/FSM library (required for `14_stateful_graphs.py`, `15_graphs_with_genai.py`) |
 | `pydantic` | >=2.10.0 | Data validation and structured output schemas |
 | `pydantic-settings` | >=2.7.0 | `.env` file loading via `BaseSettings` |
 | `openai` | >=1.60.0 | OpenAI API client |

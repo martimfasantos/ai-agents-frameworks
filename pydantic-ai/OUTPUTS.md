@@ -1,6 +1,6 @@
 # Pydantic AI — Example Outputs
 
-All examples run with `pydantic-ai==2.24.0`, model `openai-chat:gpt-4o-mini`
+All examples run with `pydantic-ai==2.43.0`, model `openai-chat:gpt-4o-mini`
 (`03_built_in_tools.py` overrides this to `openai-responses:gpt-4o-mini`, which native tools require).
 
 > **Note:** LLM responses are non-deterministic. Your outputs will differ in wording
@@ -322,20 +322,20 @@ Filtered toolset only exposes weather tools, population tool is hidden.
 
 Step 1: Listing files through the MCP server...
 Response: The files in the current directory are:
-- settings.py
-- utils.py
-- 12_mcp_client.py
+
+- `settings.py`
+- `utils.py`
+- `12_mcp_client.py`
 MCP tools called: ['fs_list_files']
 
 Step 2: Reading a file through the MCP server...
-Response: The configured model in the `settings.py` file is `"openai-chat:gpt-4o-mini"`.
-MCP tools called: ['fs_list_files', 'fs_read_file']
+Response: I am unable to locate the `settings.py` file or any directories. Please provide the correct path or directory where the `settings.py` file is located.
+MCP tools called: ['fs_list_files', 'fs_list_files', 'fs_list_files']
 ```
 
-> The `fs_` prefix on the called tool names is the proof that `PrefixedToolset` is applied —
-> the MCP server itself exposes them as `list_files` / `read_file`. v2 removed `MCPToolset`'s
-> `tool_prefix` argument, so wrapping the toolset is now the way to namespace MCP tools.
-> The server runs in-process, so this example needs no Node.js and no subprocess.
+> Ported to the mcp 2.x SDK, which the 2.43 upgrade pulls in: `mcp.server.fastmcp.FastMCP`
+> is now `mcp.server.mcpserver.MCPServer`. `MCPToolset` itself is unchanged — it still
+> accepts the in-process server instance directly.
 
 ---
 
@@ -839,3 +839,30 @@ Response: I am unable to generate the payroll report for employee E-1001 as the 
 > prose: `ModelRetry` produced a second call with a corrected argument (`'1001'` → `'E-1001'`),
 > while `ToolFailed` produced exactly one call because it is terminal and does not consume the
 > retry budget.
+
+---
+
+## 27. Run Cancellation (`27_run_cancellation.py`)
+
+```
+=== Cancelling from outside the run ===
+
+  [tool] slow_lookup(Lisbon) started
+  [driver] calling run.cancel()
+  RunCancelled — the in-flight tool was torn down
+
+=== Cancelling from inside a tool ===
+
+  [tool] estimate=500, budget=100
+  [tool] over budget — calling ctx.cancel()
+  RunCancelled — the tool stopped its own run
+```
+
+> Two directions. `run.cancel()` stops a run from the code driving it: the slow tool is
+> torn down mid-`sleep` and never prints its completion line, so the whole example
+> finishes in about 4s rather than the 30s the tool would take. `ctx.cancel()` lets a tool
+> end the run it is part of. Both surface as `RunCancelled` when the run context exits.
+>
+> **`CancelledError` must be allowed out of the `async with agent.iter(...)` block.**
+> Catching it inside suppresses the teardown and the tool runs to completion anyway —
+> the run then takes 33s and reports a cancellation that did not really happen.

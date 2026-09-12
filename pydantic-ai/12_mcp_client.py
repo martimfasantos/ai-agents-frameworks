@@ -1,7 +1,7 @@
 import asyncio
 
 from dotenv import load_dotenv
-from mcp.server.fastmcp import FastMCP
+from mcp.server.mcpserver import MCPServer
 
 from pydantic_ai import Agent
 from pydantic_ai.mcp import MCPToolset
@@ -15,7 +15,7 @@ load_dotenv()
 -----------------------------------------------------------------------
 In this example, we explore Pydantic AI with the following features:
 - Connecting to MCP (Model Context Protocol) servers with MCPToolset
-- Running an in-process FastMCP server so the example needs no subprocess
+- Running an in-process MCPServer so the example needs no subprocess
 - Using MCP tools as agent toolsets
 - PrefixedToolset to namespace MCP tool names and avoid collisions
 
@@ -23,7 +23,7 @@ MCP is an open protocol that lets AI agents discover and use tools
 exposed by external servers. MCPToolset is built on the FastMCP client,
 so it accepts anything FastMCP can build a transport from: an HTTP/SSE
 URL, a stdio script path, a pre-built client, or -- as used here -- an
-in-process FastMCP server instance.
+in-process MCPServer instance.
 
 NOTE: v2 replaced MCPServerStdio/MCPServerSSE/MCPServerStreamableHTTP with
 the single MCPToolset, which takes one positional argument instead of a
@@ -39,7 +39,7 @@ https://pydantic.dev/docs/ai/mcp/client/
 # --- 1. Define a small in-process MCP server ---
 # Any MCP server works here (a URL or a stdio script path); an in-process
 # server keeps the example self-contained and free of external processes.
-mcp_server = FastMCP("file-tools", log_level="WARNING")
+mcp_server = MCPServer("file-tools", log_level="WARNING")
 
 
 @mcp_server.tool()
