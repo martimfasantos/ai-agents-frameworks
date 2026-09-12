@@ -2,7 +2,7 @@
 
 - Repo: https://github.com/ag2ai/ag2
 - Documentation: https://docs.ag2.ai/latest/
-- Version: **1.0.1**
+- Version: **1.0.5**
 
 ## About AG2
 
@@ -113,8 +113,8 @@ uv run python 21_cli_agents_acp.py
 
 ## Key dependencies
 
-- `ag2[openai,mcp,a2a,acp,metrics]>=1.0.1` - AG2 with OpenAI, MCP, A2A, ACP and Prometheus extras
+- `ag2[openai,mcp,a2a,acp,metrics]>=1.0.5` - AG2 with OpenAI, MCP, A2A, ACP and Prometheus extras
 - `a2a-sdk[http-server,grpc]` - required by `A2AServer` (its module imports the gRPC transport unconditionally)
-- `mcp>=1.11,<2` - Model Context Protocol SDK (ag2 1.0.1 pins `mcp<2`)
+- `mcp>=2.0,<3` - Model Context Protocol SDK (ag2 1.0.3+ requires mcp 2.x)
 - `pydantic-settings` - settings management from .env
 - `uvicorn` - ASGI server for the A2A example

@@ -1,6 +1,6 @@
 # AG2 Example Outputs
 
-Captured outputs from running all 22 examples against ag2 v1.0.1 with `gpt-4o-mini`.
+Captured outputs from running all 22 examples against ag2 v1.0.5 with `gpt-4o-mini`.
 
 > These outputs may vary between runs due to LLM non-determinism. The structure, tool invocations, and event sequences should remain consistent.
 
@@ -211,13 +211,16 @@ Agent: The result of (15 + 27) * 3 is 126.
 === MCP tool activity ===
   -> add({"a": 15, "b": 27})
   -> multiply({"a": 3, "b": 1})
-  <- 3.0
   <- 42.0
+  <- 3.0
   -> multiply({"a":42,"b":3})
   <- 126.0
 ```
 
-> The `add` and `multiply` tools are discovered from `mcp_server.py` over stdio and executed locally. The FastMCP server's own protocol logging goes to stderr and is not shown here.
+> Ported to the mcp 2.x SDK: `mcp.server.fastmcp.FastMCP` is now
+> `mcp.server.mcpserver.MCPServer`. ag2 1.0.3 moved every MCP surface to mcp 2.0
+> and raised its bound to `>=2.0.0,<3`, so the 1.x server in `mcp_server.py` no
+> longer started and the client failed with `MCPError: Connection closed`.
 
 ---
 
