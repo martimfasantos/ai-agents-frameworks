@@ -90,8 +90,13 @@ def lookup_account(account_id: str) -> str:
 # --- 3. Define agent nodes ---
 llm = ChatOpenAI(model=settings.OPENAI_MODEL_NAME)
 
+# Triage only transfers. Every tool it can call returns a Command with its own
+# goto, so routing out of the triage tools node is entirely Command-driven.
+# parallel_tool_calls=False keeps it to one transfer per turn — two Commands
+# in one turn would mean two conflicting gotos.
 triage_llm = llm.bind_tools(
-    [transfer_to_billing, transfer_to_technical, lookup_account]
+    [transfer_to_billing, transfer_to_technical],
+    parallel_tool_calls=False,
 )
 billing_llm = llm.bind_tools([lookup_account])
 technical_llm = llm.bind_tools([lookup_account])
@@ -136,17 +141,30 @@ builder = StateGraph(SupportState)
 builder.add_node("triage_agent", triage_agent)
 builder.add_node("billing_agent", billing_agent)
 builder.add_node("technical_agent", technical_agent)
-builder.add_node(
-    "tools", ToolNode([transfer_to_billing, transfer_to_technical, lookup_account])
-)
+
+# Each agent gets its own tools node. A shared one would need a static edge
+# back to a single caller, which would fight the Command's goto and run two
+# agents in the same superstep.
+builder.add_node("triage_tools", ToolNode([transfer_to_billing, transfer_to_technical]))
+builder.add_node("billing_tools", ToolNode([lookup_account]))
+builder.add_node("technical_tools", ToolNode([lookup_account]))
 
 builder.add_edge(START, "triage_agent")
-builder.add_conditional_edges("triage_agent", tools_condition)
-builder.add_conditional_edges("billing_agent", tools_condition)
-builder.add_conditional_edges("technical_agent", tools_condition)
-builder.add_edge("tools", "triage_agent")
-builder.add_edge("billing_agent", END)
-builder.add_edge("technical_agent", END)
+
+# tools_condition routes to END by default; point it at each agent's own node.
+builder.add_conditional_edges(
+    "triage_agent", tools_condition, {"tools": "triage_tools", END: END}
+)
+builder.add_conditional_edges(
+    "billing_agent", tools_condition, {"tools": "billing_tools", END: END}
+)
+builder.add_conditional_edges(
+    "technical_agent", tools_condition, {"tools": "technical_tools", END: END}
+)
+
+# No edge out of triage_tools — the Command's goto does the routing.
+builder.add_edge("billing_tools", "billing_agent")
+builder.add_edge("technical_tools", "technical_agent")
 
 graph = builder.compile()
 
