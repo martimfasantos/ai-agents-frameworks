@@ -2,7 +2,7 @@
 
 - Repo: https://github.com/crewAIInc/crewAI
 - Documentation: https://docs.crewai.com/
-- Version: **1.15.11**
+- Version: **1.15.21**
 
 ## About CrewAI
 
@@ -80,6 +80,7 @@ uv run python 25_a2a_protocol.py
 uv run python 26_interception_hooks.py
 uv run python 27_frame_streaming.py
 uv run python 28_tool_failures.py
+uv run python 29_conversational_flows.py
 ```
 
 ## Examples
@@ -115,10 +116,11 @@ uv run python 28_tool_failures.py
 | 26 | `26_interception_hooks.py` | `@on(InterceptionPoint....)`, boundary and step points, HookAborted |
 | 27 | `27_frame_streaming.py` | StreamFrame protocol, `stream_events()`, channel projections |
 | 28 | `28_tool_failures.py` | ToolFailure, ToolFailurePolicy, `result.tool_failures` |
+| 29 | `29_conversational_flows.py` | Conversational `Flow`, `ConversationConfig`, `RouterConfig`, custom `@listen` routes, `handle_turn()` |
 
 ## Key dependencies
 
-- `crewai[tools]>=1.15.11` - CrewAI framework with built-in tools
-- `crewai-tools[mcp]>=1.15.11` - MCP adapter support (`mcpadapt`) for `15_mcp_integration.py`
+- `crewai[tools]>=1.15.21` - CrewAI framework with built-in tools
+- `crewai-tools[mcp]>=1.15.21` - MCP adapter support (`mcpadapt`) for `15_mcp_integration.py`
 - `pydantic>=2.11.7` - Data validation and structured outputs
 - `pydantic-settings>=2.10.1` - Settings management from .env
