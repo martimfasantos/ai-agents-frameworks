@@ -58,14 +58,17 @@ async def main() -> None:
     print(f"Response ID: {result.response_id}")
     print(f"Continuation token: {result.continuation_token}\n")
 
-    # --- 4. Poll for completion using previous_response_id ---
+    # --- 4. Poll for completion with the continuation token ---
     max_attempts = 10
     for attempt in range(1, max_attempts + 1):
         time.sleep(2)
         print(f"Polling attempt {attempt}...")
 
+        # The continuation token is what resumes a background response. Polling
+        # by previous_response_id sends no messages, which the chat client
+        # rejects with "Messages are required for chat completions".
         polled = await agent.run(
-            options={"previous_response_id": result.response_id},
+            options={"continuation_token": result.continuation_token},
         )
 
         if polled.text:
