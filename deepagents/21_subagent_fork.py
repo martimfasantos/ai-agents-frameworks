@@ -22,7 +22,7 @@ prompt-cache hits. Both subagents below get the same context-free task,
 and only the fork can answer it.
 
 For more details, visit:
-https://docs.langchain.com/labs/deep-agents/overview
+https://docs.langchain.com/oss/python/deepagents/subagents
 -----------------------------------------------------------------------
 """
 

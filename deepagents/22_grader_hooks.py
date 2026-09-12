@@ -26,7 +26,7 @@ and an internal note is redacted, while a house style guide is injected
 into the grader's state and pulled into its prompt by middleware.
 
 For more details, visit:
-https://docs.langchain.com/labs/deep-agents/overview
+https://docs.langchain.com/oss/python/deepagents/middleware
 -----------------------------------------------------------------------
 """
 
