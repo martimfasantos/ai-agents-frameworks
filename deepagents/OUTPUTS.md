@@ -1,6 +1,6 @@
 # Deep Agents Examples — Outputs
 
-Captured output from running all examples with `deepagents==0.7.4`, `langchain==1.3.14`, `langchain-openai==1.4.1`, `langchain-quickjs==0.3.5`, and `gpt-4o-mini`.
+Captured output from running all examples with `deepagents==0.7.13`, `langchain==1.4.0`, `langchain-openai==1.6.2`, `langchain-quickjs==0.3.7`, and `gpt-4o-mini`.
 
 LLM output is non-deterministic, so exact wording will vary between runs. The structure and demonstrated behavior stay the same.
 
@@ -409,3 +409,46 @@ Caveat: create_deep_agent(permissions=...) is wired into the *default* Filesyste
 ```
 
 > An allowlist keeps the model's options tidy; it is not a security boundary. `permissions=` reaches the filesystem layer only through the default `FilesystemMiddleware` instance, so overriding that instance drops allow/deny enforcement with no warning.
+
+---
+
+## 21_subagent_fork.py
+
+> **Feature:** `mode="fork"` on a subagent spec (new in 0.7.12). Both runs delegate the same context-free task string, but the isolated subagent replies `NO CONTEXT.` while the fork answers from the parent's earlier turn. The output reads the `task` ToolMessage rather than the parent's final message — the parent can see the history either way, so its own answer would hide the difference. Forked subagents emit a `LangChainBetaWarning` on stderr.
+
+```
+=== Isolated vs forked subagents ===
+
+mode='isolated'
+  delegated task: 'Which day does the backfill run?'
+  subagent returned: NO CONTEXT.
+
+mode='fork'
+  delegated task: 'which day does the backfill run?'
+  subagent returned: The backfill runs on Monday.
+
+Neither task string carried the plan — only the fork inherited it.
+```
+
+---
+
+## 22_grader_hooks.py
+
+> **Feature:** the rubric grader integration hooks added in 0.7.11. `prepare_messages_for_grader` cuts the transcript to the final answer and redacts the `INTERNAL:` line; `build_grader_state` + `grader_state_schema` hand the nested grader a house style guide that never appears in the conversation; `grader_middleware` pulls that field into the grader's system prompt. The `[hook]` lines show each one firing before the grader returns `satisfied`.
+
+```
+=== Rubric grader integration hooks ===
+
+  [hook] grader sees 1 of 2 messages
+  [hook] redacted an internal note
+  [hook] injecting style guide for grader iteration 0
+  [grader] iteration 0: result=satisfied
+
+Final answer:
+  A deploy freeze is a period during which no new code is allowed to be deployed to production, often to stabilize the system before major releases or updates.  
+INTERNAL: drafted by the assistant  
+EOM
+
+The grader never saw the INTERNAL note, and graded against a style
+guide that was never part of the conversation.
+```
