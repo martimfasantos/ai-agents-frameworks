@@ -4,9 +4,13 @@ import asyncio
 import logging
 from typing import Any
 
+import anyio
+from contextlib import asynccontextmanager
+
 from google.adk.agents import LlmAgent
 from google.adk.tools.mcp_tool import to_mcp_server
-from mcp.shared.memory import create_connected_server_and_client_session
+from mcp import ClientSession
+from mcp.shared.memory import create_client_server_memory_streams
 from mcp.types import TextContent
 
 from settings import settings
@@ -77,8 +81,30 @@ support_agent = LlmAgent(
 server = to_mcp_server(support_agent)
 
 
+# mcp 2.x dropped the public create_connected_server_and_client_session helper.
+# This is the same thing built from the memory-stream primitives it used: run
+# the server on one end of a stream pair and an initialized ClientSession on
+# the other, so the example still exercises a real client over a real session.
+@asynccontextmanager
+async def connected_client(mcp_server):
+    async with create_client_server_memory_streams() as (client_streams, server_streams):
+        client_read, client_write = client_streams
+        server_read, server_write = server_streams
+        low_level = mcp_server._lowlevel_server
+        async with anyio.create_task_group() as task_group:
+            task_group.start_soon(
+                lambda: low_level.run(
+                    server_read, server_write, low_level.create_initialization_options()
+                )
+            )
+            async with ClientSession(client_read, client_write) as session:
+                await session.initialize()
+                yield session
+            task_group.cancel_scope.cancel()
+
+
 async def main() -> None:
-    async with create_connected_server_and_client_session(server) as client:
+    async with connected_client(server) as client:
         # --- 3. Discover what the host sees ---
 
         print("-" * 65)
@@ -90,7 +116,7 @@ async def main() -> None:
         for tool in tools:
             print(f"    name:        {tool.name}")
             print(f"    description: {tool.description}")
-            print(f"    inputSchema: {json.dumps(tool.inputSchema)}")
+            print(f"    input_schema: {json.dumps(tool.input_schema)}")
 
         tool_name = tools[0].name
 
