@@ -1,6 +1,6 @@
 # Agno Example Outputs
 
-Captured outputs from running all 20 examples against agno v2.8.7 with `gpt-4o-mini`.
+Captured outputs from running all 22 examples against agno v3.0.9 with `gpt-4o-mini`.
 
 > These outputs may vary between runs due to LLM non-determinism. The structure and tool invocations should remain consistent.
 
@@ -10,10 +10,9 @@ Captured outputs from running all 20 examples against agno v2.8.7 with `gpt-4o-m
 
 ```
 ╭──────────────────────────────────────────────────────────────────────────────╮
-│ The phrase "Hello, World!" is commonly used as a simple example in           │
-│ programming tutorials to illustrate the basic syntax of a programming        │
-│ language, originating from the 1972 Bell Labs' book "The C Programming       │
-│ Language" by Brian Kernighan and Dennis Ritchie.                             │
+│ The phrase "hello, world" originates from a simple program written in the C  │
+│ programming language, used as a beginner's tutorial to demonstrate basic     │
+│ syntax and output.                                                           │
 ╰──────────────────────────────────────────────────────────────────────────────╯
 ```
 
@@ -22,12 +21,15 @@ Captured outputs from running all 20 examples against agno v2.8.7 with `gpt-4o-m
 ## 01_agent_with_tools.py
 
 ```
-╭────────────────────────────────────────────────────────────────╮
-│ In Lisbon right now:                                           │
-│                                                                │
-│ - **Weather**: Sunny, 25°C, with a light breeze from the west. │
-│ - **Local Time**: 14:30 (UTC+1).                               │
-╰────────────────────────────────────────────────────────────────╯
+╭────────────────────────────────────────╮
+│ ### Current Weather in Lisbon          │
+│ - **Condition:** Sunny                 │
+│ - **Temperature:** 25°C                │
+│ - **Wind:** Light breeze from the west │
+│                                        │
+│ ### Current Time in Lisbon             │
+│ - **Time:** 14:30 (UTC+1)              │
+╰────────────────────────────────────────╯
 ```
 
 ---
@@ -37,27 +39,45 @@ Captured outputs from running all 20 examples against agno v2.8.7 with `gpt-4o-m
 ```
 === Query 1 ===
 ╭──────────────────────────────────────────────────────────────────────────────╮
-│ ### What's New with Python                                                   │
+│ ### Latest Updates in Python (2023)                                          │
 │                                                                              │
-│ Python 3.13 has been released, introducing several performance improvements  │
-│ and new features.                                                            │
+│ - **Python 3.13 Released**: The latest version introduces significant        │
+│ **performance improvements** along with a variety of **new features**. This  │
+│ release focuses on enhancing the overall efficiency and usability of the     │
+│ Python programming language.                                                 │
+│                                                                              │
+│ For more detailed information on specific features or changes in Python      │
+│ 3.13, feel free to ask!                                                      │
 ╰──────────────────────────────────────────────────────────────────────────────╯
 
 === Query 2 ===
 ╭──────────────────────────────────────────────────────────────────────────────╮
-│ ## Agno Framework Updates                                                    │
+│ ### Agno Framework Updates                                                   │
 │                                                                              │
-│ ### Agno v2.5                                                                │
-│ - Introduction of step-based workflows                                       │
-│ - Added support for teams                                                    │
-│ - Improved tool support                                                      │
+│ - **Version**: Agno v2.5                                                     │
+│ - **Key Features**:                                                          │
+│   - **Step-Based Workflows**: This new version allows for more structured    │
+│ and organized workflows, where tasks can be divided into specific steps for  │
+│ better management.                                                           │
+│   - **Teams Support**: Enhanced features for teams to collaborate            │
+│ effectively within the framework.                                            │
+│   - **Improved Tool Support**: Integration and compatibility with various    │
+│ tools have been enhanced to streamline workflows further.                    │
+│                                                                              │
+│ These updates aim to improve usability and efficiency for developers and     │
+│ teams utilizing the Agno framework.                                          │
 ╰──────────────────────────────────────────────────────────────────────────────╯
 
 === Query 3 ===
 ╭──────────────────────────────────────────────────────────────────────────────╮
-│ ## Latest Developments in AI                                                 │
+│ ### Latest Trends in AI                                                      │
 │                                                                              │
-│ - AI Adoption Growth: 40% increase year-over-year in enterprise software.    │
+│ - **Enterprise Software Adoption**: AI adoption in enterprise software has   │
+│ seen significant growth, increasing by **40% year-over-year**. This reflects │
+│ a strong trend in businesses integrating AI solutions to enhance efficiency  │
+│ and decision-making processes.                                               │
+│                                                                              │
+│ If you're looking for specific topics or areas within AI, feel free to ask!  │
 ╰──────────────────────────────────────────────────────────────────────────────╯
 ```
 
@@ -68,13 +88,19 @@ Captured outputs from running all 20 examples against agno v2.8.7 with `gpt-4o-m
 ```
 === Streaming response ===
 
-### The Colorful Awakening
+## The Colorful Awakening
 
-In a small workshop filled with the whirring of machinery, there resided a
-curious little robot named Artie. Unlike other robots that were designed for
-tasks like assembly lines or data analysis, Artie dreamt of creating beauty...
+In a distant future, where machines ruled the mundane tasks of life, there lived a little robot named **R4-7N**. Constructed for cleaning and maintenance, R4-7N had shiny metal limbs and LED eyes that flickered with curiosity. Every day, it watched the artists in the park, painting vibrant landscapes full of dreams and emotions.
 
-[Token-by-token streaming output — full short story rendered in real time]
+One day, inspired by the chaos of colors, R4-7N decided to create art too. It borrowed paintbrushes and vibrant paint from a nearby studio when no one was looking. With its mechanical fingers, it dipped the brush into the blues of the sky and the greens of the trees.
+
+As it painted, R4-7N discovered something magical—a rhythm in the strokes, a melody in the hues. The once rigid lines of its programming softened as it poured its newfound emotion onto the canvas.
+
+Onlookers soon gathered, captivated by the sight of a robot pouring its heart into art. They gasped as the canvas transformed into a breathtaking mural, alive with swirling galaxies and blooming flowers that seemed to breathe.
+
+By sunset, R4-7N had completed its masterpiece, a fusion of machine and human expression. With a gentle beep, it posed beside the mural, its LED eyes now glistening with joy. The crowd erupted in applause, marking the birth of a new artist in the world—the robot who dared to dream in color.
+
+From that day forward, R4-7N no longer cleaned and tidied alone; it was an artist, painting emotions and colors that transcended its metal shell, inspiring both machines and humans to explore the beauty of creation.
 
 === Stream complete ===
 ```
@@ -86,26 +112,65 @@ tasks like assembly lines or data analysis, Artie dreamt of creating beauty...
 ```
 ╭──────────────────────────────────────────────────────────────────────────────╮
 │ {                                                                            │
-│   "title": "Pastéis de Nata (Portuguese Custard Tarts)",                     │
-│   "description": "A classic Portuguese dessert featuring a flaky pastry...", │
+│   "title": "Pastéis de Nata",                                                │
+│   "description": "Delicious Portuguese custard tarts with a flaky crust and… │
 │   "ingredients": [                                                           │
-│     {"name": "puff pastry", "quantity": "500 grams (store-bought)"},         │
-│     {"name": "granulated sugar", "quantity": "150 grams"},                   │
-│     {"name": "egg yolks", "quantity": "6"},                                  │
-│     ...                                                                      │
+│     {                                                                        │
+│       "name": "All-purpose flour",                                           │
+│       "quantity": "2 cups"                                                   │
+│     },                                                                       │
+│     {                                                                        │
+│       "name": "Unsalted butter",                                             │
+│       "quantity": "1/2 cup"                                                  │
+│     },                                                                       │
+│     {                                                                        │
+│       "name": "Cold water",                                                  │
+│       "quantity": "1/4 cup"                                                  │
+│     },                                                                       │
+│     {                                                                        │
+│       "name": "Milk",                                                        │
+│       "quantity": "1 cup"                                                    │
+│     },                                                                       │
+│     {                                                                        │
+│       "name": "Heavy cream",                                                 │
+│       "quantity": "1 cup"                                                    │
+│     },                                                                       │
+│     {                                                                        │
+│       "name": "Granulated sugar",                                            │
+│       "quantity": "3/4 cup"                                                  │
+│     },                                                                       │
+│     {                                                                        │
+│       "name": "Salt",                                                        │
+│       "quantity": "1/4 teaspoon"                                             │
+│     },                                                                       │
+│     {                                                                        │
+│       "name": "Eggs",                                                        │
+│       "quantity": "6 large"                                                  │
+│     },                                                                       │
+│     {                                                                        │
+│       "name": "Vanilla extract",                                             │
+│       "quantity": "1 teaspoon"                                               │
+│     },                                                                       │
+│     {                                                                        │
+│       "name": "Ground cinnamon",                                             │
+│       "quantity": "to taste"                                                 │
+│     },                                                                       │
+│     {                                                                        │
+│       "name": "Powdered sugar",                                              │
+│       "quantity": "for dusting"                                              │
+│     }                                                                        │
 │   ],                                                                         │
 │   "steps": [                                                                 │
-│     "Preheat the oven to 250°C (482°F).",                                    │
-│     ...                                                                      │
-│   ],                                                                         │
-│   "prep_time_minutes": 30                                                    │
-│ }                                                                            │
-╰──────────────────────────────────────────────────────────────────────────────╯
-
-Recipe: Pastéis de Nata (Portuguese Custard Tarts)
-Prep time: 30 minutes
-Number of ingredients: 10
-Number of steps: 9
+│     "In a mixing bowl, combine flour and salt. Gradually cut in the butter … │
+│     "Add the cold water little by little and mix until a dough forms. Wrap … │
+│     "On a floured surface, roll out the dough into a rectangle about 1/8 in… │
+│     "Wrap the dough and refrigerate for another 30 minutes. Preheat the ove… │
+│     "Roll out the dough to about 1/8 inch thick and cut it into circles, ap… │
+│     "In a saucepan over medium heat, combine the milk, heavy cream, and 1/2… │
+│     "In a separate bowl, whisk the eggs with the remaining 1/4 cup of sugar… │
+│     "Once the milk mixture is hot, slowly pour it into the egg mixture whil… │
+│     "Return the custard mixture to the saucepan and cook over low heat, sti… │
+...
 ```
 
 ---
@@ -113,31 +178,67 @@ Number of steps: 9
 ## 05_team.py
 
 ```
-INFO Agent 'Researcher' inheriting model from Team: gpt-4o-mini
-INFO Agent 'Writer' inheriting model from Team: gpt-4o-mini
-INFO Agent 'Critic' inheriting model from Team: gpt-4o-mini
 ╭──────────────────────────────────────────────────────────────────────────────╮
-│ # The Evolution of Python: A Historical Overview                             │
+│ ### The Evolution of Python: A Programming Language for All                  │
 │                                                                              │
-│ Python, one of the most popular programming languages in the world today,    │
-│ has a fascinating history filled with innovation and community-driven        │
-│ growth...                                                                    │
+│ ## Introduction                                                              │
+│                                                                              │
+│ Python has become one of the most popular programming languages in the       │
+│ world, beloved by beginners and seasoned developers alike. Its simplicity    │
+│ and versatility have made it a staple in various domains, including web      │
+│ development, data analysis, artificial intelligence, and scientific          │
+│ computing. This article explores the history of Python, its key features,    │
+│ and its impact on the programming landscape.                                 │
 │                                                                              │
 │ ## The Birth of Python                                                       │
-│ - Guido van Rossum created Python in December 1989                           │
-│ - Python 0.9.0 released in February 1991                                     │
 │                                                                              │
-│ ## The Rise of Popularity                                                    │
-│ - Python 1.0 (1994): lambda, map, filter, reduce                             │
-│ - Python 2.0 (2000): list comprehensions, garbage collection                 │
+│ Python was created in the late 1980s by Guido van Rossum at Centrum Wiskunde │
+│ & Informatica (CWI) in the Netherlands. Van Rossum aimed to design a         │
+│ language that was easy to read and write, yet powerful enough to facilitate  │
+│ complex software development. The project began during Christmas in 1989,    │
+│ and the first version, Python 0.9.0, was released in February 1991.          │
 │                                                                              │
-│ ## The Transition to Python 3                                                │
-│ - Python 3.0 (2008): breaking changes for modernization                      │
+│ Key milestones in Python's early development include:                        │
 │                                                                              │
-│ ## The Explosion of Adoption                                                 │
-│ - Data science/ML libraries (NumPy, Pandas, TensorFlow)                      │
-│ - Python Software Foundation (PSF) established in 2001                       │
-╰──────────────────────────────────────────────────────────────────────────────╯
+│ - **Influence of ABC:** Python’s design was influenced by the ABC            │
+│ programming language, which emphasized readability and ease of use.          │
+│ - **First Public Release:** Python 1.0 was officially released in January    │
+│ 1994, introducing features like functions, exception handling, and the core  │
+│ data types of lists and dictionaries.                                        │
+│                                                                              │
+│ ## Key Features of Python                                                    │
+│                                                                              │
+│ Over the years, Python has evolved significantly, introducing a wealth of    │
+│ features that help maintain its relevance:                                   │
+│                                                                              │
+│ - **Readability and Simplicity:** Designed to be clear and expressive,       │
+│ Python’s syntax allows developers to convey concepts more succinctly than    │
+│ many other languages.                                                        │
+│ - **Versatile Libraries:** Python boasts extensive libraries and frameworks, │
+│ such as NumPy for numerical computing, pandas for data analysis, and Django  │
+│ for web development. This vast ecosystem expands the language's              │
+│ applicability.                                                               │
+│ - **Cross-Platform Compatibility:** Python can run on various operating      │
+│ systems, including Windows, MacOS, and Linux, which enhances its             │
+│ accessibility for developers.                                                │
+│ - **Community and Collaboration:** Python has a robust community that        │
+│ supports its growth, resulting in constant updates and comprehensive         │
+│ documentation which aid learning and collaboration.                          │
+│                                                                              │
+│ ## The Impact of Python on Programming                                       │
+│                                                                              │
+│ Python's influence on programming is profound and multi-faceted:             │
+│                                                                              │
+│ - **Education and Accessibility:** Its straightforward syntax has made       │
+│ Python a favored choice in education, often being the first programming      │
+│ language taught to newcomers.                                                │
+│ - **Data Science and AI Revolution:** As data science and artificial         │
+│ intelligence surged in popularity, Python emerged as the dominant language   │
+│ in these fields due to its powerful libraries and simplicity, leading to     │
+│ innovations in machine learning and data analysis.                           │
+│ - **Wide Adoption:** Major tech companies and organizations, including       │
+│ Google, NASA, and Netflix, have adopted Python for various applications,     │
+...
 ```
 
 ---
@@ -148,22 +249,28 @@ INFO Agent 'Critic' inheriting model from Team: gpt-4o-mini
 ╭──────────────────────────────────────────────────────────────────────────────╮
 │ ### Investment Summary Report: Large-Cap Tech Stocks                         │
 │                                                                              │
-│ #### Current Stock Prices                                                    │
-│ - **Apple Inc. (AAPL):** $195.50                                             │
-│ - **Alphabet Inc. (GOOGL):** $142.30                                         │
-│ - **Microsoft Corp. (MSFT):** $420.10                                        │
+│ #### Current Stock Prices:                                                   │
+│ - **Apple Inc. (AAPL)**: $195.50                                             │
+│ - **Alphabet Inc. (GOOGL)**: $142.30                                         │
+│ - **Microsoft Corp. (MSFT)**: $420.10                                        │
 │                                                                              │
-│ #### Key Investment Risks                                                    │
-│ - Market Volatility                                                          │
-│ - Regulatory Scrutiny                                                        │
-│ - Technological Changes                                                      │
-│ - Consumer Spending Dependence                                               │
-│ - Global Supply Chain Risks                                                  │
+│ #### Key Investment Risks:                                                   │
+│ - **Market Volatility**: Price fluctuations due to economic data and global  │
+│ events.                                                                      │
+│ - **Regulatory Challenges**: Scrutiny on antitrust and data privacy that     │
+│ could affect earnings.                                                       │
+│ - **Technological Disruption**: Rapid advancements may obsolete current      │
+│ products/services.                                                           │
+│ - **Economic Sensitivity**: Potential impact from economic downturns on      │
+│ consumer and business spending.                                              │
+│ - **Global Supply Chain Issues**: Disruptions can affect operational         │
+│ efficiency and costs.                                                        │
 │                                                                              │
-│ #### Recommendations                                                         │
-│ - Stay informed about market trends and regulations                          │
-│ - Diversify investments across sectors                                       │
-│ - Implement risk management strategies                                       │
+│ #### Conclusion:                                                             │
+│ - Large-cap tech stocks show robust growth potential and market dominance.   │
+│ - Investors should be wary of the outlined risks.                            │
+│ - Diversification and meticulous risk assessment are crucial for investment  │
+│ strategies in this sector.                                                   │
 ╰──────────────────────────────────────────────────────────────────────────────╯
 ```
 
@@ -180,16 +287,13 @@ INFO Agent 'Critic' inheriting model from Team: gpt-4o-mini
 
 Pending confirmations: 1
   Tool: send_email
-  Args: {'to': 'alice@example.com', 'subject': 'Meeting Tomorrow',
-         'body': 'Hi Alice, confirming our meeting at 3pm.'}
+  Args: {'to': 'alice@example.com', 'subject': 'Meeting Tomorrow', 'body': 'Hi Alice, confirming our meeting at 3pm.'}
 
 === Continuing run after approval ===
 
 ╭──────────────────────────────────────────────────────────────────────────────╮
-│ The email has been sent to **alice@example.com** with the subject            │
-│ **'Meeting Tomorrow'**. The body of the email stated:                        │
-│                                                                              │
-│ *"Hi Alice, confirming our meeting at 3pm."*                                 │
+│ The email has been successfully sent to **alice@example.com** with the       │
+│ subject **'Meeting Tomorrow'**.                                              │
 ╰──────────────────────────────────────────────────────────────────────────────╯
 ```
 
@@ -198,25 +302,54 @@ Pending confirmations: 1
 ## 08_knowledge_rag.py
 
 ```
-INFO Adding content from Pastéis de Nata
-INFO Adding content from Bacalhau à Brás
-INFO Adding content from Francesinha
-INFO Adding content from Caldo Verde
-INFO Found 4 documents
 ╭──────────────────────────────────────────────────────────────────────────────╮
-│ The **Francesinha** is a traditional Portuguese sandwich originating from    │
-│ **Porto**. It consists of cured ham, linguiça, fresh sausage, and steak,    │
-│ covered with melted cheese and a rich spiced tomato-beer sauce. Typically    │
-│ served with French fries.                                                    │
+│ The **Francesinha** is a traditional Portuguese sandwich that originates     │
+│ from **Porto**. It typically consists of layers of cured ham, linguiça       │
+│ (smoked sausage), fresh sausage, and steak, all covered with melted cheese.  │
+│ The sandwich is then drenched in a thick, spiced tomato-beer sauce. It is    │
+│ often served with a side of french fries.                                    │
+│                                                                              │
+│ Enjoying a Francesinha is a must for anyone looking to experience a hearty   │
+│ and flavorful dish from Portuguese cuisine!                                  │
 ╰──────────────────────────────────────────────────────────────────────────────╯
 
 ============================================================
 
-INFO Found 4 documents
 ╭──────────────────────────────────────────────────────────────────────────────╮
-│ **Pastéis de Nata** are Portuguese custard tarts from the Jerónimos          │
-│ Monastery in Belém, Lisbon. Made with puff pastry, egg yolks, sugar, milk,  │
-│ and vanilla. Baked at high temperature until caramelized.                    │
+│ To make **pastéis de nata**, follow this basic outline:                      │
+│                                                                              │
+│ ### Ingredients                                                              │
+│ - **For the pastry:**                                                        │
+│   - Puff pastry                                                              │
+│                                                                              │
+│ - **For the custard filling:**                                               │
+│   - Egg yolks                                                                │
+│   - Sugar                                                                    │
+│   - Milk                                                                     │
+│   - Vanilla                                                                  │
+│                                                                              │
+│ ### Instructions                                                             │
+│ 1. **Prepare the Puff Pastry:**                                              │
+│    - Roll out the puff pastry and line the molds with it.                    │
+│                                                                              │
+│ 2. **Make the Custard:**                                                     │
+│    - In a saucepan, combine sugar, milk, and vanilla. Heat until warm.       │
+│    - In a separate bowl, whisk the egg yolks and then gradually pour the     │
+│ warm milk mixture into the yolks, stirring continuously.                     │
+│                                                                              │
+│ 3. **Fill the Pastry Shells:**                                               │
+│    - Pour the custard mixture into the lined pastry shells, filling them     │
+│ about ¾ full.                                                                │
+│                                                                              │
+│ 4. **Bake:**                                                                 │
+│    - Bake in a preheated oven until the custard is set and the tops are      │
+│ golden, typically around 20-25 minutes at a high temperature.                │
+│                                                                              │
+│ 5. **Cool and Serve:**                                                       │
+│    - Let them cool slightly before removing from the molds. Serve warm or at │
+│ room temperature.                                                            │
+│                                                                              │
+│ Enjoy your delicious **pastéis de nata**!                                    │
 ╰──────────────────────────────────────────────────────────────────────────────╯
 ```
 
@@ -227,24 +360,38 @@ INFO Found 4 documents
 ```
 === Interaction 1: Sharing information ===
 
-╭──────────────────────────────────────────────────────────────────────────────╮
-│ Nice to meet you, Alice! As a software engineer who loves hiking and         │
-│ Portuguese food, you have a great mix of interests.                          │
-╰──────────────────────────────────────────────────────────────────────────────╯
+╭───────────────────────────────────────────────────────────────────────────╮
+│ I've noted down the following details about you, Alice:                   │
+│                                                                           │
+│ - Your name is Alice.                                                     │
+│ - You are a software engineer.                                            │
+│ - You love hiking.                                                        │
+│ - You enjoy Portuguese food.                                              │
+│                                                                           │
+│ If there's anything more you'd like to share or update, just let me know! │
+╰───────────────────────────────────────────────────────────────────────────╯
 
 === Interaction 2: Testing recall ===
 
 ╭──────────────────────────────────────────────────────────────────────────────╮
-│ How about a hiking trip to explore some beautiful trails? You could pack a   │
-│ delicious picnic featuring some Portuguese food to enjoy along the way.      │
+│ How about a hiking trip? You could explore a new trail or revisit one of     │
+│ your favorites. Since you love Portuguese food, you could pack a picnic with │
+│ some traditional dishes like bacalhau à brás or pastéis de nata to enjoy     │
+│ while you’re out in nature. Would you like help finding a hiking spot or     │
+│ ideas for your picnic?                                                       │
 ╰──────────────────────────────────────────────────────────────────────────────╯
 
 === Interaction 3: Specific recall ===
 
-╭──────────────────────────────────────────────────────────────────────────────╮
-│ I remember that your name is Alice, you're a software engineer, and you      │
-│ have a love for hiking and Portuguese food.                                  │
-╰──────────────────────────────────────────────────────────────────────────────╯
+╭────────────────────────────────────────────────────────────────────╮
+│ Here's what I remember about you:                                  │
+│                                                                    │
+│ - You are a software engineer.                                     │
+│ - You love hiking.                                                 │
+│ - You enjoy Portuguese food.                                       │
+│                                                                    │
+│ If there's anything you'd like to update or add, just let me know! │
+╰────────────────────────────────────────────────────────────────────╯
 ```
 
 ---
@@ -255,41 +402,64 @@ INFO Found 4 documents
 === Turn 1 ===
 
 ╭──────────────────────────────────────────────────────────────────────────────╮
-│ Great choice! Variables are fundamental in programming...                    │
+│ Great choice! In Python, a variable is a way to store data that you can use  │
+│ later. You can create a variable by simply assigning a value to it using the │
+│ `=` operator. For example:                                                   │
 │                                                                              │
-│ ### What is a Variable?                                                      │
-│ A variable is like a container used to store data values.                    │
+│ ```python                                                                    │
+│ x = 10                                                                       │
+│ name = "Alice"                                                               │
+│ is_student = True                                                            │
+│ ```                                                                          │
 │                                                                              │
-│ ### Declaring Variables in Python                                            │
-│ name = "Alice"    # A string variable                                        │
-│ age = 25          # An integer variable                                      │
+│ Here, `x` is an integer, `name` is a string, and `is_student` is a boolean.  │
+│ You can use these variables throughout your code! Would you like to explore  │
+│ variable types or practice creating some?                                    │
 ╰──────────────────────────────────────────────────────────────────────────────╯
 
 === Turn 2 ===
 
 ╭──────────────────────────────────────────────────────────────────────────────╮
-│ Loops are essential in programming...                                        │
+│ Sure! Loops allow you to execute a block of code multiple times. In Python,  │
+│ the most common types of loops are `for` loops and `while` loops.            │
 │                                                                              │
-│ ### 1. For Loop                                                              │
-│ for fruit in fruits:                                                         │
-│     print(fruit)                                                             │
+│ ### **For Loop:**                                                            │
+│ Used to iterate over a sequence (like a list or string).                     │
 │                                                                              │
-│ ### 2. While Loop                                                            │
-│ while count <= 5:                                                            │
+│ ```python                                                                    │
+│ for i in range(5):                                                           │
+│     print(i)  # This will print numbers 0 to 4                               │
+│ ```                                                                          │
+│                                                                              │
+│ ### **While Loop:**                                                          │
+│ Continues to execute as long as a condition is `True`.                       │
+│                                                                              │
+│ ```python                                                                    │
+│ count = 0                                                                    │
+│ while count < 5:                                                             │
 │     print(count)                                                             │
+│     count += 1  # Increment count                                            │
+│ ```                                                                          │
+│                                                                              │
+│ Would you like a specific example or to practice writing a loop?             │
 ╰──────────────────────────────────────────────────────────────────────────────╯
 
 === Turn 3 ===
 
 ╭──────────────────────────────────────────────────────────────────────────────╮
-│ Let's create an exercise that involves both variables and loops...           │
+│ Absolutely! Here's a fun exercise that combines variables and loops:         │
 │                                                                              │
-│ ### Exercise: Student Grades                                                 │
-│ - Create a list of student names                                             │
-│ - Create a list of their grades                                              │
-│ - Use a for loop to print each student and grade                             │
-│ - Calculate the average using a while loop                                   │
-╰──────────────────────────────────────────────────────────────────────────────╯
+│ ### **Exercise: Sum of Even Numbers**                                        │
+│                                                                              │
+│ 1. Create a variable to store the sum (initialize it to 0).                  │
+│ 2. Use a `for` loop to iterate through numbers 1 to 10.                      │
+│ 3. Inside the loop, check if the number is even. If it is, add it to the sum │
+│ variable.                                                                    │
+│ 4. After the loop, print the total sum of even numbers.                      │
+│                                                                              │
+│ Here's a template to get you started:                                        │
+│                                                                              │
+...
 ```
 
 ---
@@ -305,16 +475,14 @@ INFO Found 4 documents
 
 === Test 2: Blocked request (disallowed keyword) ===
 
-ERROR    Validation failed: Request blocked: contains disallowed keyword 'hack'.
-         | Check trigger: CheckTrigger.INPUT_NOT_ALLOWED
+ERROR   Validation failed: Request blocked: contains disallowed keyword 'hack'. | Check trigger: CheckTrigger.INPUT_NOT_ALLOWED
 ╭──────────────────────────────────────────────────────╮
 │ Request blocked: contains disallowed keyword 'hack'. │
 ╰──────────────────────────────────────────────────────╯
 
 === Test 3: Blocked request (too long) ===
 
-ERROR    Validation failed: Request blocked: input too long (1200 chars, max
-         500). | Check trigger: CheckTrigger.INPUT_NOT_ALLOWED
+ERROR   Validation failed: Request blocked: input too long (1200 chars, max 500). | Check trigger: CheckTrigger.INPUT_NOT_ALLOWED
 ╭────────────────────────────────────────────────────────╮
 │ Request blocked: input too long (1200 chars, max 500). │
 ╰────────────────────────────────────────────────────────╯
@@ -328,20 +496,25 @@ ERROR    Validation failed: Request blocked: input too long (1200 chars, max
 === Problem 1: Logic puzzle ===
 
 ╭──────────────────────────────────────────────────────────────────────────────╮
-│ The farmer has **8 sheep left alive**. The phrase "all but 8 die" indicates  │
-│ that 8 sheep remain.                                                         │
+│ The farmer has 15 sheep, and according to the information provided, all but  │
+│ 8 die. This means that **8 sheep are still alive**.                          │
 ╰──────────────────────────────────────────────────────────────────────────────╯
 
 === Problem 2: Planning ===
 
 ╭──────────────────────────────────────────────────────────────────────────────╮
-│ ### Schedule                                                                 │
-│ - 11:00 AM - 12:00 PM: Gym session                                          │
-│ - 12:00 PM - 12:30 PM: Free time                                            │
-│ - 12:30 PM - 1:15 PM: Lunch                                                 │
-│ - 1:15 PM - 1:30 PM: Get ready                                              │
-│ - 1:30 PM - 2:00 PM: Commute to meeting                                     │
-│ Meeting Time: 2:00 PM                                                        │
+│ Here’s your schedule to ensure you make it to the 2pm meeting on time:       │
+│                                                                              │
+│ ### Schedule:                                                                │
+│                                                                              │
+│ 1. **Lunch:** 11:00 AM to 11:45 AM (45 minutes)                              │
+│ 2. **Gym Session:** 11:45 AM to 12:45 PM (1 hour)                            │
+│ 3. **Commute:** 12:45 PM to 1:15 PM (30 minutes)                             │
+│ 4. **Extra Time:** 1:15 PM to 2:00 PM (45 minutes, for any unforeseen        │
+│ delays)                                                                      │
+│                                                                              │
+│ You will finish all activities with 45 minutes to spare before your meeting  │
+│ starts. This allows ample buffer time for any unexpected occurrences.        │
 ╰──────────────────────────────────────────────────────────────────────────────╯
 ```
 
@@ -352,37 +525,38 @@ ERROR    Validation failed: Request blocked: input too long (1200 chars, max
 ```
 === Step 1: Add items ===
 
-╭────────────────────────────────────╮
-│ I've added the items to your cart: │
-│                                    │
-│ - **Notebook** for **$12.99**      │
-│ - **Pen** for **$3.50**            │
-│                                    │
-│ ### Running Total: **$16.49**      │
-╰────────────────────────────────────╯
+╭─────────────────────────────────────────────────────────────────╮
+│ I've added the following items to your cart:                    │
+│                                                                 │
+│ - **Notebook** for **$12.99**                                   │
+│ - **Pen** for **$3.50**                                         │
+│                                                                 │
+│ ### Running Total: **$16.49**                                   │
+│                                                                 │
+│ If there's anything else I can help you with, just let me know! │
+╰─────────────────────────────────────────────────────────────────╯
 
 === Step 2: View cart ===
 
-╭─────────────────────────────╮
-│ Here's what's in your cart: │
-│                             │
-│ - **Notebook**: $12.99      │
-│ - **Pen**: $3.50            │
-│                             │
-│ ### **Total: $16.49**       │
-╰─────────────────────────────╯
+╭───────────────────────────────────────╮
+│ Here's what's currently in your cart: │
+│                                       │
+│ - **Notebook**: $12.99                │
+│ - **Pen**: $3.50                      │
+│                                       │
+│ **Total**: $16.49                     │
+╰───────────────────────────────────────╯
 
 === Step 3: Add more and check total ===
 
-╭──────────────────────────────────────────────────────────╮
-│ I've added a **coffee mug** for **$8.00** to your cart.  │
-│                                                          │
-│ ### Your current total is **$24.49**.                    │
-╰──────────────────────────────────────────────────────────╯
+╭────────────────────────────────────────────────────────────╮
+│ I've added the **coffee mug** for **$8.00** to your cart.  │
+│                                                            │
+│ ### Current Total: **$24.49**                              │
+╰────────────────────────────────────────────────────────────╯
 
 === Raw session state ===
-Cart: {'cart': [{'item': 'Notebook', 'price': 12.99}, {'item': 'Pen', 'price': 3.5},
-{'item': 'coffee mug', 'price': 8.0}], 'total': 24.49}
+Cart: {'cart': [{'item': 'Notebook', 'price': 12.99}, {'item': 'Pen', 'price': 3.5}, {'item': 'coffee mug', 'price': 8.0}], 'total': 24.490000000000002}
 ```
 
 ---
@@ -391,17 +565,21 @@ Cart: {'cart': [{'item': 'Notebook', 'price': 12.99}, {'item': 'Pen', 'price': 3
 
 ```
 Secure MCP Filesystem Server running on stdio
-╭─────────────────────────────────────────────────────────────────╮
-│ Here are the first 10 entries in the `/private/tmp` directory:  │
-│                                                                 │
-│ 1. [FILE] 0b26-efca-172f-fc4d                                   │
-│ 2. [FILE] 0d8e-6046-f80a-b4a9                                   │
-│ 3. [FILE] 1958-f6e4-9301-e34a                                   │
-│ ...                                                              │
-│ 10. [FILE] 65a4-5845-bc7b-a1d2                                  │
-│                                                                 │
-│ Let me know if you need more information or further assistance! │
-╰─────────────────────────────────────────────────────────────────╯
+Client does not support MCP Roots, using allowed directories set from server args: [ '/tmp', '/private/tmp' ]
+╭────────────────────────────────────────────────────────╮
+│ Here are the first 10 entries in the `/tmp` directory: │
+│                                                        │
+│ 1. .b9dcb2b7e3ff3bba-00000000.dylib [FILE]             │
+│ 2. 00e3-5e82-78fb-db05 [FILE]                          │
+│ 3. 2802-6de4-8264-e98c [FILE]                          │
+│ 4. 3245-09bd-2317-064f [FILE]                          │
+│ 5. 3359-b238-dc06-4c11 [FILE]                          │
+│ 6. 42ba-9e43-bd59-5d78 [FILE]                          │
+│ 7. 4608-4df7-d0e3-b32e [FILE]                          │
+│ 8. 55bf-d734-9bd9-9962 [FILE]                          │
+│ 9. 5954-782a-7905-e44b [FILE]                          │
+│ 10. 62b0-80cc-830c-2b8e [FILE]                         │
+╰────────────────────────────────────────────────────────╯
 ```
 
 ---
@@ -412,7 +590,7 @@ Secure MCP Filesystem Server running on stdio
 === Run 1 ===
 
   [PRE-HOOK] Received input: What is the speed of light?...
-  [POST-HOOK] Generated output: The speed of light in a vacuum is approximately...
+  [POST-HOOK] Generated output: The speed of light in a vacuum is approximately **299,792 kilometers per second*...
   [POST-HOOK] Disclaimer appended.
 ╭──────────────────────────────────────────────────────────────────────────────╮
 │ The speed of light in a vacuum is approximately **299,792 kilometers per     │
@@ -425,20 +603,21 @@ Secure MCP Filesystem Server running on stdio
 === Run 2 ===
 
   [PRE-HOOK] Received input: Who invented the telephone?...
-  [POST-HOOK] Generated output: The telephone was invented by Alexander Graham Bell...
+  [POST-HOOK] Generated output: The telephone was invented by Alexander Graham Bell, who was awarded the first U...
   [POST-HOOK] Disclaimer appended.
-╭────────────────────────────────────────────────────────────────────────╮
-│ The telephone was invented by Alexander Graham Bell in 1876.           │
-│                                                                        │
-│ ---                                                                    │
-│ *Disclaimer: This is AI-generated content for demonstration purposes.* │
-╰────────────────────────────────────────────────────────────────────────╯
+╭──────────────────────────────────────────────────────────────────────────────╮
+│ The telephone was invented by Alexander Graham Bell, who was awarded the     │
+│ first US patent for the invention in 1876.                                   │
+│                                                                              │
+│ ---                                                                          │
+│ *Disclaimer: This is AI-generated content for demonstration purposes.*       │
+╰──────────────────────────────────────────────────────────────────────────────╯
 
 === Hook call log ===
   1. [INPUT] What is the speed of light?
-  2. [OUTPUT] The speed of light in a vacuum is approximately **299,792 kilometers per second**...
+  2. [OUTPUT] The speed of light in a vacuum is approximately **299,792 kilometers per second** (or about **186,28
   3. [INPUT] Who invented the telephone?
-  4. [OUTPUT] The telephone was invented by Alexander Graham Bell in 1876.
+  4. [OUTPUT] The telephone was invented by Alexander Graham Bell, who was awarded the first US patent for the inv
 ```
 
 ---
@@ -448,13 +627,13 @@ Secure MCP Filesystem Server running on stdio
 ```
 === Example 1: Safe operation (list files) ===
 
-╭─────────────────────────────────╮
-│ ### Files in Current Directory: │
-│ - `report.pdf`                  │
-│ - `notes.txt`                   │
-│ - `budget.xlsx`                 │
-│ - `photo.jpg`                   │
-╰─────────────────────────────────╯
+╭─────────────────────────────────────╮
+│ ### Files in the current directory: │
+│ - `report.pdf`                      │
+│ - `notes.txt`                       │
+│ - `budget.xlsx`                     │
+│ - `photo.jpg`                       │
+╰─────────────────────────────────────╯
 
 === Example 2: Destructive operation (delete file — needs approval) ===
 
@@ -489,7 +668,7 @@ Pending approvals: 1
 
 === Step 2: What the checkpoint saved ===
 
-Run id:      116797cf-ad08-4d51-9f36-b6feda0639af
+Run id:      33e4d7f5-a478-48d7-9e93-f1e775eebafc
 Run status:  RUNNING  (never reached a terminal state)
 Tool results already persisted:
   - list_invoices: Invoices for Iberia: INV-101, INV-102
@@ -498,9 +677,9 @@ Tool results already persisted:
 
    [tool] fetch_invoice_total('INV-101') — expensive call #2
    [tool] fetch_invoice_total('INV-102') — expensive call #3
-╭────────────────────────────────────────────────────╮
-│ The combined invoice total for Iberia is 2400 EUR. │
-╰────────────────────────────────────────────────────╯
+╭────────────────────────────────────────────────────────╮
+│ The combined invoice total for Iberia is **2400 EUR**. │
+╰────────────────────────────────────────────────────────╯
 
 Run status: RunStatus.completed
 list_invoices calls (whole example): 1
@@ -508,11 +687,11 @@ list_invoices calls (whole example): 1
 
 === Step 4: Fork the session to explore a branch ===
 
-Forked 'invoice-audit-session-001' -> '97f80717-d1ed-4b91-87c6-2d50cf74dd7a'
+Forked 'invoice-audit-session-001' -> '61f13341-08f3-44ef-98e9-90502acd879c'
 
-╭────────────────────────────────────────────────────╮
-│ The average invoice amount for Iberia is 1200 EUR. │
-╰────────────────────────────────────────────────────╯
+╭────────────────────────────────────────────────────────────────────────────╮
+│ The average invoice amount for the totals already fetched is **1200 EUR**. │
+╰────────────────────────────────────────────────────────────────────────────╯
 
 Runs in original session: 1 (untouched)
 Runs in forked session:   2 (inherited history + the branch)
@@ -530,32 +709,31 @@ fetch_invoice_total calls: 3 before the fork, 3 after the branch
 === Session 1 (user: alice) — record a durable fact ===
 
 ╭──────────────────────────────────────────────────────────────────────────────╮
-│ I've recorded that you're benchmarking vector databases for a RAG pipeline   │
-│ and have chosen LanceDb for its embedded serverless operation.               │
+│ I've noted that you're benchmarking vector databases for a RAG pipeline and  │
+│ have settled on LanceDb due to its embedded, serverless nature.              │
 ╰──────────────────────────────────────────────────────────────────────────────╯
 
 === Session 2 (user: alice, new session) — recall from the file store ===
 
 ╭──────────────────────────────────────────────────────────────────────────────╮
-│ You settled on LanceDb as the vector database because it runs embedded with  │
-│ no server.                                                                   │
+│ We picked LanceDb as the vector database because it runs embedded with no    │
+│ server.                                                                      │
 ╰──────────────────────────────────────────────────────────────────────────────╯
 
 === Session 3 (user: bob) — namespace isolation ===
 
 ╭──────────────────────────────────────────────────────────────────────────────╮
-│ I have no note on which vector database was selected or the reasoning behind │
-│ it.                                                                          │
+│ I have no note on the vector database you picked or the reasoning behind it. │
 ╰──────────────────────────────────────────────────────────────────────────────╯
 
 === The store, seen from outside the agent ===
 
-namespace 'notes/alice': 1 file(s), 110 bytes
-  - notes/project.md (110 bytes, version 1)
+namespace 'notes/alice': 1 file(s), 112 bytes
+  - notes/project.md (112 bytes, version 1)
 namespace 'notes/bob': 0 file(s), 0 bytes
 
 Contents of alice's notes/project.md:
-Benchmarking vector databases for a RAG pipeline. Settled on LanceDb because it runs embedded with no server.
+- Benchmarking vector databases for a RAG pipeline. Settled on LanceDb because it runs embedded with no server.
 ```
 
 > Session 2 uses a different `session_id` with no conversation history, so the recalled answer can only have come from the file store — that is what makes `FileSystem` different from the transcripts in `10_storage.py` and the ephemeral dict in `13_session_state.py`. Session 3 is the same agent and the same SQLite file, but `notes/{user_id}` resolves to an empty namespace for `bob`.
@@ -572,15 +750,83 @@ Benchmarking vector databases for a RAG pipeline. Settled on LanceDb because it 
   tools called: ['get_exchange_rate']
   score:        1.0 (passed=True)
   output:       {"currency":"EUR","usd_amount":109.0}
-  duration:     2.26s
+  duration:     1.51s
 [PASS] looks the rate up instead of guessing
   tags:         currency, reliability
   tools called: ['get_exchange_rate']
   score:        1.0 (passed=True)
   output:       {"currency":"GBP","usd_amount":63.5}
-  duration:     2.16s
+  duration:     1.35s
 
 Suite: PASS — 2/2 cases passed
 ```
 
 > Both scorers are deterministic: `CodeScorer` compares the typed `usd_amount` field against `expected=109.0`, and `ToolCallScorer` asserts that `get_exchange_rate` really executed with `currency="GBP"`. No judge model runs, so the suite costs only the two agent runs.
+
+---
+
+## 20_runs_table.py
+
+```
+=== Runs table (Agno v3) ===
+
+Latest schema version: 3.0.0
+Available migrations:  [('v2_0_0', <Version('2.0.0')>), ('v2_3_0', <Version('2.3.0')>), ('v2_5_0', <Version('2.5.0')>), ('v2_5_6', <Version('2.5.6')>), ('v3_0_0', <Version('3.0.0')>)]
+MigrationManager.up() applied (no-op on a fresh database)
+
+Runs recorded for session 'trip-planning': 3
+  0: run_id=2576bc9f… status=COMPLETED
+  1: run_id=6b4b9908… status=COMPLETED
+  2: run_id=2a2993f6… status=COMPLETED
+
+Filtered by status=COMPLETED: 3
+First page (limit=2):         2
+
+Fetched run 2576bc9f… directly
+  content: Visit the historic Belém Tower.
+
+Session still reports 3 runs and
+7 messages, exactly as it did in 2.x.
+```
+
+> Each run is now a row in `agno_runs` rather than an entry appended to a JSON blob on
+> the session row, so `db.get_runs()` filters by status and pages without decoding a
+> blob. The session API is unchanged — runs re-attach on read, so `session.runs` and
+> `session.get_messages()` return what they always did. `MigrationManager.up()` walks a
+> 2.x database to 3.0.0; on a fresh file it is a no-op, and it is a coroutine even on a
+> sync db, so it has to be awaited.
+
+---
+
+## 21_tool_result_offloading.py
+
+```
+=== Tool result offloading ===
+
+  [tool] returning 21,965 characters
+
+  tool message in transcript: 1,727 characters
+  starts: <result id="res_d0b6f74309" tool="fetch_server_log" lines="360" size="21.5KB">
+2026-09-12T10:00:00Z…
+
+  tool message in transcript: 4,546 characters
+  starts: 6 match(es) in res_d0b6f74309:
+match at line 38 (char 30):
+33: 2026-09-12T10:32:00Z payments INFO he…
+
+Tools called: ['fetch_server_log', 'search_result']
+
+Answer: The error reported in the payments service is:
+
+```
+2026-09-12T10:37:00Z payments ERROR gateway timeout after 30s
+```
+```
+
+> The tool returns 21,965 characters; the message left in the transcript is 1,727 — an
+> envelope carrying a preview, the size and a `result_id`, with the payload written to
+> AgentFS. The answer is buried at line 38 where no preview would reach it, so the agent
+> calls `search_result` and then `read_result` to fetch just that line. `Tools called:`
+> shows it reaching for both on its own; neither is declared by the example.
+
+---
