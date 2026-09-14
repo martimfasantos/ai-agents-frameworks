@@ -1,6 +1,6 @@
 # LangGraph Examples — Outputs
 
-Captured output from running all examples with `langgraph==1.2.6`, `langchain-openai==1.2.2`, and `gpt-4o-mini`.
+Captured output from running all examples with `langgraph==1.2.11`, `langchain-openai==1.6.2`, and `gpt-4o-mini`.
 
 ---
 
@@ -163,18 +163,19 @@ AI: The weather in Tokyo is sunny with a temperature of 28°C and 45% humidity. 
 
 ## 06_command_from_tools.py
 
-> **Feature:** `Command` objects returned from `@tool` functions to update state and route to a different node. The output shows a tool returning `Command(update={"department": "billing"}, goto="billing")`, which simultaneously updates the active department in state and transfers control to the billing agent node — enabling tool-driven routing.
+> **Feature:** `Command` objects returned from `@tool` functions to update state and route to a different node. `transfer_to_billing` returns `Command(update={"current_department": "billing", ...}, goto="billing_agent")`, which updates state and hands control to the billing specialist in one step. The specialist then calls `lookup_account` through its own tools node and answers from the real balance.
 
 ```
 === Command from Tools ===
 
 Final department: billing
 
-H: I have a question about my bill for account ACC-001. Why was I charged $142.50?
+Human: I have a question about my bill for account ACC-001. Why was I charged $142.50?
 AI: [Calling: ['transfer_to_billing']]
-Tool: Transferred to billing: Customer has a billing question regarding a charge of $142.50 on their account.
-AI: I've transferred your question to the billing department for further assistance regarding the charge of $142.50 on your account.
-AI: I've transferred you to the billing department for your question about the $142.50 charge on your account.
+Tool: Transferred to billing: Inquiry about billing charge of $142.50 for account ACC-001.
+AI: [Calling: ['lookup_account']]
+Tool: Plan: Premium, Balance: $142.50, Status: Active
+AI: You were charged $142.50 for your Premium plan. Your account balance reflects this amount, and your account status is currently active. If you need further details, feel free to ask!
 ```
 
 ---
@@ -766,3 +767,23 @@ Saved in checkpoint: The report on Artificial Intelligence Ethics examines the m
 ```
 
 > Every section uses a fresh `stream_events(..., version="v3")` call: projections are single-consumer and iterating one is what pumps the graph, so a run cannot be replayed across projections. `values`/`messages`/`lifecycle`/`subgraphs` are always present; `updates` only appears because `transformers=[UpdatesTransformer]` opted it in. Running this also prints a `LangChainBetaWarning` on stderr — v3 is still marked experimental.
+
+---
+
+## 27_trace_policy.py
+
+> **Feature:** `trace_policy=TracePolicy(...)` on `add_node`, new in LangGraph 1.2.11. `summarize_history` records a message count and the last message instead of the full transcript; `answer` uses the `omit_payload` helper to record nothing at all. The `[node] actually received ...` lines prove execution is untouched — only what the tracing layer sees changes. A `RecordingHandler` callback stands in for LangSmith so the effect is visible in the terminal.
+
+```
+=== Per-node trace policies ===
+
+  [node] actually received 12 messages
+  [node] actually received 13 messages
+
+What the tracing layer recorded:
+  summarize_history: {'message_count': 12, 'last_message': 'Turn 11: a long question about model gpt-4o-mini.'}
+  answer: {}
+
+Final message count in state: 14
+Execution is unaffected — the nodes saw the full history above.
+```
