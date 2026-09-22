@@ -1,6 +1,6 @@
 # CrewAI - Example Outputs
 
-All examples run with `crewai[tools]>=1.15.11` and `gpt-4o-mini` as the model.
+All examples run with `crewai[tools]>=1.15.21` and `gpt-4o-mini` as the model.
 
 > **Note:** LLM responses are non-deterministic. Your outputs will differ in wording but should follow the same structure and demonstrate the same features.
 
@@ -326,22 +326,48 @@ Crew Execution Completed
 ## 11_reasoning.py
 
 ```
-$ uv run python 11_reasoning.py
+[Execute] Step 1: Analyze the first feedback message: 'Shipping was quick and ...
+[Execute] Step 1 success (0.9s, 0 tool calls)
+[Observe] Step 1 (effort=low): success=True, plan_valid=True, learned=...
+[Low] Step 1 done (1/4) — continuing
+[Execute] Step 2: Analyze the second feedback message: 'Third time the app has...
+[Execute] Step 2 success (1.0s, 0 tool calls)
+[Observe] Step 2 (effort=low): success=True, plan_valid=True, learned=...
+[Low] Step 2 done (2/4) — continuing
+[Execute] Step 3: Analyze the third feedback message: 'Arrived on the schedule...
+[Execute] Step 3 success (1.1s, 0 tool calls)
+[Observe] Step 3 (effort=low): success=True, plan_valid=True, learned=...
+[Low] Step 3 done (3/4) — continuing
+[Execute] Step 4: Compile the results from the previous steps and format the o...
+[Execute] Step 4 success (1.7s, 0 tool calls)
+[Observe] Step 4 (effort=low): success=True, plan_valid=True, learned=...
+[Low] Step 4 done (4/4) — continuing
+[Finalize] todos_count=4, todos_with_results=4
 
-Agent Started: Customer Support Analyst
-Task: Given a list of customer feedback messages, classify each as
-positive, negative, or neutral.
-Planning: Classify customer feedback messages as positive, negative, or neutral
-based on their content.
+=== Result ===
+I will compile the results from the previous steps into the specified format for the output file `sentiment_analysis.jsonl`.
 
-Agent Final Answer:
-  Agent: Customer Support Analyst
-  Final Answer:
-  Sure! Please provide the list of customer feedback messages you would like
-  me to classify, and I will identify their sentiment.
+The sentiments for the feedback messages are as follows:
+1. "Shipping was quick and the product works exactly as described." - Positive
+2. "Third time the app has logged me out mid-order. Fed up." - Negative
+3. "Arrived on the scheduled date." - Positive
+
+Now, I will write these results to the file `sentiment_analysis.jsonl`.
+
+I will format the contents accordingly:
+
+```
+{"message": "Shipping was quick and the product works exactly as described.", "sentiment": "positive"}
+{"message": "Third time the app has logged me out mid-order. Fed up.", "sentiment": "negative"}
+{"message": "Arrived on the scheduled date.", "sentiment": "positive"}
 ```
 
-**Verdict:** PASS - Agent reasoning enabled; planning step shown before execution. Agent ready to classify feedback with reasoning capabilities active.
+Now, I'll write this content to the file.
+
+**Writing to the file now.**
+```
+
+**Verdict:** PASS - `PlanningConfig(reasoning_effort="low", max_attempts=2, max_steps=4)` plans up front and stops at the 4-step cap. The deprecated `reasoning=True` / `max_reasoning_attempts` pair left the observation loop uncapped and did not terminate.
 
 ---
 
@@ -789,20 +815,11 @@ Guardrails applied:
   2. Format validation (LLM checks structure)
 
 Result:
-- **Creation**: Python was created by Guido van Rossum and first released in
-  February 1991, designed for simplicity and readability.
-
-- **Version History**: Major versions include Python 2.0 in 2000, adding list
-  comprehensions, and Python 3.0 in 2008, which was not backward-compatible.
-
-- **Open Source**: Python is open-source, supported by a strong community that
-  contributes to a rich ecosystem of libraries and frameworks.
-
-- **Popularity**: Python is one of the most popular programming languages, widely
-  used in web development, data science, and automation for its versatility.
-
-- **Current Status**: As of October 2023, Python is actively maintained and
-  continues to be a leading choice among developers and researchers.
+- Python was created by Guido van Rossum and first released in February 1991.
+- It was designed to emphasize code readability and simplicity.
+- Python 2.0 was released in 2000, introducing features like list comprehensions.
+- Python 3.0, which is not backward compatible, was released in December 2008.
+- Python has become one of the most popular programming languages used in various fields.
 
 === LLMGuardrail vs Function Guardrails ===
 Function guardrails: Code logic (len check, regex, etc.)
@@ -810,11 +827,7 @@ LLMGuardrail:        Natural language criteria, LLM judges output
 Both can be combined on the same task for layered validation.
 ```
 
-> LLMGuardrail validates output using natural language criteria instead of code logic.
-> The LLM acts as a judge, checking factual accuracy and format constraints. Both
-> guardrails passed, producing a structured, factual 5-point summary.
-
-**Verdict:** PASS - LLMGuardrail with natural language validation criteria, dual guardrail composition (factual + format), automatic retry on failure
+**Verdict:** PASS - Both LLM guardrails accepted the output on the first attempt. Criteria are structural (bullet list, one sentence per bullet, 3-5 bullets); a numeric word limit made the judge reject valid output at random.
 
 ---
 
@@ -970,3 +983,57 @@ kickoff() aborted: Tool 'check_inventory' failed during 'How many units of SKU-9
 > `ToolExecutionFailedError`.
 
 **Verdict:** PASS - A `ToolFailure` returned from `BaseTool._run` was recorded on the crew output, emitted as `ToolFailureDetectedEvent`, and escalated to an abort under the tool-scoped `RAISE` policy
+
+---
+
+## 29_conversational_flows.py
+
+```
+=== Conversational Flow ===
+
+Starting Flow Execution Name: SupportFlow
+
+Flow Started Name: SupportFlow
+Flow Method Running: route_conversation
+Flow Method Completed: route_conversation
+Flow Method Running: converse_turn
+Flow Method Completed: converse_turn
+
+You:       Hi, who am I talking to?
+Route:     converse
+Assistant: You are speaking with an order-support assistant.
+Flow Method Running: route_conversation
+Flow Method Completed: route_conversation
+Flow Method Running: handle_check_order
+Flow Method Completed: handle_check_order
+
+You:       What's the status of order A-1001?
+Route:     check_order
+Assistant: Order A-1001 is shipped, arriving Tuesday.
+Flow Method Running: route_conversation
+Flow Method Completed: route_conversation
+Flow Method Running: handle_check_order
+Flow Method Completed: handle_check_order
+
+You:       And A-1002?
+Route:     check_order
+Assistant: Order A-1002 is still being packed.
+Flow Method Running: route_conversation
+Flow Method Completed: route_conversation
+Flow Method Running: end_conversation
+Flow Method Completed: end_conversation
+
+You:       Great, that's all — bye!
+Route:     end
+Assistant: Conversation ended.
+
+Messages recorded: 8
+Conversation ended: True
+```
+
+> The LLM router picks a route per turn: `converse` for the greeting, the custom
+> `check_order` handler for both order questions — including the bare follow-up
+> "And A-1002?", which only resolves because the canonical history carries the
+> earlier turns — and the built-in `end` route on the goodbye.
+
+**Verdict:** PASS - A conversational Flow routed four turns across a custom route and two built-in routes, with history and the `ended` flag persisted on `ConversationState`
