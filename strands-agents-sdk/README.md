@@ -2,7 +2,7 @@
 
 - Repo: https://github.com/strands-agents/harness-sdk
 - Documentation: https://strandsagents.com/docs/
-- Version: **1.50.2**
+- Version: **1.55.1**
 
 ## About Strands Agents SDK
 
@@ -79,6 +79,8 @@ uv run python 20_human_in_the_loop.py
 uv run python 21_agent_memory.py
 uv run python 22_invocation_limits.py
 uv run python 23_goal_loop.py
+uv run python 24_cancellation.py
+uv run python 25_background_tasks.py
 ```
 
 ## Examples
@@ -109,9 +111,11 @@ uv run python 23_goal_loop.py
 | 21 | `21_agent_memory.py` | `MemoryManager` + `TestMemoryStore`, cross-session recall and extraction |
 | 22 | `22_invocation_limits.py` | Per-invocation `turns` / `output_tokens` / `total_tokens` caps |
 | 23 | `23_goal_loop.py` | `GoalLoop` validate-and-retry with an LLM judge and a programmatic validator |
+| 24 | `24_cancellation.py` | `Agent.cancel()` from another thread, `cancel_signal`, cooperative tool cancellation |
+| 25 | `25_background_tasks.py` | `background_tasks`, `BackgroundTasksConfig(always=, max_concurrency=)`, overlapping tool calls |
 
 ## Key dependencies
 
-- `strands-agents>=1.47.0` - Strands Agents SDK (locked at 1.50.2)
+- `strands-agents>=1.55.1` - Strands Agents SDK (locked at 1.55.1)
 - `strands-agents-tools>=0.5.2` - Community tools (calculator, current_time, shell, etc.) (locked at 0.8.5)
 - `pydantic-settings` - Settings management from .env

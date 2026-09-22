@@ -454,7 +454,7 @@ This repository provides a comprehensive, hands-on comparison of modern AI agent
           <img src="res/strands-amazon-sdk.svg" alt="Strands Agents SDK" width="120" style="vertical-align: middle;">
         </picture>
       </td>
-      <td><code>1.50.2</code></td>
+      <td><code>1.55.1</code></td>
       <td>
           <a href="https://strandsagents.com/docs/">
             <picture>
