@@ -1,6 +1,6 @@
 # LangChain Examples — Output Log
 
-All 24 examples executed successfully with `gpt-4o-mini` on 2026-05-10.
+All 25 examples executed successfully with `gpt-4o-mini` on `langchain==1.4.0`.
 Examples 10 and 20-23 were re-verified on 2026-08-05 against `langchain` 1.3.14.
 
 > Outputs are non-deterministic — your results will vary slightly on each run.
@@ -249,14 +249,45 @@ feel free to ask!
 ## 13_mcp.py
 
 ```
-Loaded 3 tools from MCP server: ['add', 'multiply', 'factorial']
+from langchain.mcp import MCPAdapter
 
-=== Math Query 1: Addition and Multiplication ===
-The result of (3 + 5) * 12 is 96.
 
-=== Math Query 2: Factorial ===
-The factorial of 7 is 5040.
+╭──────────────────────────────────────────────────────────────────────────────╮
+│                                                                              │
+│                                                                              │
+│                         ▄▀▀ ▄▀█ █▀▀ ▀█▀ █▀▄▀█ █▀▀ █▀█                        │
+│                         █▀  █▀█ ▄▄█  █  █ ▀ █ █▄▄ █▀▀                        │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                FastMCP 4.0.3                                 │
+│                            https://gofastmcp.com                             │
+│                                                                              │
+│                  🖥  Server:      Math, 4.0.3                                 │
+│                  🚀 Deploy free: https://horizon.prefect.io                  │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+
+=== MCPAdapter ===
+
+Tools discovered on the MCP server:
+  add: Add two numbers
+  factorial: Calculate factorial of n (up to 20)
+
+Q: What is 17 plus 25?
+   tools used: ['add']
+   answer:     42
+
+Q: What is 6 factorial?
+   tools used: ['factorial']
+   answer:     720
 ```
+
+> Migrated to the first-party `langchain.mcp` namespace. `MCPAdapter` takes the
+> server as a `Path` — a plain string is rejected unless it is an http(s) URL, so
+> a filename from config or from a model can never silently launch a subprocess.
+> `list_tools()` returns ready-made LangChain tools for `create_agent`.
 
 ---
 
@@ -495,3 +526,29 @@ The user is planning a trip to Lisbon in May and seeks recommendations and infor
 ```
 
 > The union schema lets the model pick its response shape per question — `WeatherReport` for an answerable one, `OutOfScope` for a refusal — without any branching in application code. `handle_errors` turned the rejected first attempt into a retry instruction and the model corrected `London` to `London, UK`. `ProviderStrategy` needs no synthetic tool call at all, which is why its history is only 2 messages.
+
+---
+
+## 24_model_exceptions.py
+
+```
+=== Standard model exceptions ===
+
+ModelNotFoundError
+  is a ModelError:  True
+  message:          Error code: 404 - {'error': {'message': 'The model `gpt-does-not-exist-9000` does not exist or you do not have
+
+ModelAuthenticationError
+  is a ModelError:  True
+  message:          Error code: 401 - {'error': {'message': 'Incorrect API key provided: sk-not-a*****-key. You can find your API 
+
+provider-agnostic handler:
+  bad model name: unavailable (OpenAIModelNotFoundError) — fall back to another model
+  bad api key:    unavailable (OpenAIAuthenticationError) — fall back to another model
+  working model:  ok
+```
+
+> The standard types are raised by every integration, so one `except ModelError`
+> block covers any provider. The concrete classes are provider subclasses —
+> `OpenAIModelNotFoundError` here — which still answer `isinstance(exc, ModelError)`,
+> so provider-agnostic handling and provider-specific detail coexist.
