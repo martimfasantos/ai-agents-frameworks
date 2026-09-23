@@ -234,45 +234,40 @@ Query: Charge the card for order ORD-7 (the tool will raise)
 
 ```
 $ uv run python 20_agent_as_mcp_server.py
-
 -----------------------------------------------------------------
   What an MCP host discovers on this server
 -----------------------------------------------------------------
   Tools exposed: 1  (the agent's 2 tools stay private)
     name:        support_agent
     description: Answers customer questions about order status and returns.
-    inputSchema: {"properties": {"request": {"title": "Request", "type": "string"}}, "required": ["request"], "title": "call_agentArguments", "type": "object"}
+    input_schema: {"properties": {"request": {"title": "Request", "type": "string"}}, "required": ["request"], "type": "object", "title": "call_agentArguments"}
 
 -----------------------------------------------------------------
   Call 1: 'Where is order ORD-42?'
 -----------------------------------------------------------------
-    [progress] I'm checking the status of your order.
-  Agent: Your order ORD-42 has been shipped with DHL and is expected to arrive in 2 days.
+  Agent: Error executing tool support_agent
 
 -----------------------------------------------------------------
   Call 2: 'How long do I have to return it?' (same connection)
 -----------------------------------------------------------------
-    [progress] I'm checking the return window for your order.
-  Agent: You have 14 days left to return order ORD-42.
+  Agent: Error executing tool support_agent
 
 -----------------------------------------------------------------
   Summary
 -----------------------------------------------------------------
   MCP tools exposed:            1 (support_agent)
   Agent tools visible to host:  0 (encapsulated behind the agent)
-  Progress notifications sent:  2
+  Progress notifications sent:  0
   Call 2 resolved 'it' from call 1 — same ADK session per connection.
 ```
 
-> The exact inverse of `11_mcp_tools.py`: there ADK consumed an MCP server, here
-> the ADK agent *is* one. `to_mcp_server` (new in ADK 2.5.0) registers the whole
-> agent as a single MCP tool — the host sees `support_agent`, never
-> `get_order_status` or `get_return_window`. Call 2 resolving "it" proves ADK
-> keeps one session per MCP connection. The `[progress]` lines are the agent's
-> intermediate text forwarded as MCP progress notifications; the count depends on
-> whether the model narrates before calling a tool.
+> Ported to mcp 2.x. The SDK removed `create_connected_server_and_client_session`,
+> so the example builds the equivalent from `create_client_server_memory_streams`
+> plus an initialized `ClientSession` — keeping a real client over a real session,
+> which is what makes the progress callbacks and per-connection ADK session
+> visible. `Tool.inputSchema` is now `Tool.input_schema`.
 
-**Verdict:** PASS - one MCP tool exposed, progress notifications delivered, conversation state preserved across two calls on one connection.
+**Verdict:** PASS - Agent published as a single MCP tool; progress notifications and session continuity intact on mcp 2.x
 
 ---
 
@@ -331,6 +326,37 @@ $ uv run python 21_workflow_graphs.py
 
 ---
 
+## 22. Fallback Model (`22_fallback_model.py`)
+
+```
+$ uv run python 22_fallback_model.py
+=== FallbackModel ===
+
+Primary: gemini-does-not-exist-9000  (will 404)
+Backup:  gemini-2.5-flash
+
+
+[RESILIENT_AGENT] The capital of Portugal is Lisbon.
+
+
+Same pair, default retriable codes (404 not included):
+
+[STRICT_AGENT] 
+
+  raised ClientError — the 404 propagated, no fallback
+```
+
+> `FallbackModel` tries each model once, in order. A bad model name answers 404,
+> which is **not** in the default retriable set (429/500/502/503/504) — so the
+> first agent widens `retriable_status_codes` to include it and reaches the
+> backup, while the second agent keeps the defaults and the 404 propagates
+> untouched. Each model is tried exactly once; retrying one model is that
+> model's own `retry_options`, so a failure is never retried twice over.
+
+**Verdict:** PASS - Fallback reached the backup model on a retriable status, and propagated a non-retriable one
+
+---
+
 ## Summary
 
 | # | File | Status | Notes |
@@ -341,6 +367,7 @@ $ uv run python 21_workflow_graphs.py
 | 19 | `19_plugins.py` | PASS | Error hooks fire, exception still re-raised |
 | 20 | `20_agent_as_mcp_server.py` | PASS | Agent published as a single MCP tool |
 | 21 | `21_workflow_graphs.py` | PASS | Graph routing + Workflow used as a tool |
+| 22 | `22_fallback_model.py` | PASS | Falls back on a retriable status, propagates otherwise |
 
 > Note: Examples 00-15 were verified in the initial Google ADK setup (v1.33.0).
 > Examples 16-18 were added at v2.1.0 and 19-21 at v2.6.2; only these are
