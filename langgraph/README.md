@@ -2,7 +2,7 @@
 
 - Repo: https://github.com/langchain-ai/langgraph
 - Documentation: https://docs.langchain.com/oss/python/langgraph/overview
-- Version: **1.2.10**
+- Version: **1.2.11**
 
 LangGraph is a framework from LangChain for building stateful, multi-actor agents as graphs. Nodes are functions, edges define control flow, and built-in persistence turns any graph into a conversational agent with memory, human-in-the-loop approval, time-travel debugging, and streaming — all with a small, composable API.
 
@@ -66,14 +66,15 @@ uv run python 00_hello_world.py
 | `24_overwrite_and_deferred_nodes.py` | Bypassing Reducers & Deferred Fan-in | `Overwrite`, `{"__overwrite__": ...}`, `InvalidUpdateError`, `add_node(..., defer=True)` |
 | `25_timeouts_and_durability.py` | Timeouts & Durability | `add_node(..., timeout=)`, `TimeoutPolicy`, `NodeTimeoutError`, `durability="sync"/"async"/"exit"` |
 | `26_event_streaming_v3.py` | Event Streaming (v3) | `stream_events(version="v3")`, `.messages`/`.values`/`.subgraphs`/`.output`/`.interrupts`, `transformers=` |
+| `27_trace_policy.py` | Per-node Trace Shaping | `TracePolicy(process_inputs=..., process_outputs=...)` on `add_node`, `omit_payload` |
 
 ## Key dependencies
 
 | Package | Version | Purpose |
 |---------|---------|---------|
-| `langgraph` | >=1.2.6 (locked 1.2.10) | Core graph framework |
+| `langgraph` | >=1.2.11 (locked 1.2.11) | Core graph framework |
 | `langchain` | >=1.3.10 | LangChain base library |
-| `langchain-openai` | >=1.2.2 | OpenAI model integration (`ChatOpenAI`) |
+| `langchain-openai` | >=1.6.2 | OpenAI model integration (`ChatOpenAI`) |
 | `pydantic` | >=2.12.5 | State validation and structured outputs |
 | `pydantic-settings` | >=2.13.1 | `.env` file loading via `BaseSettings` |
 | `python-dotenv` | >=1.2.2 | Environment variable loading |
