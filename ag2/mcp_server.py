@@ -1,8 +1,8 @@
-"""A simple FastMCP server that provides calculator tools for the MCP example."""
+"""A simple MCP server that provides calculator tools for the MCP example."""
 
-from mcp.server.fastmcp import FastMCP
+from mcp.server.mcpserver import MCPServer
 
-mcp = FastMCP("Calculator")
+mcp = MCPServer("Calculator")
 
 
 @mcp.tool()
