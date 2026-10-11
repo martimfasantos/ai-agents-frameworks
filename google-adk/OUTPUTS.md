@@ -357,6 +357,80 @@ Same pair, default retriable codes (404 not included):
 
 ---
 
+## 23. Run Cancellation (`23_run_cancellation.py`)
+
+```
+$ uv run python 23_run_cancellation.py
+=== Running with abort_signal ===
+
+  [stream] model called export_sales_report({'region': 'EMEA'})
+  [tool] exporting batch 1/10
+  [tool] exporting batch 2/10
+  [tool] exporting batch 3/10
+  [user] Stop pressed after 1.2s -> abort_signal.set()
+  [tool] cancelled in batch 3 (ctx.is_aborted=True)
+  [stream] INVOCATION_ABORTED: Invocation was aborted by client.
+  [stream] generator finished — no exception reached the caller
+
+=== Session history after the abort ===
+
+  user          text "Export the EMEA sales report."
+  report_agent  call export_sales_report({'region': 'EMEA'})
+  report_agent  response {'error': 'Invocation was aborted by client.'}; error_code=INVOCATION_ABORTED
+
+  Function calls left without a response: 0
+```
+
+> Setting the `abort_signal` passed to `Runner.run_async` (new in ADK 2.11.0)
+> cancels the in-flight tool task, so the export stops at batch 3 of 10 and
+> `ctx.is_aborted` lets the tool tell a user abort from any other cancellation.
+> The runner then answers the open function call with a synthetic response
+> carrying `error_code="INVOCATION_ABORTED"`, persists it and yields it, so the
+> stream ends without an exception and no call is left unanswered in history.
+
+**Verdict:** PASS - Tool stopped mid-run; the dangling call was sealed with an INVOCATION_ABORTED response
+
+---
+
+## 24. Model Consult (`24_model_consult.py`)
+
+```
+$ uv run python 24_model_consult.py
+Customer: Order ORD-502 arrived broken. I want my money back.
+
+  [executor] tool call: lookup_order({'order_id': 'ORD-502'})
+  [executor] tool call: get_refund_policy({})
+  [executor -> advisor] question:
+    Approve the refund for order ORD-502. The refund amount is $224 USD and it will be
+      issued to the original payment method (credit card). This is based on the customer
+      being gold-tier (45-day window, order is 34 days old), the item being defective
+      (exempt from restocking fee), and deducting the previously issued goodwill credit.
+
+  [advisor] status=ok  model=gemini-2.5-flash  consults used=1/1
+  [advisor -> executor] guidance:
+    *   **Applicable Clauses:** R2 (gold-tier window), R4 (defective item exemption), R5
+      (goodwill deduction), R6 (original payment method).
+    *   **Correct Outcome:** Approve refund of $224.00 USD to the credit card. This
+      calculation correctly applies R2, R4, R5, and R6.
+    *   **Pitfall to Avoid:** Your final output must adhere to the "at most two
+      sentences" limit specified in your instructions; omit the detailed reasoning.
+
+  [executor] final decision:
+    Approve. A refund of $224 USD will be issued to the original payment method.
+```
+
+> `ModelConsultTool` (new in ADK 2.11.0) gave the executor a `model_consult`
+> tool. After the two lookups it sent the advisor its proposed decision; the
+> advisor read the whole session (instruction, tool calls and results) and
+> confirmed the clauses that apply — the gold-tier window overrides the 30-day
+> one, the defect waives the restocking fee, and the goodwill credit is
+> deducted. Both roles run on `gemini-2.5-flash` to stay within free-tier
+> quota; the default advisor is `gemini-3.1-pro-preview`.
+
+**Verdict:** PASS - The consult fired once within its 1/1 budget and the executor acted on the guidance
+
+---
+
 ## Summary
 
 | # | File | Status | Notes |
@@ -368,9 +442,11 @@ Same pair, default retriable codes (404 not included):
 | 20 | `20_agent_as_mcp_server.py` | PASS | Agent published as a single MCP tool |
 | 21 | `21_workflow_graphs.py` | PASS | Graph routing + Workflow used as a tool |
 | 22 | `22_fallback_model.py` | PASS | Falls back on a retriable status, propagates otherwise |
+| 23 | `23_run_cancellation.py` | PASS | Tool cancelled mid-run, open call sealed with INVOCATION_ABORTED |
+| 24 | `24_model_consult.py` | PASS | Executor consults the advisor once and acts on its guidance |
 
 > Note: Examples 00-15 were verified in the initial Google ADK setup (v1.33.0).
-> Examples 16-18 were added at v2.1.0 and 19-21 at v2.6.2; only these are
-> documented here.
+> Examples 16-18 were added at v2.1.0, 19-21 at v2.6.2, 22 at v2.9.0 and 23-24
+> at v2.11.0; only these are documented here.
 
-**6/6 documented examples pass.**
+**9/9 documented examples pass.**
