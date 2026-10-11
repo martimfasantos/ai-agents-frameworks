@@ -28,7 +28,7 @@ https://github.com/ag2ai/ag2/blob/v1.0.1/website/docs/user-guide/context/human_i
 """
 
 # --- 1. Scripted human answers (a real app would prompt a UI) ---
-SCRIPTED_ANSWERS = ["yes", "no"]
+SCRIPTED_ANSWERS = iter(["yes", "no"])
 requests_seen: list[str] = []
 
 
@@ -47,7 +47,8 @@ async def book_flight(context: Context, destination: str, price_eur: int) -> str
 # --- 3. The hook that answers every HumanInputRequest ---
 def hitl_hook(event: HumanInputRequest) -> HumanMessage:
     requests_seen.append(event.content)
-    answer = SCRIPTED_ANSWERS[len(requests_seen) - 1]
+    # Deny by default once the script runs out, e.g. if the model retries
+    answer = next(SCRIPTED_ANSWERS, "no")
     print(f"  [human] asked: {event.content}")
     print(f"  [human] answered: {answer!r}")
     return HumanMessage(content=answer)
