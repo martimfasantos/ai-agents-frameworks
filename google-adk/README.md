@@ -2,7 +2,7 @@
 
 - Repo: https://github.com/google/adk-python
 - Documentation: https://google.github.io/adk-docs/
-- Version: **2.6.2**
+- Version: **2.9.0**
 
 Google Agent Development Kit (ADK) is Google's open-source framework for building, evaluating, and deploying AI agents. It provides a rich set of primitives for tool use, multi-agent orchestration, session management, memory, callbacks, and structured outputs — all tightly integrated with the Gemini model family while also supporting third-party models via LiteLLM.
 
@@ -72,13 +72,14 @@ uv run python 00_hello_world.py
 | `19_plugins.py` | Plugins | Runner-global BasePlugin hooks, on_agent_error/on_run_error, ReflectAndRetryModelPlugin |
 | `20_agent_as_mcp_server.py` | Agent as MCP Server | Publish an ADK agent as an MCP server with `to_mcp_server` |
 | `21_workflow_graphs.py` | Workflow Graphs | Workflow/@node/Edge graph routing and a Workflow used as an agent tool |
+| `22_fallback_model.py` | Fallback Model | `FallbackModel(models=[...])`, `retriable_status_codes`, non-retriable failures propagating |
 
 ## Key dependencies
 
 | Package | Version | Purpose |
 |---------|---------|---------|
-| `google-adk` | 2.6.2 | Core framework |
-| `google-adk[eval]` | 2.6.2 | Evaluation extras (rouge-score, scikit-learn, pandas) |
+| `google-adk` | 2.9.0 | Core framework |
+| `google-adk[eval]` | 2.9.0 | Evaluation extras (rouge-score, scikit-learn, pandas) |
 | `pydantic` | ≥2.0 | Structured output schemas and settings |
 | `pydantic-settings` | ≥2.0 | `.env` file loading via `BaseSettings` |
 | `litellm` | latest | Third-party model routing (required for `09_litellm.py`) |
