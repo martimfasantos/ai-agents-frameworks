@@ -1,6 +1,6 @@
 # LangGraph Examples — Outputs
 
-Captured output from running all examples with `langgraph==1.2.6`, `langchain-openai==1.2.2`, and `gpt-4o-mini`.
+Captured output from running all examples with `langgraph==1.2.11`, `langchain-openai==1.6.2`, and `gpt-4o-mini`.
 
 ---
 
@@ -163,18 +163,19 @@ AI: The weather in Tokyo is sunny with a temperature of 28°C and 45% humidity. 
 
 ## 06_command_from_tools.py
 
-> **Feature:** `Command` objects returned from `@tool` functions to update state and route to a different node. The output shows a tool returning `Command(update={"department": "billing"}, goto="billing")`, which simultaneously updates the active department in state and transfers control to the billing agent node — enabling tool-driven routing.
+> **Feature:** `Command` objects returned from `@tool` functions to update state and route to a different node. `transfer_to_billing` returns `Command(update={"current_department": "billing", ...}, goto="billing_agent")`, which updates state and hands control to the billing specialist in one step. The specialist then calls `lookup_account` through its own tools node and answers from the real balance.
 
 ```
 === Command from Tools ===
 
 Final department: billing
 
-H: I have a question about my bill for account ACC-001. Why was I charged $142.50?
+Human: I have a question about my bill for account ACC-001. Why was I charged $142.50?
 AI: [Calling: ['transfer_to_billing']]
-Tool: Transferred to billing: Customer has a billing question regarding a charge of $142.50 on their account.
-AI: I've transferred your question to the billing department for further assistance regarding the charge of $142.50 on your account.
-AI: I've transferred you to the billing department for your question about the $142.50 charge on your account.
+Tool: Transferred to billing: Inquiry about billing charge of $142.50 for account ACC-001.
+AI: [Calling: ['lookup_account']]
+Tool: Plan: Premium, Balance: $142.50, Status: Active
+AI: You were charged $142.50 for your Premium plan. Your account balance reflects this amount, and your account status is currently active. If you need further details, feel free to ask!
 ```
 
 ---
@@ -635,3 +636,154 @@ Saved in checkpoint: The report on Artificial Intelligence Ethics examines the m
 ```
 
 > Demonstrates node-level error handlers and cache policies (new in v1.2.0) — graceful degradation when nodes fail, and TTL-based caching for expensive computations.
+
+## 23_runtime_context.py
+
+```
+=== Same input, two different runtime contexts ===
+
+  context ....... RequestContext(user_id='u-100', locale='English', tone='formal')
+  profile ....... Alice (enterprise plan)
+  reply ......... Yes, as an enterprise plan user, you have the ability to export your data at any time.
+  state keys .... ['profile', 'question', 'reply']  <- no user_id/locale/tone in state
+
+  context ....... {'user_id': 'u-200', 'locale': 'Portuguese', 'tone': 'playful'}
+  profile ....... Bruno (free plan)
+  reply ......... Oi Bruno! No plano gratuito, você pode sonhar em exportar seus dados, mas por enquanto, vamos aproveitar juntos tudo o que temos por aqui! 🌟
+  state keys .... ['profile', 'question', 'reply']  <- no user_id/locale/tone in state
+
+=== Custom stream written from runtime.stream_writer ===
+
+  {'step': 'load_profile', 'user_id': 'u-100'}
+  {'step': 'answer', 'tone': 'terse'}
+
+=== runtime.previous (functional API, needs a checkpointer) ===
+
+  +10  previous=0   total=10
+  +5   previous=10  total=15
+  +2   previous=15  total=17
+```
+
+> The two runs share the identical input state `{"question": ...}` and differ only in the `context=` argument, yet the profile lookup and the reply language/tone both change — proof the context reached the nodes. The `state keys` line is the load-bearing part: `user_id`, `locale` and `tone` never appear in state, so they are never checkpointed and never passed through a reducer. `runtime.previous` is functional-API-only, hence the separate `@entrypoint` section.
+
+## 24_overwrite_and_deferred_nodes.py
+
+```
+=== Reducer append, then Overwrite ===
+
+  notes = ['seed']
+  notes = ['seed', 'gathered-a', 'gathered-b']
+  notes = ['summary of 3 notes']
+
+  Without Overwrite the last line would have been
+  ['seed', 'gathered-a', 'gathered-b', 'summary of 3 notes']
+
+=== JSON form of Overwrite ===
+
+  notes = ['summary via JSON form']
+
+=== Two parallel Overwrites on the same channel ===
+
+  InvalidUpdateError: Can receive only one Overwrite value per super-step.
+  There is no reducer left to merge them, so LangGraph refuses to pick.
+
+=== Fan-in across uneven branches ===
+
+  defer=False
+    report ran 2x, log entries visible per call: [2, 5]
+    final log = ['extract', 'lookup', 'enrich', 'report(saw 2)', 'score', 'report(saw 5)']
+
+  defer=True
+    report ran 1x, log entries visible per call: [4]
+    final log = ['extract', 'lookup', 'enrich', 'score', 'report(saw 4)']
+
+  Without defer, 'lookup' finishes in super-step 1 and fires 'report'
+  before the long branch is done. defer=True holds it until the run
+  is about to end, so it runs once with every branch collected.
+```
+
+> No LLM calls — fully deterministic. The `notes` progression shows `operator.add` appending, then `Overwrite` replacing the channel wholesale. `defer=False` runs the fan-in node twice (seeing 2 then 5 entries) because the short branch finishes first; `defer=True` runs it exactly once with all 4 entries.
+
+## 25_timeouts_and_durability.py
+
+```
+=== Constraint: timeout= requires an async node ===
+
+  ValueError at compile(): Node timeouts are only supported for async nodes because sync Python execution cannot be safely cancelled in-process. Node 'sync_node' is sync.
+
+=== Async node exceeding timeout=0.3 ===
+
+  NodeTimeoutError: Node 'slow_fetch' exceeded its run timeout of 0.300s (elapsed: 0.301s).
+
+=== TimeoutPolicy + RetryPolicy(retry_on=NodeTimeoutError) ===
+
+  run_timeout=0.3s  idle_timeout=0.2s
+  attempt 1 timed out, then: fetched on attempt 2
+
+=== Durability modes over a 3-node run ===
+
+  durability=sync   -> 5 checkpoint(s) persisted
+  durability=async  -> 5 checkpoint(s) persisted
+  durability=exit   -> 1 checkpoint(s) persisted
+
+  "sync"/"async" write every super-step, so the run is resumable from
+  the last completed node. "exit" writes once at the end — cheapest,
+  but an interrupted run has nothing to resume from.
+```
+
+> No LLM calls — timings come from `asyncio.sleep`. Note where the async-only constraint bites: `add_node(..., timeout=)` accepts a sync node silently and `compile()` is what raises. The checkpoint counts are the proof for durability: 5 for `"sync"`/`"async"` versus 1 for `"exit"`.
+
+## 26_event_streaming_v3.py
+
+```
+=== run.messages -> message.text deltas ===
+
+  node=chat
+  deltas: 'J' 'upiter' ' is' ' the' ' largest' ' planet' '.'
+  assembled: Jupiter is the largest planet.
+  tokens:    33
+
+=== run.values -> snapshots, run.output -> final state ===
+
+  snapshot 0: 1 message(s)
+  snapshot 1: 2 message(s)
+  run.output keys: ['messages']
+  final answer:    Mercury is the smallest planet.
+
+=== transformers=[UpdatesTransformer] -> run.extensions['updates'] ===
+
+  projections available: ['values', 'messages', 'lifecycle', 'subgraphs', 'updates']
+  update from 'chat': Venus is the hottest planet.
+
+=== run.subgraphs -> nested run handles ===
+
+  subgraph 'delegate' at path ('delegate:b19a8a75-996e-2a8b-298a-b6a365c7ef08',)
+    Mars is the reddest planet.
+
+=== run.interrupted / run.interrupts ===
+
+  interrupted: True
+  waiting on:  {'question': 'Deploy to production?'}
+```
+
+> Every section uses a fresh `stream_events(..., version="v3")` call: projections are single-consumer and iterating one is what pumps the graph, so a run cannot be replayed across projections. `values`/`messages`/`lifecycle`/`subgraphs` are always present; `updates` only appears because `transformers=[UpdatesTransformer]` opted it in. Running this also prints a `LangChainBetaWarning` on stderr — v3 is still marked experimental.
+
+---
+
+## 27_trace_policy.py
+
+> **Feature:** `trace_policy=TracePolicy(...)` on `add_node`, new in LangGraph 1.2.11. `summarize_history` records a message count and the last message instead of the full transcript; `answer` uses the `omit_payload` helper to record nothing at all. The `[node] actually received ...` lines prove execution is untouched — only what the tracing layer sees changes. A `RecordingHandler` callback stands in for LangSmith so the effect is visible in the terminal.
+
+```
+=== Per-node trace policies ===
+
+  [node] actually received 12 messages
+  [node] actually received 13 messages
+
+What the tracing layer recorded:
+  summarize_history: {'message_count': 12, 'last_message': 'Turn 11: a long question about model gpt-4o-mini.'}
+  answer: {}
+
+Final message count in state: 14
+Execution is unaffected — the nodes saw the full history above.
+```
