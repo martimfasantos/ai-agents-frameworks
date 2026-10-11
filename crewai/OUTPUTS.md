@@ -1,6 +1,6 @@
 # CrewAI - Example Outputs
 
-All examples run with `crewai[tools]>=1.15.21` and `gpt-4o-mini` as the model.
+All examples run with `crewai[tools]>=1.15.27` and `gpt-4o-mini` as the model.
 
 > **Note:** LLM responses are non-deterministic. Your outputs will differ in wording but should follow the same structure and demonstrate the same features.
 
@@ -1037,3 +1037,40 @@ Conversation ended: True
 > earlier turns — and the built-in `end` route on the goodbye.
 
 **Verdict:** PASS - A conversational Flow routed four turns across a custom route and two built-in routes, with history and the `ended` flag persisted on `ConversationState`
+
+---
+
+## 30_llm_overlay.py
+
+```
+$ uv run python 30_llm_overlay.py
+
+=== 1. No overlay ===
+  Analyst  ran on gpt-4o-mini  requests=1 tokens=119
+  Editor   ran on gpt-4o-mini  requests=1 tokens=123
+  Answer: We're excited to announce that dark mode has been added, providing you with a sleek and stylish way to enjoy your experience!
+
+=== 2. llm_overlay({"Editor": "gpt-4o"}) ===
+  Analyst  ran on gpt-4o-mini  requests=1 tokens=119
+  Editor   ran on gpt-4o       requests=1 tokens=122
+  Answer: Discover a whole new look and feel with the introduction of dark mode, enhancing your user experience with style and comfort!
+
+=== 3. llm_overlay({"model:gpt-4o-mini": "gpt-4o"}) ===
+Crew built inside the block:
+  Analyst  ran on gpt-4o       requests=1 tokens=119
+  Editor   ran on gpt-4o       requests=1 tokens=113
+  Answer: Experience our new dark mode feature for a fresh and comfortable viewing experience.
+Crew built before the block, kicked off inside it:
+  Analyst  ran on gpt-4o-mini  requests=1 tokens=119
+  Editor   ran on gpt-4o-mini  requests=1 tokens=116
+```
+
+> `build_crew()` declares both agents on `gpt-4o-mini` and is never edited; only the
+> `with llm_overlay(...)` block around it changes. The role key moves just the
+> `Editor`, the `model:` key moves every agent declared on `gpt-4o-mini`, and the
+> crew built before the block stays on `gpt-4o-mini` even though it is kicked off
+> inside it, because an agent reads the overlay once, when it is built. Each
+> `requests=` count comes from that agent's own LLM instance, so it shows which
+> model actually served the call.
+
+**Verdict:** PASS - The same crew factory ran on its declared model, then with one role and then one model remapped by `llm_overlay`, with per-agent usage confirming the model each agent called
