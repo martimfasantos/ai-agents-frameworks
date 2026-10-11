@@ -102,7 +102,7 @@ uv run python 23_session_rewind.py
 | 13 | `13_file_checkpointing.py` | File checkpointing, rewind_files |
 | 14 | `14_session_store.py` | InMemorySessionStore, eager flush, store inspection |
 | 15 | `15_deferred_tool_use.py` | HITL deferred tool use, hook "defer" decision |
-| 16 | `16_hook_events.py` | Hook event streaming, HookEventMessage |
+| 16 | `16_hook_events.py` | Hook event streaming, HookEventMessage, command hooks via settings |
 | 17 | `17_strict_mcp.py` | strict_mcp_config for deterministic tool sets |
 | 18 | `18_thinking_config.py` | Extended thinking: enabled, adaptive, and disabled modes |
 | 19 | `19_task_budget.py` | Dollar cap (max_budget_usd) and TaskBudget token budget for agent spend |

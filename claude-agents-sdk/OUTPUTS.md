@@ -1,6 +1,6 @@
 # Claude Agent SDK - Example Outputs
 
-Outputs captured with `claude-agent-sdk` 0.2.165 (bundled Claude Code CLI 2.1.294) on `claude-haiku-5-5`, set through `ANTHROPIC_MODEL_NAME` in `settings.py`. The CLI also loads the capturing machine's user-level Claude Code settings (CLAUDE.md, hooks, MCP servers), which shows up in 04, 09 and 16.
+Outputs captured with `claude-agent-sdk` 0.2.165 (bundled Claude Code CLI 2.1.294) on `claude-haiku-5-5`, set through `ANTHROPIC_MODEL_NAME` in `settings.py`. Every run used an empty `CLAUDE_CONFIG_DIR`, so user-level Claude Code settings don't affect them.
 
 > **Note:** LLM responses are non-deterministic. Your outputs will differ in wording but should follow the same structure and demonstrate the same features.
 
@@ -11,13 +11,19 @@ Outputs captured with `claude-agent-sdk` 0.2.165 (bundled Claude Code CLI 2.1.29
 ```
 $ uv run python 00_hello_world.py
 
-The string isn't a fact the repo knows. It's the prompt in `00_hello_world.py`, line 30:
-`prompt="Where does 'hello world' come from?"`. The script sends that question to Claude
-through `query()` and prints the result. I haven't run it, since that needs an API key.
+The string comes from this repo's own example script, not from anywhere in the code's behavior.
 
-The phrase itself is generally traced to Brian Kernighan's early C tutorial at Bell Labs
-(around 1974), whose first example program printed `hello, world`. I'm working from memory,
-so check that before citing it.
+In `00_hello_world.py` (line 30), the prompt is literally:
+
+```python
+prompt="Where does 'hello world' come from?"
+```
+...
+
+As for the phrase itself: it's the traditional first program in programming, printing
+`hello, world`. It's usually traced to Brian Kernighan's tutorial for the B language at Bell
+Labs in 1972. The 1978 *The C Programming Language* book by Kernighan and Ritchie popularized
+it. ...
 ```
 
 **Verdict:** PASS - One-shot `query()` call returns a complete response about "Hello, World!" history.
@@ -30,11 +36,11 @@ so check that before citing it.
 $ uv run python 01_built_in_tools.py
 
 [Tool Call] Glob: {'pattern': '*.py'}
-[Tool Call] Glob: {'pattern': '**/settings.py'}
-[Tool Call] Bash: {'command': "find . -maxdepth 1 -name '*.py' -type f | sort && echo '---' && head -n 5 settings.py", 'description': 'List top-level Python files and show first 5 lines of settings.py'}
+[Tool Call] Bash: {'command': 'head -n 5 settings.py', 'description': 'Show first 5 lines of settings.py'}
+[Tool Call] Bash: {'command': 'ls -1 *.py 2>/dev/null', 'description': 'List top-level Python files in current directory'}
 
 --- Result ---
-**Python files in the current directory** (top level only; `.venv` is excluded):
+Python files in the current directory (top level only):
 
 ```
 00_hello_world.py
@@ -44,7 +50,7 @@ $ uv run python 01_built_in_tools.py
 settings.py
 ```
 
-**First 5 lines of `settings.py`:**
+First 5 lines of `settings.py`:
 
 ```python
 import pydantic
@@ -53,6 +59,9 @@ from pydantic_settings import BaseSettings
 
 # Use pydantic base settings for basic settings read from a .env file
 ```
+
+My first search was recursive and picked up many files under `.venv/`. The list above comes
+from a top-level-only `ls`.
 ```
 
 **Verdict:** PASS - Built-in tools (Glob, Bash) invoked via allowed_tools and bypassPermissions, agent lists files and reads content.
@@ -64,9 +73,7 @@ from pydantic_settings import BaseSettings
 ```
 $ uv run python 02_custom_tools.py
 
-Lisbon is currently sunny at 25°C.
-
-Its population is 545,000.
+Lisbon is currently sunny at 25°C. Its population is 545,000.
 ```
 
 **Verdict:** PASS - Custom MCP tools (get_weather, get_population) created via @tool decorator and create_sdk_mcp_server(), both invoked correctly.
@@ -85,16 +92,15 @@ Structured output: {
   "population_millions": 2.1,
   "famous_for": [
     "Eiffel Tower",
-    "Louvre Museum",
+    "Louvre Museum and the Mona Lisa",
     "Notre-Dame Cathedral",
-    "Sacr\u00e9-C\u0153ur",
-    "Arc de Triomphe",
-    "Champs-\u00c9lys\u00e9es",
+    "Arc de Triomphe and the Champs-\u00c9lys\u00e9es",
+    "Sacr\u00e9-C\u0153ur in Montmartre",
     "Mus\u00e9e d'Orsay",
-    "Impressionist art",
-    "Haute couture and fashion",
-    "French cuisine",
-    "2024 Summer Olympics"
+    "Caf\u00e9s, bakeries, and fine dining",
+    "Fashion and haute couture",
+    "Impressionist and Left Bank art and literary history",
+    "Hosting the Summer Olympics in 1900, 1924, and 2024"
   ]
 }
 
@@ -102,12 +108,11 @@ Structured output: {
 Title: Nineteen Eighty-Four
 Author: George Orwell
 Rating: 5.0/5
-Summary: Orwell's 1949 novel follows Winston Smith, a clerk in the Ministry of Truth in
-Oceania, a state where the Party and Big Brother watch citizens through telescreens and
-rewrite history. ...
-Themes: Totalitarianism and state surveillance, Control of language and thought (Newspeak,
-doublethink), Manipulation of truth and history, Individual resistance and its defeat, Love
-and loyalty under oppression
+Summary: Orwell's final novel follows Winston Smith, who secretly rebels against a totalitarian
+state of perpetual war, doublethink, and constant surveillance. ...
+Themes: Totalitarianism and state control, Surveillance, Propaganda and manipulation of truth,
+Language and thought (Newspeak, doublethink), Individual resistance and its defeat, Memory and
+history, Torture and political coercion
 ```
 
 **Verdict:** PASS - Both raw JSON schema and Pydantic model-derived schema produce valid structured output matching the defined schemas.
@@ -120,39 +125,35 @@ and loyalty under oppression
 $ uv run python 04_system_prompts.py
 
 === Example 1: Custom String System Prompt ===
-Ahoy! Python be a high-level programming language, sailed into the seas by Guido van Rossum
-in 1991. Its code reads almost like plain English, so even landlubbers can learn it.
-
-Pirates use it for web apps, data treasure hunts, AI, and automating tedious chores. Its vast
-standard library be a chest full of ready-made tools.
+Ahoy! **Python** be a high-level programming language, created by Guido van Rossum and first
+released in 1991. Its clean, readable syntax makes it a favorite for web development, data
+science, AI, automation, and scripting. Arr, it's one of the most popular languages on the
+seven seas of code!
 
 === Example 2: Preset System Prompt (claude_code) ===
-I have these tools available in this session:
+I have these tools available now:
 
-**Loaded now:**
+**Loaded:**
 - **Bash**: run shell commands
-- **Read**: read files, including images and PDFs
-- **Write**: create or overwrite files
+- **Read**: read files, images, PDFs, and notebooks
 - **Edit**: exact string replacement in files
-- **Agent**: launch subagents (general-purpose, Explore, Plan, and many specialized types)
+- **Write**: create or overwrite files
+- **Agent**: launch subagents (Explore, Plan, general-purpose, and others)
 ...
 
 **Deferred (load with ToolSearch first):**
-- **Web:** WebSearch, WebFetch
+- **WebSearch** and **WebFetch**: search the web and fetch pages
 ...
 
 === Example 3: Preset with Append ===
-A Python list comprehension is a compact way to build a new list by looping over an iterable
-and, optionally, filtering or transforming each item. It goes inside square brackets.
+A Python list comprehension is a concise way to build a new list by applying an expression to
+each item in an iterable, optionally filtering items with a condition. It's a compact
+replacement for a `for` loop that appends to a list.
+
+**Basic form:**
 
 ```python
-numbers = [1, 2, 3, 4, 5]
-
-squares = [n * n for n in numbers]
-# [1, 4, 9, 16, 25]
-
-evens = [n for n in numbers if n % 2 == 0]
-# [2, 4]
+[expression for item in iterable]
 ```
 ...
 
@@ -171,30 +172,17 @@ $ uv run python 05_permissions.py
 === Example 1: Permission Mode with Allow/Deny Lists ===
 [Tool Call] Glob
 
-Result: The Glob matched 727 `.py` files, but the output shows only the first 100, and all of
-those are inside `.venv/` (installed packages such as `httpcore`, `httpx`, `h11`, and
-`jsonschema`). The list doesn't show any project source files yet.
-...
+Result: The Glob search matched 727 `.py` files, but the tool only returned the first 100, so
+this list is incomplete. Almost all of the results are inside `.venv/` (installed packages). ...
 
 === Example 2: can_use_tool Callback ===
 
-Result: Here's `settings.py` from the current directory:
+Result: Here are the contents of `settings.py`:
 
 ```python
 import pydantic
 from pydantic_settings import BaseSettings
-
-
-# Use pydantic base settings for basic settings read from a .env file
-class Settings(BaseSettings):
-    ANTHROPIC_API_KEY: pydantic.SecretStr
-    ANTHROPIC_MODEL_NAME: str = "claude-haiku-5-5"
-
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
-
-
+...
 settings: Settings = Settings()
 ```
 ...
@@ -202,20 +190,22 @@ settings: Settings = Settings()
 Audit log (0 calls): []
 
 === Example 3: can_use_tool Shadowed by allowed_tools ===
-Result: `settings.py` has 15 lines. That's the one at the repo root; I ignored the copy inside `.venv`.
+  [Permission Check] Bash requested
+Result: `settings.py` has **15 lines**. I read it with the file reader because the Bash tool is
+blocked by policy, so this count comes from the reader's line numbering. ...
 
 [CanUseToolShadowedWarning] can_use_tool will not be invoked for: Read. An allowed_tools entry
 that allows a whole tool auto-approves it before the callback is consulted. To gate every tool
 call, use a PreToolUse hook; or narrow the entry so calls fall through to can_use_tool. Allow
 rules from settings files can also shadow the callback but are not visible here.
 
-Callback invocations during this run: 0
+Callback invocations during this run: 1
 Use a PreToolUse hook to gate tools that allowed_tools already approves.
 ```
 
-**Verdict:** PASS - Example 1 uses allowed_tools/disallowed_tools with permission_mode. Example 2 demonstrates the can_use_tool callback with a plain string prompt. Example 3 shows the shadowing footgun: `allowed_tools=["Read"]` auto-approves before the callback runs, so it is never invoked, and since 0.2.111 the SDK raises `CanUseToolShadowedWarning` to say so.
+**Verdict:** PASS - Example 1 uses allowed_tools/disallowed_tools with permission_mode. Example 2 demonstrates the can_use_tool callback with a plain string prompt. Example 3 shows the shadowing footgun: `allowed_tools=["Read"]` auto-approves Read before the callback runs, so the callback only sees the Bash call (and denies it), and since 0.2.111 the SDK raises `CanUseToolShadowedWarning` to say so.
 
-> The `0 calls` audit log in Example 2 is expected here, not a failure — allow rules in the machine's own Claude Code settings can auto-approve `Read` before the callback is consulted, which is exactly the condition Example 3 makes explicit.
+> The `0 calls` audit log in Example 2 is expected, not a failure: even with no allow rules configured, Claude Code does not ask permission to read files in the working directory, so `can_use_tool` is only consulted for tools that need approval, like the Bash call in Example 3.
 
 ---
 
@@ -227,21 +217,27 @@ $ uv run python 06_hooks.py
   [PreToolUse] About to call: Glob
                Input: {'pattern': '*.py'}
   [PostToolUse] Finished: Glob
-  [PreToolUse] About to call: Bash
-               Input: {'command': 'ls -1p | grep \'\\.py$\' ; ...', 'description': 'List top-level .py files in current directory'}
-  [PreToolUse] BLOCKED: Bash tool is not allowed!
   [PreToolUse] About to call: Glob
-               Input: {'pattern': '*.py', 'path': '.'}
+               Input: {'pattern': '*.py', 'path': '/.../claude-agents-sdk'}
   [PostToolUse] Finished: Glob
+  [PreToolUse] About to call: Bash
+               Input: {'command': 'ls -1 *.py 2>/dev/null', 'description': 'List top-level .py files in current directory'}
+  [PreToolUse] BLOCKED: Bash tool is not allowed!
   [PreToolUse] About to call: Grep
-               Input: {'pattern': '.', 'glob': '!.venv/**', 'output_mode': 'files_with_matches', 'type': 'py', 'head_limit': 0}
+               Input: {'pattern': '.', 'path': '/.../claude-agents-sdk', 'glob': '/*.py', 'output_mode': 'files_with_matches'}
   [PostToolUse] Finished: Grep
 
 --- Result ---
-There are 25 `.py` files in the current directory, excluding `.venv`:
-...
-The first Glob search had matched 727 files, almost all in `.venv`, so I used a Grep filtered
-to Python files with `.venv` excluded. Bash was blocked by a hook, so I couldn't run `ls`.
+There are 25 `.py` files in the top level of the current directory:
+
+- `00_hello_world.py`
+- `01_built_in_tools.py`
+- ...
+- `23_session_rewind.py`
+- `settings.py`
+
+My first two searches returned files inside `.venv` as well, so I used a root-anchored search
+for this list. ...
 ```
 
 **Verdict:** PASS - PreToolUse hooks log tool calls before execution, Bash calls are blocked by the deny hook, PostToolUse hooks fire after completion. All three hook types demonstrated correctly.
@@ -254,19 +250,18 @@ to Python files with `.venv` excluded. Bash was blocked by a hook, so I couldn't
 $ uv run python 07_sessions.py
 
 === Step 1: Start a new session ===
-Response: Confirmed. The secret code is **ALPHA-7**. I'll keep it for the rest of this
-conversation, but I won't remember it in a future session unless you save it somewhere persistent.
-Session ID: 8dc19a88-8632-4788-8cbc-ed7ed3d1acfc
+Response: I can't store it in any persistent way. I don't have a memory tool or a file I've been
+asked to write to, so the code won't survive past this conversation. Within this conversation,
+I'll remember that the secret code is ALPHA-7 and can repeat it when you ask.
+Session ID: b73ddfdb-cae9-42cf-9cb9-af18ebd48843
 
 === Step 2: Resume the session ===
-Response: The secret code you told me earlier is **ALPHA-7**.
+Response: The secret code you told me earlier was ALPHA-7.
 
 === Step 3: Fork the session ===
-Forked session response: 2 + 2 = 4.
-
-Forgetting ALPHA-7 is fine. I'll stop referring to it.
-New session ID: 7c68d1c7-9e52-4211-8f06-71aa62796018
-(Original session '8dc19a88-8632-4788-8cbc-ed7ed3d1acfc' is unchanged)
+Forked session response: 4
+New session ID: 4c4d341c-2211-41b5-aef1-5f2ac6958913
+(Original session 'b73ddfdb-cae9-42cf-9cb9-af18ebd48843' is unchanged)
 ```
 
 **Verdict:** PASS - Session created with unique ID, resumed by ID (remembers ALPHA-7), forked to new session with independent ID while preserving original.
@@ -280,29 +275,28 @@ $ uv run python 08_multi_turn.py
 
 === Turn 1 ===
 Response: Got it: you're building a REST API with FastAPI. I'll keep that in mind for the rest
-of this conversation.
-...
-Session: 2945f167-e935-4e8f-9610-594855fcba67
+of this conversation. ...
+Session: 83c9d7b8-e51a-423e-ac3f-f1055b9a02c5
 
 === Turn 2 ===
-Response: For most FastAPI REST APIs, I'd start with FastAPI's built-in security utilities
-plus **PyJWT** for tokens and **pwdlib** for password hashing. ...
+Response: For most FastAPI REST APIs, I'd start with **FastAPI's built-in security utilities
+plus PyJWT**. It's the approach the FastAPI docs describe, it adds few dependencies, and you
+keep control of your user model.
 
-- **Token auth (JWT bearer):** `fastapi.security` (`OAuth2PasswordBearer`/`HTTPBearer`) handles the request plumbing.
-- **Tokens:** PyJWT (`pyjwt`) signs and verifies them. FastAPI's docs dropped python-jose.
-- **Passwords:** pwdlib with Argon2 or bcrypt. passlib is unmaintained.
+- **Password hashing:** `pwdlib` with Argon2 or bcrypt. The FastAPI docs now use it in place of the older `passlib`.
+- **Tokens:** `PyJWT` for signing and verifying JWT access tokens. Avoid `python-jose`, which is poorly maintained.
+- **Wiring:** `OAuth2PasswordBearer` as the dependency that extracts the token, plus a `get_current_user` dependency you can reuse on protected routes.
 ...
 
 === Turn 3 ===
 Response: ```python
-import os
-from datetime import datetime, timedelta, timezone
-
+import time
 import jwt
 from fastapi import Depends, FastAPI, HTTPException
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 ...
 ```
+...
 ```
 
 **Verdict:** PASS - ClaudeSDKClient maintains context across 3 turns: sets FastAPI context (Turn 1), recommends auth library building on context (Turn 2), provides code example for recommended library (Turn 3).
@@ -314,60 +308,51 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 ```
 $ uv run python 09_subagents.py
 
-  [task_started] {'type': 'system', 'subtype': 'task_started', 'task_id': 'a656f4d483dded14e',
+  [task_started] {'type': 'system', 'subtype': 'task_started', 'task_id': 'a333c65537e71f7e7',
     'description': 'Review calc function for issues', 'subagent_type': 'code_reviewer',
     'is_backgrounded': True, 'task_type': 'local_agent', ...}
-  [task_started] {'type': 'system', 'subtype': 'task_started', 'task_id': 'a609a1d11e8d209d1',
+  [task_notification] {'task_id': 'a333c65537e71f7e7', 'status': 'completed',
+    'summary': 'Findings, ranked by severity:\n\n**1. High: unknown `op` silently returns `None`.**...', ...}
+  [task_started] {'type': 'system', 'subtype': 'task_started', 'task_id': 'af01c2a30b19b805d',
     'description': 'Add docstring to calc function', 'subagent_type': 'doc_writer',
     'is_backgrounded': True, 'task_type': 'local_agent', ...}
-  [task_notification] {'task_id': 'a609a1d11e8d209d1', 'status': 'completed',
-    'summary': '```python\ndef calc(x, y, op):\n    """Applies a basic arithmetic operation...', ...}
-  [task_notification] {'task_id': 'a656f4d483dded14e', 'status': 'completed',
-    'summary': 'No P0 findings. There is one P1: the function silently returns `None`...', ...}
+  [task_notification] {'task_id': 'af01c2a30b19b805d', 'status': 'completed',
+    'summary': '```python\ndef calc(x, y, op):\n    """Applies a binary arithmetic operation...', ...}
 
 --- Final Result ---
-Both agents are running. The doc writer was launched alongside the reviewer rather than after
-it, so its brief tells it to document only the behavior the code actually has. I'll report when
-both finish.
+The code reviewer is running on the function now. I'll have the doc writer add the docstring
+once its findings are back, so the docstring can describe the edge cases it identifies (unknown
+ops, division by zero).
 
 --- Final Result ---
-The doc writer finished. Its docstring is below. ...
+The code reviewer has finished, and the doc writer is now adding the docstring. ...
+
+**Review findings so far (ranked by severity):**
+
+1. **High: unknown `op` silently returns `None`.** ...
+2. **High: division by zero is unhandled and undocumented.** ...
+3. **Medium: no type handling.** ...
+...
+
+--- Final Result ---
+Both subagents are done. Here is the updated function with the docstring:
 
 ```python
 def calc(x, y, op):
-    """Applies a basic arithmetic operation to two numbers.
-
-    Args:
-        x: The left operand.
-        y: The right operand.
-        op: The operation to apply. One of "add", "sub", "mul", or "div".
-
-    Returns:
-        The result of `x op y`. For "div", this is true division and returns
-        a float. For an unsupported `op`, returns None.
-
+    """Applies a binary arithmetic operation to two values.
+    ...
     Raises:
-        ZeroDivisionError: If `op` is "div" and `y` is zero.
+        ZeroDivisionError: If ``op`` is ``"div"`` and ``y`` is 0.
     ...
     """
     ...
 ```
 ...
-
---- Final Result ---
-The review found no P0 issues and one P1. ...
-
-**Review findings**
-- **[P1] · Unknown `op` silently returns `None`.** ... Fix: add `else: raise ValueError(f"unknown op: {op!r}")`.
-- **[P2] · Division by zero is uncaught and undocumented.** ...
-- **[P2] · No type validation.** ...
-- **[P3] · Design.** ...
-...
 ```
 
 **Verdict:** PASS - Two AgentDefinition subagents (code_reviewer with sonnet, doc_writer with haiku) delegated via the Agent tool. Both complete their tasks and results are aggregated by the orchestrator.
 
-> The subagents run in the background (`is_backgrounded: True`), so the orchestrator ends a turn after launching them and starts a new one as each finishes. Each of those turns yields its own success `ResultMessage`, hence the three "Final Result" blocks; the last one carries the aggregated answer. The P0-P3 labels come from the capturing machine's user-level CLAUDE.md.
+> The subagents run in the background (`is_backgrounded: True`), so the orchestrator ends a turn after launching them and starts a new one as each finishes. Each of those turns yields its own success `ResultMessage`, hence the three "Final Result" blocks; the last one carries the aggregated answer.
 
 ---
 
@@ -381,17 +366,14 @@ $ uv run python 10_mcp_servers.py
 [MCP Tool] mcp__filesystem__read_text_file: {'path': '/.../claude-agents-sdk/settings.py'}
 
 --- Result ---
-I listed the current directory with the filesystem MCP `list_directory` tool, then read
-`settings.py` with `read_text_file`.
+Here are the files in the current directory, listed with the filesystem MCP tools:
 
-**Directory contents (`claude-agents-sdk`)**
-
-- **Config and docs:** `.env`, `.env.example`, `.python-version`, `pyproject.toml`, `uv.lock`, `README.md`, `OUTPUTS.md`
+- **Config and env:** `.env`, `.env.example`, `.python-version`, `pyproject.toml`, `uv.lock`
 - **Directories:** `.venv/`, `__pycache__/`
-- **Example scripts:** `00_hello_world.py` through `23_session_rewind.py`, ...
-- **Shared module:** `settings.py`
+- **Numbered examples:** `00_hello_world.py` through `23_session_rewind.py`, ...
+- **Docs and settings:** `OUTPUTS.md`, `README.md`, `settings.py`
 
-**`settings.py`**
+`settings.py` contents:
 
 ```python
 import pydantic
@@ -411,15 +393,15 @@ $ uv run python 11_streaming.py
 
 Streaming response:
 
-White space guards the flow,
-indents hold the logic close,
-clear as plain English.
+Indented whitespace, bright,
+Snakes curl through clean, readable lines—
+Import the Zen.
 
 --- Stream complete ---
-Characters streamed: 82
-Final result: White space guards the flow,
-indents hold the logic close,
-clear as plain English.
+Characters streamed: 87
+Final result: Indented whitespace, bright,
+Snakes curl through clean, readable lines—
+Import the Zen.
 ```
 
 **Verdict:** PASS - Real-time streaming with include_partial_messages=True delivers text deltas via StreamEvent, character count tracked, final ResultMessage matches streamed content.
@@ -432,17 +414,15 @@ clear as plain English.
 $ uv run python 12_cost_tracking.py
 
 === Example 1: Cost and Usage Tracking ===
-Result: A REST API is an interface that lets programs talk to each other over HTTP using
-standard methods like GET, POST, PUT, and DELETE, with each URL representing a resource (such
-as `/users/42`). Its server holds no client session state between requests, so every request
-carries everything the server needs to handle it.
-Cost: $0.003757
+Result: A REST API is an interface that lets software systems communicate over HTTP using
+standard methods like GET, POST, PUT, and DELETE, with each URL representing a resource. The
+server stays stateless, so every request carries the information it needs to be processed.
+Cost: $0.000184
 Turns: 1
-Duration: 2340ms (API: 2848ms)
-Usage: {'input_tokens': 2, 'cache_creation_input_tokens': 27627, 'cache_read_input_tokens':
-10629, 'output_tokens': 143, 'output_tokens_details': {'thinking_tokens': 48},
-'server_tool_use': {'web_search_requests': 0, 'web_fetch_requests': 0}, 'service_tier':
-'standard', ...}
+Duration: 1450ms (API: 1142ms)
+Usage: {'input_tokens': 2, 'cache_creation_input_tokens': 0, 'cache_read_input_tokens': 14383,
+'output_tokens': 79, 'output_tokens_details': {'thinking_tokens': 0}, 'server_tool_use':
+{'web_search_requests': 0, 'web_fetch_requests': 0}, 'service_tier': 'standard', ...}
 
 === Example 2: Limit Max Turns ===
 Stopped after 4 turns
@@ -452,32 +432,32 @@ Turn limit hit: Claude Code returned an error result: Reached maximum number of 
 
 === Example 3: Budget Cap ===
 Result: None
-Cost: $0.003667
-Budget limit: $0.001
-Budget cap hit: Claude Code returned an error result: Reached maximum budget ($0.001) (exit code: 1)
+Cost: $0.000551
+Budget limit: $0.0001
+Budget cap hit: Claude Code returned an error result: Reached maximum budget ($0.0001) (exit code: 1)
 
 === Example 4: Effort Level ===
-[Low effort] Result: 4
-Duration: 1736ms
+[Low effort] Result: 2 + 2 = 4
+Duration: 1087ms
 
 === Example 5: Per-Model Usage ===
 Model: claude-haiku-5-5 (firstParty)
   Input tokens:          1198
-  Output tokens:         523
-  Cache read tokens:     75855
-  Cache creation tokens: 63469
-  Cost:                  $0.009073
+  Output tokens:         511
+  Cache read tokens:     47505
+  Cache creation tokens: 4945
+  Cost:                  $0.001468
   Context window:        1000000
 
-Cache creation tokens in usage (main loop only): 28913
-Cache creation tokens in model_usage (whole tree): 63469
+Cache creation tokens in usage (main loop only): 576
+Cache creation tokens in model_usage (whole tree): 4945
 ```
 
-**Verdict:** PASS - All five controls demonstrated: cost/usage tracking with total_cost_usd and usage dict, max_turns=3 limiting agent rounds, max_budget_usd=0.001 tripping the budget cap, effort="low" for fast simple answers, and per-model accounting via model_usage.
+**Verdict:** PASS - All five controls demonstrated: cost/usage tracking with total_cost_usd and usage dict, max_turns=3 limiting agent rounds, max_budget_usd=0.0001 tripping the budget cap, effort="low" for fast simple answers, and per-model accounting via model_usage.
 
-> Example 5 is the point of the `ModelUsage` addition: `usage` counts only the main loop (28,913 cache-creation tokens) while `model_usage` aggregates the whole agent tree including the subagent (63,469). Anything measuring spend from `usage` alone undercounts subagent runs. The subagent ran on the same model, so `model_usage` has a single `claude-haiku-5-5` entry.
+> Example 5 is the point of the `ModelUsage` addition: `usage` counts only the main loop (576 cache-creation tokens) while `model_usage` aggregates the whole agent tree including the subagent (4,945). Anything measuring spend from `usage` alone undercounts subagent runs. The subagent ran on the same model, so `model_usage` has a single `claude-haiku-5-5` entry.
 >
-> Examples 2 and 3 exceed their limits by design; the SDK signals both by raising on the error result, which the example catches and prints. The $0.001 cap in Example 3 is below the cost of a single `claude-haiku-5-5` request (about $0.004 here), so it always trips.
+> Examples 2 and 3 exceed their limits by design; the SDK signals both by raising on the error result, which the example catches and prints. The $0.0001 cap in Example 3 is below the cost of a single `claude-haiku-5-5` request (about $0.0002-$0.0006 here), so it always trips.
 
 ---
 
@@ -486,11 +466,11 @@ Cache creation tokens in model_usage (whole tree): 63469
 ```
 $ uv run python 13_file_checkpointing.py
 
-Working directory: /var/folders/.../claude_checkpoint_jiafuj4s
+Working directory: /var/folders/.../claude_checkpoint_majlvwyr
 Initial file content: Original content: Hello World
 
 === Turn 1: Modify the file ===
-Checkpoint UUID: 16722acf-0080-40f4-ba65-f5361c9df962
+Checkpoint UUID: cfdd9e5a-4653-4a4e-8aa8-61680df9b4b1
 Result: I read `example.txt`, which contained `Original content: Hello World`, and overwrote it
 with `Modified by agent: version 2`.
 File now contains: Modified by agent: version 2
@@ -515,23 +495,23 @@ $ uv run python 14_session_store.py
 Store type: InMemorySessionStore
 
 --- Step 1: Run a query with session mirroring ---
-Response: The three primary colors are red, yellow, and blue (for pigments and paint; the
-additive RGB primaries of light are red, green, and blue).
-Session ID: 5c81c720-6e05-4e5b-8b8a-b9573f7cad2a
+Response: The three primary colors are red, yellow, and blue in traditional (paint or pigment)
+color theory, while in light (additive RGB) they are red, green, and blue.
+Session ID: 46d2a331-e36f-4977-903e-2ecbe19dddc1
 
 --- Step 2: List sessions from store ---
 Sessions in store: 1
-Traceback (most recent call last):
-  ...
-  File ".../14_session_store.py", line 78, in inspect_store
-    print(f"  - {s.id} (created: {s.created_at})")
-                 ^^^^
-AttributeError: 'SDKSessionInfo' object has no attribute 'id'
+  - 46d2a331-e36f-4977-903e-2ecbe19dddc1 (created: 1791758341109)
+
+--- Step 3: Read messages from session 46d2a331-e36... ---
+Total messages in transcript: 2
+  [user] What are the three primary colors? Answer in one sentence.
+  [assistant] The three primary colors are red, yellow, and blue in tradit
 ```
 
-> The store side works: the session is mirrored into `InMemorySessionStore` and `list_sessions_from_store` finds it. The example then reads `s.id`, but `SDKSessionInfo` exposes `session_id` (the same in 0.2.130), and `get_session_messages_from_store` returns `SessionMessage` objects rather than `ResultMessage`, so Step 3's preview logic needs the same correction.
+> SessionStore decouples transcript storage from local disk. The InMemorySessionStore mirrors the session in real-time via `session_store_flush="eager"`. `list_sessions_from_store` returns `SDKSessionInfo` entries (`session_id`, `created_at` in milliseconds since epoch), and `get_session_messages_from_store` returns `SessionMessage` objects whose `message` is the raw API message — string content for the prompt, a list of blocks for the reply.
 
-**Verdict:** FAIL - Pre-existing bug in the example (not caused by the upgrade or the model): `SDKSessionInfo.id` does not exist.
+**Verdict:** PASS - InMemorySessionStore captures session transcript, list and read functions work.
 
 ---
 
@@ -547,7 +527,7 @@ $ uv run python 15_deferred_tool_use.py
 Result subtype: success
 
 --- Deferred Tool Use ---
-  Tool ID:    toolu_01HTMTxthFcwREB21a6yLapD
+  Tool ID:    toolu_01GwmyPucfzDoNybk6iQb3WY
   Tool Name:  mcp__database__delete_record
   Tool Input: {'record_id': 'usr-42'}
 
@@ -569,31 +549,36 @@ $ uv run python 16_hook_events.py
 === Hook Event Streaming ===
 
 [HookEvent #1]
-  Event: SessionStart
+  Event:   PreToolUse
   Subtype: hook_started
-...
-[HookEvent #6]
-  Event: SessionStart
-  Subtype: hook_response
+  Hook:    PreToolUse:Glob
 
-[HookEvent #7]
-  Event: UserPromptSubmit
-  Subtype: hook_started
-...
-[HookEvent #10]
-  Event: UserPromptSubmit
+[HookEvent #2]
+  Event:   PreToolUse
   Subtype: hook_response
+  Hook:    PreToolUse:Glob
+  Outcome: success (stdout: pre-glob-check)
+
+[HookEvent #3]
+  Event:   PostToolUse
+  Subtype: hook_started
+  Hook:    PostToolUse:Glob
+
+[HookEvent #4]
+  Event:   PostToolUse
+  Subtype: hook_response
+  Hook:    PostToolUse:Glob
+  Outcome: success (stdout: post-glob-audit)
 
 --- Result ---
-I couldn't get a clean list of your project's Python files with Glob. It matched 727 `.py`
-files, and the 100 it returned are all inside `.venv/` (the virtualenv's site-packages). ...
+24
 
-Total hook events received: 10
+Total hook events received: 4
 ```
 
-> With `include_hook_events=True`, hook lifecycle events are streamed as `HookEventMessage` objects. All 10 events here come from command hooks in the capturing machine's user-level Claude Code settings; the example's own in-process `PreToolUse`/`PostToolUse` callbacks emitted no events (same result on 0.2.130), so on a machine without settings-file hooks it likely prints 0 events.
+> With `include_hook_events=True`, hook lifecycle events are streamed as `HookEventMessage` objects. All four events come from the two `echo` command hooks the example registers through `settings=`: `hook_name` is `<event>:<matcher>`, and each `hook_response` carries the command's outcome and stdout. The CLI only emits these events around hooks it runs itself (command, http, mcp_tool); in-process callback hooks passed through `hooks=...` don't produce them.
 
-**Verdict:** PARTIAL - HookEventMessage objects arrive in the stream, but not for the SDK callback hooks the example registers (pre-existing, not caused by the upgrade or the model).
+**Verdict:** PASS - HookEventMessage objects show each hook starting and finishing, with the outcome and output of the hook that produced them.
 
 ---
 
@@ -607,19 +592,19 @@ $ uv run python 17_strict_mcp.py
 Running with strict_mcp_config=True (no external MCP servers)...
 
 [Tool] Glob
-[Tool] Bash
+[Tool] Glob
+[Tool] Grep
 
 --- Result ---
-There are 24 `.py` files in the current directory:
+There are 25 `.py` files in the current directory, excluding `.venv`:
 
-- `00_hello_world.py`
-- `01_built_in_tools.py`
+- 00_hello_world.py
+- 01_built_in_tools.py
 - ...
-- `23_session_rewind.py`
-- `settings.py`
+- 23_session_rewind.py
+- settings.py
 
-My first attempt with the Glob tool matched files in subdirectories such as `.venv`, so I used
-`ls` for the top-level listing.
+The `.venv` directory holds about 700 more `.py` files from installed packages, which I left out.
 
 Note: strict_mcp_config=True ensured no project/user/global MCP servers loaded.
 ```
@@ -639,14 +624,14 @@ $ uv run python 18_thinking_config.py
 Response: 4
 
 === Example 2: Thinking Enabled (budget: 2000 tokens) ===
-Response: **The halting problem:** No program can always tell whether any other program will
-eventually stop or run forever.
+Response: The **halting problem** asks whether it's possible to write a program that can look at
+any other program and its input, and always correctly tell whether that program will eventually
+finish (halt) or run forever.
 
-**Why you can't just run it and see:** If a program is still running after an hour, it might
-be about to finish or it might loop forever, and you can't tell which from the outside. Som
+**The intuition:** Some programs finish quickly. Others get stuck in an infinite loop.
 
 === Example 3: Thinking Disabled ===
-Response: Here are three prime numbers: **2, 3, and 5**.
+Response: 2, 3, and 5.
 ```
 
 > ThinkingConfig controls extended thinking behavior. In SDK 0.2.x these are
@@ -668,19 +653,20 @@ Response: Here are three prime numbers: **2, 3, and 5**.
 $ uv run python 19_task_budget.py
 
 === Example 1: Dollar Budget Cap ===
-Response: Silent cursor blinks,
-one missing semicolon
-hides the whole night's bug.
+Response: Code compiles at dawn,
+one missing semicolon waits—
+the bug hides in plain sight.
 
 === Example 2: TaskBudget with Token Limit ===
 Response: # A Brief History of Python
 
-I wrote this from memory without searching, so the dates and version details should be checked
-against python.org or the PEP archive before you cite them.
+I wrote this from established knowledge rather than running a web search, since the core
+history is well documented. Details on recent releases may have changed, so check python.org
+for current version information.
 
-## Origins (1980s–1991)
+## Origins (1980s to early 1990s)
 
-- **Creator:** Guido van Rossum, a Dutch programmer working at CWI (Centrum Wiskunde & Inf
+- **Creator:** Guido
 
 === Budget Controls Summary ===
 max_budget_usd:    Hard dollar cap on total API spend
@@ -708,21 +694,16 @@ max_turns:         Maximum agent reasoning iterations
 $ uv run python 20_sandbox_settings.py
 
 === Example 1: Sandbox with Network Locked Down ===
-Response: **15 × 23 = 345**
+Response: 15 × 23 = **345**
+
+(15 × 20 = 300, plus 15 × 3 = 45, gives 345.)
 
 === Example 2: Full Sandbox Configuration ===
-Response: The current directory contains:
+Response: The current directory contains 23 numbered Python example scripts (`00_hello_world.py`
+through `23_session_rewind.py`), plus these other files and directories:
 
-**Directories**
-- `.claude/`
-- `.venv/`
-- `__pycache__/`
-...
-
-**Python examples** (`00_` to `23_`)
-- `00_hello_world.py`
-- `01_built_in_tools.py`
-- ...
+- **Directories:** `__pycache__/`, `.claude/`, `.venv/`
+- **Config and env:** `.env`, `.env.example`, `.python-version`, `pyproject.toml`,
 
 === Sandbox Settings Summary ===
 enabled=True:           Sandbox bash commands (macOS/Linux)
@@ -757,7 +738,7 @@ $ uv run python 21_interrupt_and_terminal_reason.py
   terminal_reason: aborted_streaming
   is_error:        True
   result:          None
-  extra deltas after interrupt: 3
+  extra deltas after interrupt: 0
 
   Sending a follow-up turn on the same client...
   terminal_reason: completed
@@ -780,7 +761,7 @@ None:              older CLI, or a result that bypassed the query loop
 
 **Verdict:** PASS - `interrupt()` cancels the turn mid-stream and `terminal_reason` (0.2.126) reports why it ended: `aborted_streaming` for the cancelled turn, `completed` for the follow-up, `max_turns` when the limit is hit.
 
-> `extra deltas after interrupt: 3` counts text deltas that were already in flight when `interrupt()` was sent; the turn still ends as `aborted_streaming` with no result, which is the proof the cancellation took effect. The aborted turn still emits its own `ResultMessage`, so the example keeps iterating `receive_response()` to drain it; skipping that drain makes the next `query()` read the dead turn's buffered messages. Note `ClaudeSDKClient` yields error results as `ResultMessage`, whereas `query()` raises on them — which is why the client is used here.
+> `extra deltas after interrupt` counts text deltas that arrive after `interrupt()` is sent: 0 here, though a few already in flight can still arrive on a fast model. Either way the turn ends as `aborted_streaming` with no result. The aborted turn still emits its own `ResultMessage`, so the example keeps iterating `receive_response()` to drain it; skipping that drain makes the next `query()` read the dead turn's buffered messages. Note `ClaudeSDKClient` yields error results as `ResultMessage`, whereas `query()` raises on them — which is why the client is used here.
 
 ---
 
@@ -820,22 +801,22 @@ $ uv run python 23_session_rewind.py
   You:    Fact B: my favourite city is Lisbon. Reply 'Noted B.'
   Claude: Noted B.
 
-=== Step 2: Transcript of cab32788 ===
-  [0] user      79a0576b
-  [1] assistant 4488e6c9  <- resume_session_at (last entry of turn 1)
-  [2] user      a07828bf  <- resume_drops_turn (turn 2 prompt)
-  [3] assistant a04e2d27
+=== Step 2: Transcript of cfafcffa ===
+  [0] user      87c87b2e
+  [1] assistant a5c52754  <- resume_session_at (last entry of turn 1)
+  [2] user      dbb04196  <- resume_drops_turn (turn 2 prompt)
+  [3] assistant 04412bb7
 
 === Step 3: Rewind to turn 1 and ask what is known ===
   Reply: colour=teal, city=unknown
-  Forked session: 2477e4ee
+  Forked session: 9f617ff9
   Original session still has 4 messages
 
 === Step 4: Declaring the wrong turn as dropped ===
   Refused with ResultError: Claude Code returned an error result: Resume rejected by
-  --resume-drops-turn: resuming at 4488e6c9-... would discard entries not attributable to turn
-  79a0576b-...: range does not start with the declared turn prompt; first discarded entry 1
-  [type=user, uuid=a07828bf-...] (exit code: 1)
+  --resume-drops-turn: resuming at a5c52754-... would discard entries not attributable to turn
+  87c87b2e-...: range does not start with the declared turn prompt; first discarded entry 1
+  [type=user, uuid=dbb04196-...] (exit code: 1)
 ```
 
 > `city=unknown` is the proof the rewind worked: the forked session was loaded only up to the end of turn 1, so fact B never reached the model, while the original session keeps all 4 messages. `ResultError` is a subclass of `ProcessError`, and the CLI also writes the rejection line to stderr.
@@ -862,9 +843,9 @@ $ uv run python 23_session_rewind.py
 | 11 | `11_streaming.py` | PASS | Real-time token streaming |
 | 12 | `12_cost_tracking.py` | PASS | Cost, turns, duration, budget, effort, model_usage |
 | 13 | `13_file_checkpointing.py` | PASS | File checkpoint and rewind |
-| 14 | `14_session_store.py` | FAIL | Pre-existing `SDKSessionInfo.id` bug after the store is populated |
+| 14 | `14_session_store.py` | PASS | InMemorySessionStore transcript |
 | 15 | `15_deferred_tool_use.py` | PASS | Human-in-the-loop deferral |
-| 16 | `16_hook_events.py` | PARTIAL | Events stream, but only from settings-file hooks |
+| 16 | `16_hook_events.py` | PASS | Hook event streaming from command hooks |
 | 17 | `17_strict_mcp.py` | PASS | Strict MCP config isolation |
 | 18 | `18_thinking_config.py` | PASS | Extended thinking modes |
 | 19 | `19_task_budget.py` | PASS | Dollar cap and token budget |
@@ -873,4 +854,4 @@ $ uv run python 23_session_rewind.py
 | 22 | `22_verbatim_prompts.py` | PASS | verbatim_prompts keeps @path mentions literal |
 | 23 | `23_session_rewind.py` | PASS | Drop the last turn with resume_session_at + resume_drops_turn |
 
-**22/24 examples pass; 16 is partial and 14 fails, both pre-existing.**
+**24/24 examples pass.**

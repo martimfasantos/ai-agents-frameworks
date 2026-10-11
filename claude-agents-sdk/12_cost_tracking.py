@@ -96,7 +96,7 @@ print("\n=== Example 3: Budget Cap ===")
 async def example_budget_cap():
     options = ClaudeAgentOptions(
         model=settings.ANTHROPIC_MODEL_NAME,
-        max_budget_usd=0.001,  # Below the cost of a single request, so it trips
+        max_budget_usd=0.0001,  # Below the cost of a single request, so it trips
     )
 
     # Like max_turns, exceeding the cap surfaces as a raised error result
@@ -109,7 +109,7 @@ async def example_budget_cap():
                 cost = message.total_cost_usd
                 print(f"Result: {message.result}")
                 print(f"Cost: ${cost:.6f}" if cost else "Cost: N/A")
-                print(f"Budget limit: $0.001")
+                print(f"Budget limit: $0.0001")
     except Exception as error:
         print(f"Budget cap hit: {error}")
 
