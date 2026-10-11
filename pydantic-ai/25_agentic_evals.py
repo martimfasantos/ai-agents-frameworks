@@ -73,9 +73,12 @@ def issue_refund(order_id: str, reason: str) -> str:
     return f"Refund issued for {order_id} ({reason})"
 
 
-def handle_ticket(ticket: str) -> str:
+# Async so all cases share one event loop: a sync task runs each case in its own
+# thread and loop, and the agent's pooled HTTP connections cannot cross loops.
+async def handle_ticket(ticket: str) -> str:
     """Task under evaluation: run the agent on one support ticket."""
-    return agent.run_sync(ticket).output.strip()
+    result = await agent.run(ticket)
+    return result.output.strip()
 
 
 # --- 3. Cases carry their own trajectory expectations ---

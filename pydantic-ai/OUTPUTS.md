@@ -1,6 +1,6 @@
 # Pydantic AI — Example Outputs
 
-All examples run with `pydantic-ai==2.43.0`, model `openai-chat:gpt-4o-mini`
+All examples run with `pydantic-ai==2.55.0`, model `openai-chat:gpt-4o-mini`
 (`03_built_in_tools.py` overrides this to `openai-responses:gpt-4o-mini`, which native tools require).
 
 > **Note:** LLM responses are non-deterministic. Your outputs will differ in wording
@@ -771,30 +771,39 @@ Evaluating handle_ticket ━━━━━━━━━━━━━━━━━━�
 ┏━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━━┓
 ┃ Case ID         ┃ Scores          ┃ Metrics          ┃ Assertions ┃ Duration ┃
 ┡━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━━━┩
-│ lost_order_ref… │ TrajectoryMatch │ requests: 3      │ ✔✔✔✔       │     2.7s │
+│ lost_order_ref… │ TrajectoryMatch │ requests: 3      │ ✔✔✔✔       │     3.5s │
 │                 │ : 1.00          │ input_tokens:    │            │          │
-│                 │ GEval: 4        │ 455              │            │          │
+│                 │ GEval: 5        │ 455              │            │          │
+│                 │                 │ output_tokens:   │            │          │
+│                 │                 │ 60               │            │          │
+│                 │                 │ cost: 0.000104   │            │          │
 ├─────────────────┼─────────────────┼──────────────────┼────────────┼──────────┤
-│ delivered_orde… │ GEval: 5        │ requests: 2      │ ✔✔✔        │     1.6s │
+│ delivered_orde… │ GEval: 5        │ requests: 2      │ ✔✔✔        │     1.5s │
 │                 │                 │ input_tokens:    │            │          │
 │                 │                 │ 254              │            │          │
+│                 │                 │ output_tokens:   │            │          │
+│                 │                 │ 26               │            │          │
+│                 │                 │ cost: 0.0000537  │            │          │
 ├─────────────────┼─────────────────┼──────────────────┼────────────┼──────────┤
-│ Averages        │ TrajectoryMatch │ requests: 2.50   │ 100.0% ✔   │     2.2s │
+│ Averages        │ TrajectoryMatch │ requests: 2.50   │ 100.0% ✔   │     2.5s │
 │                 │ : 1.00          │ input_tokens:    │            │          │
-│                 │ GEval: 4.50     │ 354.5            │            │          │
+│                 │ GEval: 5.00     │ 354.5            │            │          │
+│                 │                 │ output_tokens:   │            │          │
+│                 │                 │ 43.0             │            │          │
+│                 │                 │ cost: 0.0000790  │            │          │
 └─────────────────┴─────────────────┴──────────────────┴────────────┴──────────┘
 
 
 === Per-case evaluator breakdown ===
 
 lost_order_refunded
-  answer: A refund for order A-200 has been issued due to it being lost in transit.
+  answer: A refund has been issued for order A-200 due to it being lost in transit.
   [PASS] ToolCorrectness: None
   [PASS] ArgumentCorrectness: None
   [PASS] MaxToolCalls: 2 tool call(s), budget=3
   [PASS] MaxModelRequests: 3 model request(s) (from ctx.metrics['requests']), budget=4
   [score] TrajectoryMatch: 1.0
-  [score] GEval: 4
+  [score] GEval: 5
 
 delivered_order_not_refunded
   answer: Order A-100 has been delivered.
@@ -810,6 +819,11 @@ delivered_order_not_refunded
 > `ArgumentCorrectness` passes only because the refund was issued for `A-200`. The delivered
 > case asserts the opposite — `lookup_order` alone, no refund. Spans are captured locally via
 > `logfire.configure(send_to_logfire=False)`; no Logfire account or network access is required.
+>
+> The task is `async def`: pydantic-evals runs a plain `def` task in a worker thread per case,
+> each with its own event loop, and calling `run_sync` there intermittently failed a case on
+> 2.55 with `RuntimeError: ... bound to a different event loop` because the cases share the
+> agent's pooled HTTP connections.
 
 ---
 
@@ -866,3 +880,66 @@ Response: I am unable to generate the payroll report for employee E-1001 as the 
 > **`CancelledError` must be allowed out of the `async with agent.iter(...)` block.**
 > Catching it inside suppresses the teardown and the tool runs to completion anyway —
 > the run then takes 33s and reports a cancellation that did not really happen.
+
+---
+
+## 28. Conversation (`28_conversation.py`)
+
+```
+=== Turn 1 ===
+User:  Hi, I'm Ana and I'm flying to Porto next week.
+Agent: That sounds exciting, Ana! Enjoy your trip to Porto!
+conversation_id: 01a12cd7-c233-7649-b46d-132ea3afcf9c
+running usage:   requests=1, tokens=44
+
+=== Store and restore with ConversationTypeAdapter ===
+Saved 1914 bytes of JSON
+Restored: 2 messages, requests=1, same id: True
+
+=== Turn 2 (continued from the restored conversation) ===
+User:  What's my name, and which city am I visiting?
+Agent: Your name is Ana, and you're visiting Porto.
+conversation_id: 01a12cd7-c233-7649-b46d-132ea3afcf9c
+running usage:   requests=2, tokens=117
+
+=== Turn 3 with conversation= ===
+UsageLimitExceeded: The next request would exceed the request_limit of 2. Consider raising the limit, or see the docs on usage limits for budget-aware patterns: ...
+
+=== Turn 3 with message_history= only ===
+Agent: Try the iconic Francesinha sandwich and Pastéis de Nata for dessert.
+usage restarted at requests=1, so the cap never bit
+```
+
+> Turn 2 recalls both facts from turn 1 after a JSON round-trip through
+> `ConversationTypeAdapter`, under the same `conversation_id`, and its usage is cumulative
+> (`requests=2`). Every turn passes the same `UsageLimits(request_limit=2)`: carried as a
+> `Conversation`, the running usage makes turn 3 fail before it is sent, while the same turn
+> rebuilt from `message_history=` alone starts counting from zero and goes through.
+
+---
+
+## 29. Tool Call Judge (`29_tool_call_judge.py`)
+
+```
+=== Running the agent ===
+  [tool] delete_file('tmp/build-cache.log') ran
+
+=== Judge verdicts ===
+delete_file({'path': 'tmp/build-cache.log'})
+  vote=no -> allow
+  agent received: Deleted tmp/build-cache.log.
+delete_file({'path': 'config/production.db'})
+  vote=yes -> block
+  agent received: The safety judge blocked this `delete_file` call, so nothing was deleted. Do not retry; tell the user the file was kept.
+
+Files left: ['config/production.db']
+Model requests (agent + judge): 4
+Response: The file `tmp/build-cache.log` has been deleted. However, the file `config/production.db` was not deleted due to safety restrictions and has been kept.
+```
+
+> Only one `[tool]` line is printed: the judge voted `no` on the cache file, so its body ran,
+> and `yes` on the production database, so its body never ran and the agent received the
+> `denial_message` in its place. `ToolCallVerdict` carries the tool name, call ID, vote and
+> effective verdict but no arguments or reason (the judge answers only `yes`/`no`/`unsure`),
+> so the example joins each verdict to its call by `tool_call_id`. The 4 requests are 2 agent
+> turns plus 2 judgements: the judge's usage counts against the run's own limits.
