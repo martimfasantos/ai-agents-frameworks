@@ -19,7 +19,7 @@ In this example, we explore AG2's Middleware with the following features:
 
 Middleware intercepts and modifies agent behavior without changing
 agent code: log, filter, transform, retry, or gate interactions.
-AG2 also ships builtins (CallTracerMiddleware, RetryMiddleware,
+AG2 also ships builtins (LoggingMiddleware, RetryMiddleware,
 TokenLimiter, MetricsMiddleware) you can use instead of rolling
 your own.
 
