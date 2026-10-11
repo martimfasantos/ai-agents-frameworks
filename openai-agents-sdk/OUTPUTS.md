@@ -1,16 +1,22 @@
 # OpenAI Agents SDK — Example Outputs
 
-All examples run with `openai-agents>=0.17.6`, `openai>=2.43.0`, model `gpt-4o-mini`.
+All examples run with `openai-agents>=0.23.1`, `openai>=3.13.0`, model `gpt-4o-mini`
+(`15_sandbox_agent.py` and `17_programmatic_tool_calling.py` require `gpt-5.6`).
 
 ---
 
 ## 0. Hello World (`00_hello_world.py`)
 
 ```
-A function calls self,
-Infinite loops in silence,
-Echoes through code's depths.
+Code calls itself back,
+Layers deep, each loop unfolds—
+Endless paths explore.
+
+model_settings dict coerced to ModelSettings(temperature=0.2)
 ```
+
+> Since 0.19.0, SDK config objects can be passed as plain dicts — the `model_settings`
+> dict is coerced into a `ModelSettings` instance at the constructor boundary.
 
 ---
 
@@ -101,21 +107,24 @@ Enter a message: Exiting...
 ```
   - Translation step: Here are the translations:
 
-- Spanish: hola mundo
-- French: Bonjour le monde.
-- Italian: Ciao mondo!
+- Spanish: **hola mundo**
+- French: **Bonjour le monde**
+- Italian: **Ciao mondo!**
 
 
 Final response:
-Here are the translations for "hello world":
+Final translations:
 
-- Spanish: hola mundo
-- French: Bonjour le monde.
-- Italian: Ciao mondo!
+- Spanish: **hola mundo**
+- French: **Bonjour le monde**
+- Italian: **Ciao mondo!**
 ```
 
 > The orchestrator called each translation agent as a tool, then the synthesizer
-> combined and verified the results.
+> combined and verified the results. The run also sets
+> `RunConfig(tool_name_collision_policy="error")` (0.19.3), which turns a duplicate
+> tool name into a `UserError` instead of the default warning — the three tool names
+> here are distinct, so it stays silent.
 
 ---
 
@@ -188,16 +197,19 @@ Final story outline:
 ## 8. Tracing (`08_tracing.py`)
 
 ```
-Joke: Sure! Why did the scarecrow win an award?
+Joke: Why did the scarecrow win an award?
 
 Because he was outstanding in his field!
-Rating: That's a classic! I'd rate it a solid 8 out of 10 for its clever
-wordplay and pun. It's simple, light-hearted, and definitely puts a smile
-on your face.
+Rating: That's a classic! I'd give it an 8 out of 10 for its clever wordplay
+and lighthearted charm. Scarecrow jokes always get a laugh! Got any more?
+(second run traced without task/turn spans)
 ```
 
 > Two `Runner.run` calls wrapped in a single `trace("8_tracing")` block. Both
 > LLM calls appear as spans in one trace on https://platform.openai.com/traces.
+> The second run passes `RunConfig(tracing={"include_task_and_turn_spans": False})`
+> (0.18.3), which suppresses the automatic task/turn spans while still recording
+> the LLM span.
 
 ---
 
@@ -245,7 +257,7 @@ Sessions automatically handles conversation history persistence.
 User: Delete the account for user_42 right now using the delete_user_account tool.
 
 Run paused with 1 pending approval(s)
-State serialized (8671 chars) — could persist to DB
+State serialized (10197 chars) — could persist to DB
 
 ==================================================
   APPROVAL REQUIRED
@@ -253,13 +265,13 @@ State serialized (8671 chars) — could persist to DB
   Arguments: {"user_id":"user_42"}
 ==================================================
   Approve? [y/N]:
-Agent: The account for user_42 has been permanently deleted.
+Agent: The account for user_42 has been permanently deleted. If you need any further assistance, feel free to ask!
 
 --- Scenario 2: Small refund (no approval needed, amount <= $100) ---
 User: Process a $50 refund for order ORD-123
 
 (No approval needed — amount is under $100)
-Agent: The $50 refund for order ORD-123 has been successfully processed.
+Agent: The $50 refund for order ORD-123 has been successfully processed. If you need any further assistance, feel free to ask!
 
 --- Scenario 3: Large refund (needs approval, amount > $100) ---
 User: Process a $250 refund for order ORD-456
@@ -270,7 +282,7 @@ User: Process a $250 refund for order ORD-456
   Arguments: {"order_id":"ORD-456","amount":250}
 ==================================================
   Approve? [y/N]:
-Agent: The refund of $250.00 has been successfully processed for order ORD-456.
+Agent: The refund of $250.00 has been successfully processed for order ORD-456. If you have any other questions or need further assistance, feel free to ask!
 
 === Human-in-the-Loop Demo Complete ===
 ```
@@ -278,6 +290,8 @@ Agent: The refund of $250.00 has been successfully processed for order ORD-456.
 > Scenario 1: `needs_approval=True` always pauses. State is serialized/deserialized.
 > Scenario 2: `needs_approval` callback returns `False` for $50 (under $100 threshold).
 > Scenario 3: `needs_approval` callback returns `True` for $250 (over $100 threshold).
+> Since v0.22.3 the callback only runs when validation leaves the arguments untouched;
+> `amount: float | int` keeps the model's `50` as-is so Scenario 2 reaches the callback.
 
 ---
 
@@ -327,26 +341,29 @@ HostedMCPTool lets you connect to any MCP server without local setup!
 ```
 === Realtime Agent Example ===
 
+Default realtime model: gpt-realtime-2.1
+
 Starting realtime session via WebSocket...
 (Using text messages for this demo — voice uses send_audio())
 
 User: What's the weather in San Francisco?
 
-A: [calling get_weather({
-  "city": "San Francisco"
-}
-)]
+Assistant: Let me check the latest conditions for San Francisco so I can tell
+you what it's like right now.
+[calling get_weather({"city":"San Francisco"})]
 [tool result: 62°F, foggy]
-Right now in San Francisco, it's about 62 degrees Fahrenheit and foggy.
+Assistant: It's 62 degrees and foggy in San Francisco. Classic foggy
+vibe—light jacket weather for sure.
 
 === Realtime Agent Demo Complete ===
 In production, connect microphone input and speaker output
 for a full voice conversation experience.
 ```
 
-> The realtime agent connects via WebSocket, receives a text message, calls the
-> `get_weather` tool, and produces a transcript. In production, this would use
-> microphone/speaker for a full voice experience.
+> The example no longer pins `gpt-4o-mini-realtime-preview`, so it now runs on
+> `DEFAULT_REALTIME_MODEL`, which became `gpt-realtime-2.1` in 0.18.0. That model
+> speaks once before calling the tool, so the event loop keeps reading until the
+> transcript that follows the tool result.
 
 ---
 
@@ -418,30 +435,39 @@ Pipeline complete!
 ```
 === Sandbox Agent Example ===
 
-Running sandbox agent with UnixLocalSandboxClient...
-
-Agent response:
-The code in `hello.py` defines a function `greet` that returns a greeting
-message for a specified name. When the script is run directly, it prints
-"Hello, World!" by calling the `greet` function.
-
-### Function Names
-- `greet`
-
 SandboxAgent configuration:
   Name: Code Reviewer
-  Model: gpt-4o-mini
+  Model: gpt-5.6
   Manifest entries: ['hello.py', 'task.md']
-  Tools: ['read_file']
+  Capabilities: ['filesystem', 'shell', 'compaction']
+  Client: UnixLocalSandboxClient
+
+Running the agent in the sandbox...
+
+Sandbox tool activity:
+  -> exec_command: cat task.md
+     workspace: /var/folders/qm/.../T/sandbox-local-onjvxr5e
+  -> exec_command: sed -n '1,240p' hello.py
+     workspace: /var/folders/qm/.../T/sandbox-local-onjvxr5e
+     Process exited with code 0
+     Process exited with code 0
+
+Agent response:
+1. Defines greeting helpers and prints `Hello, World!` when run directly.
+2. Functions: `greet`, `shout`.
 
 === Sandbox Agent Demo Complete ===
-With gpt-5.5+, use Capabilities.default() for built-in shell
-and filesystem tools instead of custom function tools.
+The files were staged from the Manifest and read with real shell tools.
 ```
 
-> The SandboxAgent reads workspace files via a function tool and follows
-> task instructions from a Manifest-staged `task.md`. With GPT-5.5+ models,
-> built-in Capabilities provide real shell and filesystem access instead.
+> The previous version of this example could not run at any SDK version (wrong
+> import path, `SecretStr` passed where `str` was required, raw strings as Manifest
+> entries, and a `SandboxAgent(agent=..., manifest=...)` constructor that does not
+> exist). It now stages the Manifest into a real local workspace via
+> `UnixLocalSandboxClient` and the model reads the files with the built-in shell
+> capability — the `exec_command` lines are the actual commands it ran.
+> Requires `gpt-5.6`: `gpt-4o-mini` rejects the sandbox tools with
+> `400 Invalid value: 'custom'`.
 
 ---
 
@@ -467,5 +493,149 @@ Info: {'amount': 25000.0, 'decision': 'blocked'}
 > model, and `raise_exception()` halts the run on the $25,000 transfer with a
 > `ToolInputGuardrailTripwireTriggered`.
 
+---
 
+## 17. Programmatic Tool Calling (`17_programmatic_tool_calling.py`)
 
+**Model:** `gpt-5.6` (Responses-API-only feature — hardcoded, not `settings.OPENAI_MODEL_NAME`)
+
+```
+=== Programmatic Tool Calling Example ===
+
+Generated JavaScript program #1:
+------------------------------------------------------------
+const skus = ["desk-lamp", "keyboard", "monitor", "office-chair"];
+const results = await Promise.all(skus.map(sku => tools.get_inventory({sku})));
+results.forEach(text);
+------------------------------------------------------------
+Program result handed back to the model:
+  {"available_units":42,"sku":"desk-lamp"}
+  {"available_units":11,"sku":"keyboard"}
+  {"available_units":0,"sku":"monitor"}
+  {"available_units":3,"sku":"office-chair"}
+
+Generated JavaScript program #2:
+------------------------------------------------------------
+const monitor = await tools.get_lead_time({sku: "monitor"});
+const chair = await tools.get_lead_time({sku: "office-chair"});
+text(monitor);
+text(chair);
+------------------------------------------------------------
+Program result handed back to the model:
+  {"days":21,"sku":"monitor"}
+  {"days":14,"sku":"office-chair"}
+
+Tool calls driven by the program(s) (6):
+  - get_inventory(desk-lamp)
+  - get_inventory(keyboard)
+  - get_inventory(office-chair)
+  - get_inventory(monitor)
+  - get_lead_time(monitor)
+  - get_lead_time(office-chair)
+
+Agent response:
+monitor — reorder; arrives in 21 days.
+office-chair — reorder; arrives in 14 days.
+No other SKUs need reordering.
+
+=== Programmatic Tool Calling Demo Complete ===
+6 tool calls ran inside the sandbox across 2 generated program(s) — the loop,
+the parallel fan-out and the threshold check cost no model round trips.
+```
+
+> The headline feature of 0.19.0. `ProgrammaticToolCallingTool()` plus
+> `@tool(allowed_callers=["programmatic"])` and
+> `ModelSettings(tool_choice="programmatic_tool_calling")` let the model emit
+> JavaScript that runs in a hosted V8 sandbox. Program #1 fanned four inventory
+> lookups out with `Promise.all`; program #2 only fetched lead times for the two
+> SKUs under the threshold. Six tool calls, no round trip per call.
+> Note: a programmatic tool's return annotation must be an object schema
+> (Pydantic model, TypedDict or dataclass) — a bare `int` raises `UserError`.
+
+---
+
+## 18. Error Handlers (`18_error_handlers.py`)
+
+```
+=== Error Handlers Example ===
+
+--- Scenario 1: max_turns (real model, max_turns=1) ---
+  [tool] lookup_order(ORD-77)
+  [handler] max_turns  <- MaxTurnsExceeded: Max turns (1) exceeded
+  [handler] 2 item(s) produced before the limit
+  Final output: I ran out of turns before finishing — ask again to continue.
+
+--- Scenario 2: model_refusal (scripted refusal) ---
+  [handler] model_refusal  <- ModelRefusalError: Model refused to produce output: I won't do that.
+  Final output: I can't help with that request, but I can answer product questions.
+
+--- Scenario 3: invalid_final_output (scripted prose vs output_type) ---
+  [handler] invalid_final_output  <- ModelBehaviorError
+  Final output: city='unknown' conditions='unavailable'
+
+=== Error Handlers Demo Complete ===
+Every run returned a usable final output — none of them raised.
+```
+
+> `Runner.run(error_handlers={...})` turns three failure modes into usable final
+> outputs instead of exceptions. `invalid_final_output` was added in 0.17.8,
+> joining `max_turns` and `model_refusal`. Scenario 1 uses the real model with
+> `max_turns=1`; scenarios 2 and 3 use a small scripted stub `Model` so the
+> refusal and the schema mismatch fire deterministically without an API call.
+> The fallback returned by `invalid_final_output` must itself satisfy the agent's
+> `output_type`, hence the `WeatherReport` instance.
+
+---
+
+## 19. Scripted Model Testing (`19_scripted_model_testing.py`)
+
+```
+=== Scripted model testing ===
+
+Final output: It is sunny and 25C in Lisbon.
+Tool called with: ['Lisbon']
+Assertions passed — and not one network call was made.
+
+UnconsumedModelSteps: 1 scripted model step(s) were not consumed.
+```
+
+> `ScriptedModel` replaces the model with a fixed list of steps, so the run is
+> deterministic and makes **no network calls at all** — the whole example
+> finishes in well under a second. The first agent is scripted to call
+> `get_weather` and then answer from its result, which lets the example assert
+> on the tool argument and the final text rather than on model wording.
+> `assert_complete()` is the second half of the contract: the short agent stops
+> after one message, leaving a step unconsumed, which is how a workflow that
+> quietly ended early gets caught instead of passing silently.
+
+---
+
+## 20. Encrypted Session (`20_encrypted_session.py`)
+
+```
+=== Encrypted session ===
+
+User: My order number is ORD-4471.
+Assistant: Thank you for providing your order number, ORD-4471.
+
+User: What is my order number?
+Assistant: Your order number is ORD-4471.
+
+Items via EncryptedSession: 4 (decrypted)
+Rows in the SQLite store:   4 (encrypted envelopes)
+First stored row: kid='hkdf-v1', payload=gAAAAABqy_bRMC-LqfOkMYcVeo6S98yDVKlnUX_N...
+
+Wrote one plaintext row directly to the SQLite store.
+Rows in the SQLite store:   5
+Items via EncryptedSession: 4 (plaintext row skipped)
+
+max_scan_items=3 over a 5-row store:
+  full history -> RuntimeError: EncryptedSession max_scan_items exhausted before a complete history result could be established; increase max_scan_items or reduce retained history.
+  limit=1      -> assistant: Your order number is ORD-4471.
+```
+
+> The agent recalls the order number through the encrypted session, while the
+> SQLite store only holds Fernet tokens. The plaintext row written directly to
+> the store is ignored on read (v0.23.0 behaviour; earlier versions returned it
+> as history). With `max_scan_items=3`, reading the whole 5-row history raises,
+> but asking for just the latest item fits inside the budget.
