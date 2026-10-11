@@ -42,7 +42,7 @@ print("=== Example 1: Interrupt a Running Turn ===")
 async def example_interrupt():
     # include_partial_messages gives us text deltas, so we can interrupt
     # as soon as the model starts speaking instead of guessing at a delay
-    options = ClaudeAgentOptions(include_partial_messages=True)
+    options = ClaudeAgentOptions(model=settings.ANTHROPIC_MODEL_NAME, include_partial_messages=True)
 
     async with ClaudeSDKClient(options) as client:
         # --- 1. Start a deliberately long turn ---
@@ -94,6 +94,7 @@ print("\n=== Example 2: terminal_reason=max_turns ===")
 
 async def example_max_turns():
     options = ClaudeAgentOptions(
+        model=settings.ANTHROPIC_MODEL_NAME,
         max_turns=1,
         allowed_tools=["Glob", "Read"],
         permission_mode="bypassPermissions",

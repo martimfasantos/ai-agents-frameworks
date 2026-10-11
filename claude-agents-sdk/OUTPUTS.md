@@ -1,6 +1,6 @@
 # Claude Agent SDK - Example Outputs
 
-All examples run with `claude-agent-sdk>=0.2.106` and the Claude Code CLI. The SDK auto-selects the model via `ANTHROPIC_API_KEY`.
+All examples run with `claude-agent-sdk>=0.2.165` and the Claude Code CLI. The SDK auto-selects the model via `ANTHROPIC_API_KEY`.
 
 > **Note:** LLM responses are non-deterministic. Your outputs will differ in wording but should follow the same structure and demonstrate the same features.
 
@@ -225,7 +225,7 @@ Callback invocations during this run: 0
 Use a PreToolUse hook to gate tools that allowed_tools already approves.
 ```
 
-**Verdict:** PASS - Example 1 uses allowed_tools/disallowed_tools with permission_mode. Example 2 demonstrates can_use_tool callback with AsyncIterable streaming prompt (required by the SDK for this feature). Example 3 shows the shadowing footgun: `allowed_tools=["Read"]` auto-approves before the callback runs, so it is never invoked, and since 0.2.111 the SDK raises `CanUseToolShadowedWarning` to say so.
+**Verdict:** PASS - Example 1 uses allowed_tools/disallowed_tools with permission_mode. Example 2 demonstrates the can_use_tool callback with a plain string prompt. Example 3 shows the shadowing footgun: `allowed_tools=["Read"]` auto-approves before the callback runs, so it is never invoked, and since 0.2.111 the SDK raises `CanUseToolShadowedWarning` to say so.
 
 > The `0 calls` audit log in Example 2 is expected here, not a failure — allow rules in the machine's own Claude Code settings can auto-approve `Read` before the callback is consulted, which is exactly the condition Example 3 makes explicit.
 

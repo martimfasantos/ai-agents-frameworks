@@ -89,6 +89,7 @@ async def block_bash(
 
 # --- 2. Configure hooks with matchers ---
 options = ClaudeAgentOptions(
+    model=settings.ANTHROPIC_MODEL_NAME,
     allowed_tools=["Read", "Glob"],
     hooks={
         # Log all tool calls before execution

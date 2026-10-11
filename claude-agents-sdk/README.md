@@ -2,7 +2,7 @@
 
 - Repo: https://github.com/anthropics/claude-agent-sdk-python
 - Documentation: https://platform.claude.com/docs/en/agent-sdk/overview
-- Version: **0.2.130**
+- Version: **0.2.165**
 
 ## About Claude Agent SDK
 
@@ -16,7 +16,7 @@ Key features:
 - **System prompts** - Custom string, preset, or preset with append
 - **Permissions** - Modes, allow/deny lists, `can_use_tool` callback
 - **Hooks** - PreToolUse, PostToolUse, Stop, SessionStart lifecycle hooks
-- **Sessions** - Resume, fork, continue conversations across calls
+- **Sessions** - Resume, fork, rewind, continue conversations across calls
 - **SessionStore** - Pluggable transcript storage (in-memory, S3, Redis, Postgres)
 - **Subagents** - AgentDefinition for task delegation
 - **MCP servers** - Connect external tool servers via stdio/HTTP
@@ -26,6 +26,7 @@ Key features:
 - **Strict MCP config** - Lock down MCP sources for deterministic tool sets
 - **Cost tracking** - Budget caps, turn limits, effort levels, per-model usage
 - **Interruption** - Cancel a running turn and read why it ended via `terminal_reason`
+- **Verbatim prompts** - Pass untrusted text without `@path` expansion or slash commands
 
 ## Setup
 
@@ -49,6 +50,8 @@ Copy `.env.example` to `.env` and add your Anthropic API key:
 cp .env.example .env
 # Edit .env with your ANTHROPIC_API_KEY
 ```
+
+Every example runs on `ANTHROPIC_MODEL_NAME` (default `haiku`). Set it to another Claude Code model alias or id to switch all examples at once.
 
 ### Run examples
 
@@ -75,6 +78,8 @@ uv run python 18_thinking_config.py
 uv run python 19_task_budget.py
 uv run python 20_sandbox_settings.py
 uv run python 21_interrupt_and_terminal_reason.py
+uv run python 22_verbatim_prompts.py
+uv run python 23_session_rewind.py
 ```
 
 ## Examples
@@ -103,8 +108,10 @@ uv run python 21_interrupt_and_terminal_reason.py
 | 19 | `19_task_budget.py` | Dollar cap (max_budget_usd) and TaskBudget token budget for agent spend |
 | 20 | `20_sandbox_settings.py` | SandboxSettings for sandboxed bash with network domain controls |
 | 21 | `21_interrupt_and_terminal_reason.py` | interrupt() to cancel a turn, ResultMessage.terminal_reason, draining after an interrupt |
+| 22 | `22_verbatim_prompts.py` | verbatim_prompts to pass untrusted text without @path expansion or slash commands |
+| 23 | `23_session_rewind.py` | get_session_messages, resume_session_at + resume_drops_turn to drop the last turn, fork_session |
 
 ## Key dependencies
 
-- `claude-agent-sdk>=0.2.106` - Claude Agent SDK (Python), locked at 0.2.130
+- `claude-agent-sdk>=0.2.165` - Claude Agent SDK (Python), locked at 0.2.165
 - `pydantic-settings` - Settings management from .env

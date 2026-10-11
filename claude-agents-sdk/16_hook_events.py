@@ -49,6 +49,7 @@ async def log_hook(
 
 # --- 2. Configure with hook event streaming enabled ---
 options = ClaudeAgentOptions(
+    model=settings.ANTHROPIC_MODEL_NAME,
     allowed_tools=["Read", "Glob"],
     permission_mode="bypassPermissions",
     include_hook_events=True,

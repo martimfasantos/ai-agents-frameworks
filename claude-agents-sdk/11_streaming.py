@@ -34,6 +34,7 @@ https://platform.claude.com/docs/en/agent-sdk/streaming-output
 
 # --- 1. Configure streaming ---
 options = ClaudeAgentOptions(
+    model=settings.ANTHROPIC_MODEL_NAME,
     include_partial_messages=True,
 )
 

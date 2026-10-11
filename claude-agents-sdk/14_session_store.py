@@ -47,6 +47,7 @@ async def run_with_store() -> str:
     session_id = ""
 
     options = ClaudeAgentOptions(
+        model=settings.ANTHROPIC_MODEL_NAME,
         session_store=store,
         session_store_flush="eager",  # Near-real-time transcript delivery
     )

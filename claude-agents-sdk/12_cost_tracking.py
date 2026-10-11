@@ -37,7 +37,7 @@ print("=== Example 1: Cost and Usage Tracking ===")
 async def example_cost_tracking():
     async for message in query(
         prompt="Explain what a REST API is in two sentences.",
-        options=ClaudeAgentOptions(),
+        options=ClaudeAgentOptions(model=settings.ANTHROPIC_MODEL_NAME),
     ):
         if isinstance(message, ResultMessage):
             print(f"Result: {message.result}")
@@ -64,6 +64,7 @@ print("\n=== Example 2: Limit Max Turns ===")
 
 async def example_max_turns():
     options = ClaudeAgentOptions(
+        model=settings.ANTHROPIC_MODEL_NAME,
         max_turns=3,
         allowed_tools=["Read", "Glob"],
         permission_mode="bypassPermissions",
@@ -94,6 +95,7 @@ print("\n=== Example 3: Budget Cap ===")
 
 async def example_budget_cap():
     options = ClaudeAgentOptions(
+        model=settings.ANTHROPIC_MODEL_NAME,
         max_budget_usd=0.05,  # 5 cents max
     )
 
@@ -123,7 +125,7 @@ print("\n=== Example 4: Effort Level ===")
 
 async def example_effort():
     # Low effort for quick, simple answers
-    options = ClaudeAgentOptions(effort="low")
+    options = ClaudeAgentOptions(model=settings.ANTHROPIC_MODEL_NAME, effort="low")
 
     async for message in query(
         prompt="What is 2 + 2?",
@@ -146,6 +148,7 @@ async def example_model_usage():
     # A subagent run makes the difference visible: usage counts only the main
     # loop's tokens, while model_usage aggregates the whole agent tree
     options = ClaudeAgentOptions(
+        model=settings.ANTHROPIC_MODEL_NAME,
         allowed_tools=["Task"],
         permission_mode="bypassPermissions",
         max_turns=6,
