@@ -68,16 +68,12 @@ uv run python 08_guardrails.py
 uv run python 09_mcp_tools.py
 uv run python 10_observability.py
 uv run python 11_a2a.py
-uv run python 12_beta_agent.py
-uv run python 13_beta_tools.py
-uv run python 14_beta_observer.py
-uv run python 15_beta_structured_output.py
-uv run python 16_beta_middleware.py
-uv run python 17_beta_memory_stream.py
-uv run python 18_observable_run.py
-uv run python 19_resume.py
-uv run python 20_metrics.py
-uv run python 21_cli_agents_acp.py
+uv run python 12_middleware.py
+uv run python 13_memory_stream.py
+uv run python 14_observable_run.py
+uv run python 15_resume.py
+uv run python 16_metrics.py
+uv run python 17_cli_agents_acp.py
 ```
 
 ## Examples
@@ -92,24 +88,18 @@ uv run python 21_cli_agents_acp.py
 | 5 | `05_sequential_chat.py` | `ag2.network` `Hub`, `TransitionGraph.sequence()`, WAL replay |
 | 6 | `06_nested_chat.py` | Two-level subagent nesting, shared stream to observe inner work |
 | 7 | `07_code_execution.py` | `SandboxCodeTool` + `LocalEnvironment`, sandbox state persistence |
-| 8 | `08_guardrails.py` | `BaseObserver` + `EventWatch`, `ObserverAlert`, `AlertPolicy`, `HaltEvent` |
-| 9 | `09_mcp_tools.py` | `MCPToolkit`, `MCPStdioServerConfig`, local FastMCP server |
+| 8 | `08_guardrails.py` | `on_tool_execution` veto, `BaseObserver`, `ObserverAlert`, `AlertPolicy`, `HaltEvent` |
+| 9 | `09_mcp_tools.py` | `MCPToolkit`, `MCPStdioServerConfig`, local `MCPServer` (mcp 2.x) |
 | 10 | `10_observability.py` | `MemoryStream.subscribe()`, `stream.where()`, event log + token usage |
 | 11 | `11_a2a.py` | `A2AServer`, `build_card`, `A2AConfig`, server-side tools |
-| 12 | `12_beta_agent.py` | `Agent` basics, `AgentReply.body`, reply history |
-| 13 | `13_beta_tools.py` | Plain-callable tools, full tool-call event lifecycle |
-| 14 | `14_beta_observer.py` | `MemoryStream` subscription, real-time event observation |
-| 15 | `15_beta_structured_output.py` | `response_schema` with `model_validate_json` |
-| 16 | `16_beta_middleware.py` | `BaseMiddleware`, `on_llm_call` / `on_turn`, middleware stacks |
-| 17 | `17_beta_memory_stream.py` | `MemoryStream` shared across turns for conversation memory |
-| 18 | `18_observable_run.py` | `agent.run()`, `run.start()`, `run.stream.join()`, `run.enqueue()` |
-| 19 | `19_resume.py` | `agent.resume()` from a stored trajectory and from a tool result |
-| 20 | `20_metrics.py` | `MetricsMiddleware`, Prometheus counters/histograms, exposition text |
-| 21 | `21_cli_agents_acp.py` | `ag2.acp` configs driving Claude Code / Codex / OpenCode |
+| 12 | `12_middleware.py` | `BaseMiddleware`, `on_llm_call` / `on_turn`, middleware stacks |
+| 13 | `13_memory_stream.py` | `MemoryStream` shared across turns for conversation memory |
+| 14 | `14_observable_run.py` | `agent.run()`, `run.start()`, `run.stream.join()`, `run.enqueue()` |
+| 15 | `15_resume.py` | `agent.resume()` from a stored trajectory and from a tool result |
+| 16 | `16_metrics.py` | `MetricsMiddleware`, Prometheus counters/histograms, exposition text |
+| 17 | `17_cli_agents_acp.py` | `ag2.acp` `ClaudeCodeConfig` driving Claude Code as an agent |
 
-> Examples 12-17 were written against the v0.12/v0.13 `autogen.beta` Agent. At v1.0 that beta became the official API, so only their import paths changed. The filenames are kept for continuity with earlier versions of this folder.
-
-> `21_cli_agents_acp.py` needs a CLI coding-agent binary on PATH **and** an authenticated session for it. Without one it verifies construction, reports what is missing, and exits 0 — it never fabricates a transcript.
+> `17_cli_agents_acp.py` needs Node.js (the Claude Code ACP adapter runs through `npx`) and an existing Claude Code login under `~/.claude`.
 
 ## Key dependencies
 

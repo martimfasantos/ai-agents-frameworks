@@ -1,6 +1,6 @@
 # AG2 Example Outputs
 
-Captured outputs from running all 22 examples against ag2 v1.0.5 with `gpt-4o-mini`.
+Captured outputs from running all 18 examples against ag2 v1.0.5 with `gpt-4o-mini`.
 
 > These outputs may vary between runs due to LLM non-determinism. The structure, tool invocations, and event sequences should remain consistent.
 
@@ -77,12 +77,12 @@ Response: Lisbon is currently experiencing sunny weather with a temperature of 2
 === Booking 1: the human approves ===
   [human] asked: Approve booking to Barcelona for EUR 180? (yes/no)
   [human] answered: 'yes'
-Agent: Your flight to Barcelona has been successfully booked and charged EUR 180.
+Agent: The flight to Barcelona has been successfully booked and charged EUR 180.
 
 === Booking 2: the human rejects ===
   [human] asked: Approve booking to Reykjavik for EUR 940? (yes/no)
   [human] answered: 'no'
-Agent: The booking to Reykjavik was cancelled by the human reviewer.
+Agent: The flight booking to Reykjavik for 940 euros was cancelled by the human reviewer.
 
 === 2 human input request(s) handled ===
 ```
@@ -188,16 +188,17 @@ Sandbox files: ['fib.txt']
 Agent: The record has been successfully pushed to the CRM.
 
 === Request 2: record containing an SSN ===
-Agent: HALTED: FATAL: blocked PII in call to send_to_crm
+Agent: HALTED: FATAL: PII detected in call to send_to_crm
 
 === Guardrail activity ===
 ObserverAlerts: 1
-  - [FATAL] pii-guardian: blocked PII in call to send_to_crm
+  - [FATAL] pii-guardian: PII detected in call to send_to_crm
 HaltEvents:     1
-  - source=pii-guardian reason='FATAL: blocked PII in call to send_to_crm'
+  - source=pii-guardian reason='FATAL: PII detected in call to send_to_crm'
+CRM received:   ['Ada Lovelace, London, tier=gold']
 ```
 
-> Request 1 succeeds; request 2 emits a FATAL `ObserverAlert`, `AlertPolicy` turns it into a `HaltEvent`, and the reply is the synthetic `HALTED: ...` string. Note this halts the turn rather than vetoing the call — the tool still runs, but its result never reaches the model.
+> `CRM received` is the proof: the `PiiVeto` middleware refused to run the SSN call, so only the safe record reached the CRM. Without the middleware the observer still halts the turn, but the tool has already run and the SSN is pushed.
 
 ---
 
@@ -217,10 +218,7 @@ Agent: The result of (15 + 27) * 3 is 126.
   <- 126.0
 ```
 
-> Ported to the mcp 2.x SDK: `mcp.server.fastmcp.FastMCP` is now
-> `mcp.server.mcpserver.MCPServer`. ag2 1.0.3 moved every MCP surface to mcp 2.0
-> and raised its bound to `>=2.0.0,<3`, so the 1.x server in `mcp_server.py` no
-> longer started and the client failed with `MCPError: Connection closed`.
+> `mcp_server.py` uses the mcp 2.x `MCPServer` (formerly `FastMCP`): ag2 1.0.3+ requires `mcp>=2.0,<3`.
 
 ---
 
@@ -279,99 +277,7 @@ Turn 2 (same conversation, server-side glossary tool consulted)
 
 ---
 
-## 12_beta_agent.py
-
-```
-=== Beta Agent: Simple Question ===
-
-Response: The phrase "Hello, World!" is commonly used as a simple programming example to demonstrate the basic syntax of a programming language, and it first appeared in the 1978 book "The C Programming Language" by Brian Kernighan and Dennis Ritchie. It has since become a standard introductory exercise in many programming tutorials.
-
-=== Beta Agent: Second Question ===
-
-Response: The capital of Portugal is Lisbon.
-
-=== Reply History ===
-  Events in history: 3
-  - ModelRequest
-  - UsageEvent
-  - ModelResponse
-```
-
----
-
-## 13_beta_tools.py
-
-```
-=== Beta Agent: Tools ===
-
-Response: The current weather in Lisbon is sunny with a temperature of 25°C. The population of Lisbon is approximately 550,000.
-
-=== Event History ===
-  ModelRequest
-  UsageEvent
-  ModelResponse
-  ToolCallsEvent
-  ToolCallEvent
-  ToolCallEvent
-  ToolResultEvent
-  ToolResultEvent
-  ToolResultsEvent
-  UsageEvent
-  ModelResponse
-```
-
-> The event history shows the full loop: request → response with tool calls → two tool executions → results → final response.
-
----
-
-## 14_beta_observer.py
-
-```
-=== Beta Agent: Observer API ===
-
-Events as they happen:
-  [Observer] ModelRequest: LLM request sent
-  [Observer] ModelMessage: LLM message received
-  [Observer] UsageEvent
-  [Observer] ModelResponse: LLM response complete
-
-Response: The speed of light in a vacuum is approximately 299,792 kilometers per second (or about 186,282 miles per second).
-
-=== Observer Summary ===
-Total events captured: 4
-  1. ModelRequest
-  2. ModelMessage
-  3. UsageEvent
-  4. ModelResponse
-```
-
-> The `[Observer]` lines are printed live from the subscriber as each event lands, before the response is returned.
-
----
-
-## 15_beta_structured_output.py
-
-```
-=== Beta Agent: Structured Output ===
-
-  City: Lisbon
-  Country: Portugal
-  Population: 552,700 (2021)
-  Famous for: Historic architecture, Fado music, vibrant nightlife, and delicious cuisine.
-  Best time to visit: March to May and September to October.
-
---- Second Query ---
-
-  City: Tokyo
-  Country: Japan
-  Population: 13.96 million
-  Famous for: Unique blend of traditional culture and modern technology, cuisine, shopping, and anime culture.
-  Best time to visit: March to May (spring) and September to November (autumn)
-```
-
----
-
-## 16_beta_middleware.py
+## 12_middleware.py
 
 ```
 === Agent with Middleware Stack ===
@@ -387,7 +293,7 @@ Response: The capital of France is Paris.
 
 ---
 
-## 17_beta_memory_stream.py
+## 13_memory_stream.py
 
 ```
 === Turn 1: Introduce context ===
@@ -410,14 +316,14 @@ Total events in stream: 6
 
 ---
 
-## 18_observable_run.py
+## 14_observable_run.py
 
 ```
 === Live token stream ===
 
-Paris, the capital of France, is renowned for its art, fashion, and cultural landmarks, including the iconic Eiffel Tower and the Louvre Museum. The city's charm lies in its historic architecture, vibrant cafés, and romantic atmosphere, making it a beloved destination for travelers worldwide.
+Paris, the capital of France, is renowned for its art, fashion, and history, featuring iconic landmarks such as the Eiffel Tower, Notre-Dame Cathedral, and the Louvre Museum. The city's charming neighborhoods and rich cultural heritage make it a top destination for millions of visitors each year, offering a unique blend of romance and sophistication.
 
-Final body length: 293 chars
+Final body length: 352 chars
 
 === Mid-turn steering with run.enqueue() ===
 
@@ -430,7 +336,7 @@ Steered result: Lisbon is the capital of Portugal, founded before Rome, located 
 
 ---
 
-## 19_resume.py
+## 15_resume.py
 
 ```
 === Step 1: an original conversation ===
@@ -452,7 +358,7 @@ Agent: Take the Shinkansen (bullet train) from Tokyo to Kyoto, which takes about
 
 ---
 
-## 20_metrics.py
+## 16_metrics.py
 
 ```
 === Generating traffic ===
@@ -482,28 +388,18 @@ reviewer:  Approved.
 
 ---
 
-## 21_cli_agents_acp.py
+## 17_cli_agents_acp.py
 
 ```
-=== ACP adapters ===
+=== Driving Claude Code over ACP ===
 
-  Claude Code  command=claude-agent-acp     on PATH=False
-  Codex        command=codex-acp            on PATH=False
-  OpenCode     command=opencode acp         on PATH=True
+  [tool] Preparing file…({})
+I created `hello.txt` in `ag2/res/acp_workspace/`. It contains the word `hello` followed by a newline.
 
-=== Agent construction ===
-  agent name:        coder
-  config type:       ClaudeCodeConfig
-  workspace (cwd):   res/acp_workspace
-  permission_policy: auto
-  expose_tools:      True
-
-=== Driving OpenCode ===
-
-  OpenCode session failed: RequestError: Internal error: OpenCode service failure
-  This usually means the CLI agent is installed but not authenticated.
+Claude Code: I created `hello.txt` in `ag2/res/acp_workspace/`. It contains the word `hello` followed by a newline.
+Workspace files: ['hello.txt']
 ```
 
-> This run had `opencode` on PATH but no authenticated provider, so the ACP session failed. The example verifies adapter presets and agent construction, reports the real error, and exits 0 — no transcript is fabricated. With an authenticated CLI agent the `=== Driving ... ===` section streams its thoughts, tool calls, and final message.
+> Claude Code ran as an AG2 agent over ACP: its tool call streamed onto the AG2 event stream, and the file it wrote is in `res/acp_workspace/`.
 
 ---
