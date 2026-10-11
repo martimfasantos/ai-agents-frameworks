@@ -4,10 +4,9 @@ version = "0.1.0"
 description = "AG2 framework examples"
 requires-python = ">=3.12"
 dependencies = [
-    "ag2[a2a,acp,mcp,metrics,openai]>=1.0.5",
-    # A2AServer needs http-server; ag2's a2a/server.py also imports the
-    # gRPC transport unconditionally, so grpc is required even for JSON-RPC.
-    "a2a-sdk[http-server,grpc]",
+    "ag2[a2a,acp,mcp,metrics,openai]>=1.1.2",
+    # A2AServer.build_jsonrpc() needs http-server; add grpc only for build_grpc().
+    "a2a-sdk[http-server]",
     "mcp>=2.0,<3",
     "pydantic",
     "pydantic-settings",
