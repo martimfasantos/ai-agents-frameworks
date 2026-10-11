@@ -26,6 +26,19 @@ https://developers.llamaindex.ai/python/llamaagents/workflows/human_in_the_loop/
 """
 
 
+# --- 0. Scripted answers stand in for a real human ---
+# Examples must run non-interactively, so each prompt is answered from this
+# queue instead of blocking on input().
+SCRIPTED_ANSWERS = ["Ada", "36"]
+
+
+def answer(prefix: str, answers: list[str]) -> str:
+    """Pop the next scripted reply and echo it as a real prompt would."""
+    response = answers.pop(0)
+    print(f"{prefix}{response}")
+    return response
+
+
 # --- 1. Basic human-in-the-loop with InputRequiredEvent ---
 class HumanInTheLoopWorkflow(Workflow):
     @step
@@ -47,13 +60,14 @@ class HumanInTheLoopWorkflow(Workflow):
 
 # --- 2. Stream events and handle human input ---
 async def run_basic_example():
+    answers = list(SCRIPTED_ANSWERS)
     workflow = HumanInTheLoopWorkflow(timeout=120, verbose=False)
     handler = workflow.run()
 
     # Stream events and respond to input requests
     async for event in handler.stream_events():
         if isinstance(event, InputRequiredEvent):
-            response = input(event.prefix)
+            response = answer(event.prefix, answers)
             handler.ctx.send_event(HumanResponseEvent(response=response))
 
     final_result = await handler
@@ -62,6 +76,7 @@ async def run_basic_example():
 
 # --- 3. Stopping/resuming between human responses ---
 async def run_stop_resume_example():
+    answers = list(SCRIPTED_ANSWERS)
     workflow = HumanInTheLoopWorkflow(timeout=120, verbose=False)
     handler = workflow.run()
 
@@ -77,7 +92,7 @@ async def run_stop_resume_example():
 
     if saved_event is not None:
         # Simulate async response (e.g., from a web request)
-        response = input(saved_event.prefix)
+        response = answer(saved_event.prefix, answers)
 
         # Restore context and resume the workflow
         restored_ctx = Context.from_dict(workflow, ctx_dict)
@@ -89,7 +104,7 @@ async def run_stop_resume_example():
         # Continue streaming
         async for event in handler.stream_events():
             if isinstance(event, InputRequiredEvent):
-                response = input(event.prefix)
+                response = answer(event.prefix, answers)
                 handler.ctx.send_event(HumanResponseEvent(response=response))
 
         final_result = await handler

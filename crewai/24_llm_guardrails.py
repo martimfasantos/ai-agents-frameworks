@@ -38,11 +38,14 @@ factual_guardrail = LLMGuardrail(
 )
 
 # --- 2. Another LLM guardrail for format validation ---
+# Criteria are structural on purpose. An LLM judge is reliable at "is this a
+# bullet list" and unreliable at "is this under 50 words" — a numeric limit
+# here makes the guardrail reject valid output at random.
 format_guardrail = LLMGuardrail(
     description="""Validate that the output:
-    1. Is structured with clear sections or bullet points
-    2. Each point is concise (under 50 words)
-    3. Contains exactly 3-5 key points
+    1. Is structured as a bullet list, not a single paragraph
+    2. Each bullet is a single sentence
+    3. Contains between 3 and 5 bullets
     Reject if the output is a single paragraph or has too many/few points.""",
     llm=settings.OPENAI_MODEL_NAME,
 )
@@ -59,7 +62,11 @@ researcher = Agent(
 
 research_task = Task(
     description="Summarize the key facts about the Python programming language's history.",
-    expected_output="A concise, factual summary with 3-5 bullet points.",
+    # Mirrors what format_guardrail checks — an agent that is never told the
+    # rule it is graded on fails validation at random.
+    expected_output=(
+        "A factual summary as 3-5 bullet points, each a single short sentence."
+    ),
     agent=researcher,
     guardrails=[factual_guardrail, format_guardrail],  # Both guardrails applied
 )
