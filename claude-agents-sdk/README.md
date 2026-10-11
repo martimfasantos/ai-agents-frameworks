@@ -51,7 +51,7 @@ cp .env.example .env
 # Edit .env with your ANTHROPIC_API_KEY
 ```
 
-Every example runs on `ANTHROPIC_MODEL_NAME` (default `haiku`). Set it to another Claude Code model alias or id to switch all examples at once.
+Every example runs on `ANTHROPIC_MODEL_NAME` (default `claude-haiku-5-5`). Set it to another Claude model id or alias to switch all examples at once.
 
 ### Run examples
 
