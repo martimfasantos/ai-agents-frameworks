@@ -8,7 +8,7 @@ dependencies = [
     # A2AServer needs http-server; ag2's a2a/server.py also imports the
     # gRPC transport unconditionally, so grpc is required even for JSON-RPC.
     "a2a-sdk[http-server,grpc]",
-    "mcp",
+    "mcp>=2.0,<3",
     "pydantic",
     "pydantic-settings",
     "python-dotenv",

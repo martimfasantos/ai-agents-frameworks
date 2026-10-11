@@ -94,7 +94,7 @@ dependencies = [
 requires-dist = [
     { name = "a2a-sdk", extras = ["http-server", "grpc"] },
     { name = "ag2", extras = ["a2a", "acp", "mcp", "metrics", "openai"], specifier = ">=1.0.5" },
-    { name = "mcp" },
+    { name = "mcp", specifier = ">=2.0,<3" },
     { name = "pydantic" },
     { name = "pydantic-settings" },
     { name = "python-dotenv" },
