@@ -2,7 +2,7 @@
 
 - Repo: https://github.com/openai/openai-agents-python
 - Documentation: https://openai.github.io/openai-agents-python/
-- SDK Version: >= 0.22.2
+- SDK Version: >= 0.23.1
 
 ## Key Features
 
@@ -48,6 +48,7 @@ Since 0.19.0, `agents.decorators` is public and exports `tool` as a literal alia
 | 17 | `17_programmatic_tool_calling.py` | **Programmatic Tool Calling** — ProgrammaticToolCallingTool, `@tool(allowed_callers=...)` (needs `gpt-5.6`) |
 | 18 | `18_error_handlers.py` | **Error Handlers** — max_turns, model_refusal and invalid_final_output recovery |
 | 19 | `19_scripted_model_testing.py` | **Scripted Model Testing** — `ScriptedModel`, deterministic tool-call scripts, `assert_complete()`, zero network calls |
+| 20 | `20_encrypted_session.py` | **Encrypted Sessions** — `EncryptedSession` over `SQLiteSession`, plaintext rows skipped, `max_scan_items` read budget |
 
 ## How to Setup
 
@@ -86,6 +87,7 @@ uv run python 15_sandbox_agent.py
 uv run python 17_programmatic_tool_calling.py
 uv run python 18_error_handlers.py
 uv run python 19_scripted_model_testing.py
+uv run python 20_encrypted_session.py
 ```
 
 > `15_sandbox_agent.py` and `17_programmatic_tool_calling.py` hardcode `gpt-5.6`.
