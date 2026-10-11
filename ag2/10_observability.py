@@ -25,7 +25,7 @@ Here we mirror the old workflow — capture a session, write it to a
 file, then query it afterwards for event counts and token usage.
 
 For more details, visit:
-https://github.com/ag2ai/ag2/blob/v1.0.1/website/docs/user-guide/advanced/stream.mdx
+https://docs.ag2.ai/docs/user-guide/advanced/stream/
 -------------------------------------------------------
 """
 

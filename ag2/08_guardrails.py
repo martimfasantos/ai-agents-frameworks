@@ -37,7 +37,7 @@ observer alone cannot stop the tool — it only sees the call — so the
 middleware is what actually keeps the data out of the CRM.
 
 For more details, visit:
-https://github.com/ag2ai/ag2/blob/v1.0.1/website/docs/user-guide/code_examples/08_safety_guard.mdx
+https://docs.ag2.ai/docs/user-guide/tools/tool_middleware/
 -------------------------------------------------------
 """
 

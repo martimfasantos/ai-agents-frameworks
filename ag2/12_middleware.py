@@ -24,7 +24,7 @@ TokenLimiter, MetricsMiddleware) you can use instead of rolling
 your own.
 
 For more details, visit:
-https://docs.ag2.ai/latest/docs/beta/middleware/
+https://docs.ag2.ai/docs/user-guide/middleware/
 -------------------------------------------------------
 """
 

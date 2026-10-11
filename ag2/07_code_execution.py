@@ -24,7 +24,7 @@ local subprocess in res/sandbox. Because one environment backs every
 call, files written by one snippet are visible to the next.
 
 For more details, visit:
-https://github.com/ag2ai/ag2/blob/v1.0.1/website/docs/user-guide/tools/code_execution.mdx
+https://docs.ag2.ai/docs/user-guide/tools/code_execution/
 -------------------------------------------------------
 """
 

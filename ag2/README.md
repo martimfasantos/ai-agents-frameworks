@@ -1,7 +1,7 @@
 # AG2
 
 - Repo: https://github.com/ag2ai/ag2
-- Documentation: https://docs.ag2.ai/latest/
+- Documentation: https://docs.ag2.ai/
 - Version: **1.0.5**
 
 ## About AG2

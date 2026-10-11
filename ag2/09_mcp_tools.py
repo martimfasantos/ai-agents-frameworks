@@ -24,7 +24,7 @@ and executes them locally, so the pattern works with any provider.
 This example drives the local calculator server in mcp_server.py.
 
 For more details, visit:
-https://github.com/ag2ai/ag2/blob/v1.0.1/website/docs/user-guide/tools/mcp_servers.mdx
+https://docs.ag2.ai/docs/user-guide/tools/mcp_servers/
 -------------------------------------------------------
 """
 

@@ -23,7 +23,7 @@ the caller as one tool. Passing an explicit stream to as_tool() lets
 us read the encapsulated workflow's events afterwards.
 
 For more details, visit:
-https://github.com/ag2ai/ag2/blob/v1.0.1/website/docs/user-guide/subagents.mdx
+https://docs.ag2.ai/docs/user-guide/subagents/
 -------------------------------------------------------
 """
 

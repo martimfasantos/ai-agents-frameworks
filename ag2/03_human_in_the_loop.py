@@ -23,7 +23,7 @@ block on a UI or CLI prompt here; this example answers from a
 scripted queue so it runs unattended.
 
 For more details, visit:
-https://github.com/ag2ai/ag2/blob/v1.0.1/website/docs/user-guide/context/human_in_the_loop.mdx
+https://docs.ag2.ai/docs/user-guide/context/human_in_the_loop/
 -------------------------------------------------------
 """
 

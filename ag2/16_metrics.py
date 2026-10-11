@@ -27,7 +27,7 @@ here we render the same exposition text in-process so the example
 stays non-blocking.
 
 For more details, visit:
-https://github.com/ag2ai/ag2/blob/v1.0.1/website/docs/user-guide/metrics.mdx
+https://docs.ag2.ai/docs/user-guide/metrics/
 -------------------------------------------------------
 """
 

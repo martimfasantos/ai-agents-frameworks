@@ -23,7 +23,7 @@ output is safe to feed straight into downstream code without any
 manual JSON handling. reply.body still holds the raw model text.
 
 For more details, visit:
-https://docs.ag2.ai/latest/docs/beta/structured_output/
+https://docs.ag2.ai/docs/user-guide/structured_output/
 -------------------------------------------------------
 """
 

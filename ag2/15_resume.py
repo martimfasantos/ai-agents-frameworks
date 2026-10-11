@@ -32,7 +32,7 @@ call. This is how a turn survives a process restart, or continues on
 a different worker once a webhook delivers a tool result.
 
 For more details, visit:
-https://docs.ag2.ai/latest/docs/beta/resume/
+https://docs.ag2.ai/docs/user-guide/resume/
 -------------------------------------------------------
 """
 

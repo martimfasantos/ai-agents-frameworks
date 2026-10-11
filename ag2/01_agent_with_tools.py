@@ -22,7 +22,7 @@ executes it, feeds the result back, and the model answers. The
 docstring of each function becomes the schema the model sees.
 
 For more details, visit:
-https://github.com/ag2ai/ag2/blob/v1.0.1/website/docs/user-guide/tools/tools.mdx
+https://docs.ag2.ai/docs/user-guide/tools/tools/
 -------------------------------------------------------
 """
 

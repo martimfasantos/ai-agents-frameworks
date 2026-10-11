@@ -21,7 +21,7 @@ AgentReply, and reply.ask() continues that exact conversation
 with its history intact.
 
 For more details, visit:
-https://docs.ag2.ai/latest/docs/beta/agents/
+https://docs.ag2.ai/docs/user-guide/agents/
 -------------------------------------------------------
 """
 

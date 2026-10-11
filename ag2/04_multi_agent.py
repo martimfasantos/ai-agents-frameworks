@@ -23,7 +23,7 @@ is the direct successor to AutoPattern's LLM-based speaker
 selection, with each sub-task running on its own isolated stream.
 
 For more details, visit:
-https://docs.ag2.ai/latest/docs/beta/subagents/
+https://docs.ag2.ai/docs/user-guide/subagents/
 -------------------------------------------------------
 """
 

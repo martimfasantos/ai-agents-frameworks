@@ -26,7 +26,7 @@ server publishes an agent card at /.well-known/agent-card.json,
 which the client fetches to pick a transport.
 
 For more details, visit:
-https://github.com/ag2ai/ag2/blob/v1.0.1/website/docs/user-guide/a2a/server.mdx
+https://docs.ag2.ai/docs/user-guide/a2a/server/
 -------------------------------------------------------
 """
 

@@ -23,7 +23,7 @@ message into the running turn's inbox — consumed at the next model
 call, without starting a new turn.
 
 For more details, visit:
-https://github.com/ag2ai/ag2/blob/v1.0.1/website/docs/user-guide/agents.mdx
+https://docs.ag2.ai/docs/user-guide/agents/
 -------------------------------------------------------
 """
 
