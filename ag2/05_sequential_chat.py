@@ -12,7 +12,6 @@ from ag2.network import (
     Hub,
     TransitionGraph,
 )
-from ag2.testing import TestConfig
 
 from settings import settings
 
@@ -33,7 +32,7 @@ deterministic and the whole transcript is recorded in the hub's WAL,
 so each stage sees everything the previous ones produced.
 
 For more details, visit:
-https://github.com/ag2ai/ag2/blob/v1.0.1/website/docs/user-guide/network/pattern_cookbook/pipeline.mdx
+https://docs.ag2.ai/docs/user-guide/network/pattern_cookbook/pipeline/
 -------------------------------------------------------
 """
 
@@ -49,8 +48,8 @@ async def main() -> None:
     hub = await Hub.open(MemoryKnowledgeStore(), ttl_sweep_interval=0)
 
     # --- 2. Create the pipeline stages ---
-    # The intake stage only injects the brief, so it needs no model.
-    intake_agent = Agent("intake", config=TestConfig())
+    # The intake stage only sends the brief; its model is never called.
+    intake_agent = Agent("intake", config=config)
 
     researcher_agent = Agent(
         "researcher",

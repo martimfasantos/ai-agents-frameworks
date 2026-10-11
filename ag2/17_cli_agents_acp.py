@@ -6,10 +6,6 @@ from ag2.acp import ClaudeCodeConfig
 from ag2.events import ModelMessageChunk, ModelReasoning
 from ag2.events.tool_events import BuiltinToolCallEvent
 
-from settings import settings
-
-os.environ["OPENAI_API_KEY"] = settings.OPENAI_API_KEY.get_secret_value()
-
 """
 -------------------------------------------------------
 In this example, we explore AG2 with the following features:
@@ -28,7 +24,7 @@ Requires Node.js (the Claude Code ACP adapter is launched through
 npx) and an existing Claude Code login under ~/.claude.
 
 For more details, visit:
-https://github.com/ag2ai/ag2/blob/v1.0.1/website/docs/user-guide/cli_agents.mdx
+https://docs.ag2.ai/docs/user-guide/acp/client/
 -------------------------------------------------------
 """
 

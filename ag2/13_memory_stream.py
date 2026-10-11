@@ -21,23 +21,23 @@ compaction, filtering, and sharing across agent turns, enabling
 long-running sessions without context window overflow.
 
 For more details, visit:
-https://github.com/ag2ai/ag2/blob/v1.0.1/website/docs/user-guide/advanced/stream.mdx
+https://docs.ag2.ai/docs/user-guide/advanced/stream/
 -------------------------------------------------------
 """
 
 
 async def main() -> None:
-    # --- Create a shared memory stream ---
+    # --- 1. Create a shared memory stream ---
     stream = MemoryStream()
 
-    # --- Create agent with the stream ---
+    # --- 2. Create agent with the stream ---
     agent = Agent(
         name="assistant",
         prompt="You are a helpful assistant. Be concise. Remember context from earlier.",
         config=OpenAIConfig(model=settings.OPENAI_MODEL_NAME),
     )
 
-    # --- First interaction ---
+    # --- 3. First interaction ---
     print("=== Turn 1: Introduce context ===")
     reply1 = await agent.ask(
         "My name is Alice and I work at Acme Corp.",
@@ -45,7 +45,7 @@ async def main() -> None:
     )
     print(f"Response: {reply1.body}\n")
 
-    # --- Second interaction (agent should remember) ---
+    # --- 4. Second interaction (agent should remember) ---
     print("=== Turn 2: Test memory ===")
     reply2 = await agent.ask(
         "What is my name and where do I work?",
@@ -53,7 +53,7 @@ async def main() -> None:
     )
     print(f"Response: {reply2.body}\n")
 
-    # --- Inspect the stream history ---
+    # --- 5. Inspect the stream history ---
     print("=== Memory Stream Contents ===")
     events = await stream.history.get_events()
     print(f"Total events in stream: {len(events)}")
