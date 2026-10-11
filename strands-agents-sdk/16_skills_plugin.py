@@ -17,7 +17,7 @@ injected into the system prompt, and full instructions load only when the
 agent activates a skill through a tool call.
 
 For more details, visit:
-https://strandsagents.com/docs/user-guide/concepts/plugins/skills/
+https://strandsagents.com/docs/user-guide/sdk/plugins/skills/
 -------------------------------------------------------
 """
 

@@ -18,7 +18,7 @@ observability data. This is useful for monitoring costs, debugging
 slow runs, and understanding how the agent uses its tools.
 
 For more details, visit:
-https://strandsagents.com/docs/user-guide/observability-evaluation/observability/
+https://strandsagents.com/docs/user-guide/sdk/observability-evaluation/observability/
 -------------------------------------------------------
 """
 

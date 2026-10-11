@@ -15,7 +15,7 @@ so each follow-up message has full context of prior turns. System prompts
 let you define the agent's personality, constraints, and response style.
 
 For more details, visit:
-https://strandsagents.com/docs/user-guide/concepts/agents/prompts/
+https://strandsagents.com/docs/user-guide/sdk/agents/prompts/
 -------------------------------------------------------
 """
 

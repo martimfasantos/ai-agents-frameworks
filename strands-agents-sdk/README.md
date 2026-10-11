@@ -2,7 +2,7 @@
 
 - Repo: https://github.com/strands-agents/harness-sdk
 - Documentation: https://strandsagents.com/docs/
-- Version: **1.55.1**
+- Version: **1.59.0**
 
 ## About Strands Agents SDK
 
@@ -81,6 +81,7 @@ uv run python 22_invocation_limits.py
 uv run python 23_goal_loop.py
 uv run python 24_cancellation.py
 uv run python 25_background_tasks.py
+uv run python 26_subagent_tool.py
 ```
 
 ## Examples
@@ -105,7 +106,7 @@ uv run python 25_background_tasks.py
 | 15 | `15_mcp_tools.py` | Model Context Protocol (MCP) tool integration, client options |
 | 16 | `16_skills_plugin.py` | AgentSkills plugin with programmatic Skill creation |
 | 17 | `17_session_persistence.py` | FileSessionManager for state and conversation persistence |
-| 18 | `18_context_compression.py` | Proactive compression, `context_manager="auto"` / `"agentic"` |
+| 18 | `18_context_compression.py` | Proactive compression, `context_manager="auto"` / `"agentic"`, strategy presets + `Offload` |
 | 19 | `19_interventions.py` | `InterventionHandler` with `Proceed` / `Deny` / `Guide` / `Transform` |
 | 20 | `20_human_in_the_loop.py` | `HumanInTheLoop` approval gate, interrupt/resume, custom async `ask` |
 | 21 | `21_agent_memory.py` | `MemoryManager` + `TestMemoryStore`, cross-session recall and extraction |
@@ -113,9 +114,10 @@ uv run python 25_background_tasks.py
 | 23 | `23_goal_loop.py` | `GoalLoop` validate-and-retry with an LLM judge and a programmatic validator |
 | 24 | `24_cancellation.py` | `Agent.cancel()` from another thread, `cancel_signal`, cooperative tool cancellation |
 | 25 | `25_background_tasks.py` | `background_tasks`, `BackgroundTasksConfig(always=, max_concurrency=)`, overlapping tool calls |
+| 26 | `26_subagent_tool.py` | `make_subagent()` with `Preset` roles, a model `Choice` of `Option`s, custom `builder`, `max_depth` |
 
 ## Key dependencies
 
-- `strands-agents>=1.55.1` - Strands Agents SDK (locked at 1.55.1)
-- `strands-agents-tools>=0.5.2` - Community tools (calculator, current_time, shell, etc.) (locked at 0.8.5)
+- `strands-agents>=1.59.0` - Strands Agents SDK (locked at 1.59.0)
+- `strands-agents-tools>=0.8.9` - Community tools (calculator, current_time, shell, etc.) (locked at 0.8.9)
 - `pydantic-settings` - Settings management from .env

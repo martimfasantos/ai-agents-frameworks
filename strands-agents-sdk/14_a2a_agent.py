@@ -17,7 +17,7 @@ agent) and client (consume remote agents) support out of the box.
 Install A2A support with: pip install 'strands-agents[a2a]'
 
 For more details, visit:
-https://strandsagents.com/docs/user-guide/concepts/multi-agent/agent-to-agent/
+https://strandsagents.com/docs/user-guide/sdk/multi-agent/agent-to-agent/
 -------------------------------------------------------
 """
 

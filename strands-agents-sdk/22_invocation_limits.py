@@ -18,7 +18,7 @@ iteration, which means pending tool calls always finish first and agent.messages
 is left in a state you can invoke again.
 
 For more details, visit:
-https://strandsagents.com/docs/user-guide/concepts/agents/agent-loop/
+https://strandsagents.com/docs/user-guide/sdk/agents/agent-loop/
 -------------------------------------------------------
 """
 

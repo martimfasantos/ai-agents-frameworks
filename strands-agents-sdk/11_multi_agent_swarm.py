@@ -17,7 +17,7 @@ Agents can hand off tasks to each other based on the conversation context.
 The swarm manages the handoff protocol, max iterations, and execution tracking.
 
 For more details, visit:
-https://strandsagents.com/docs/user-guide/concepts/multi-agent/swarm/
+https://strandsagents.com/docs/user-guide/sdk/multi-agent/swarm/
 -------------------------------------------------------
 """
 
