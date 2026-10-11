@@ -74,7 +74,7 @@ This repository provides a comprehensive, hands-on comparison of modern AI agent
           <img src="res/agno.svg" alt="Agno" width="68" style="vertical-align: middle;">
         </picture>
       </td>
-      <td><code>2.8.7</code></td>
+      <td><code>3.0.9</code></td>
       <td>
           <a href="https://docs.agno.com/introduction">
             <picture>
@@ -159,7 +159,7 @@ This repository provides a comprehensive, hands-on comparison of modern AI agent
           <img src="res/crewai.svg" alt="CrewAI" width="72">
         </picture>
       </td>
-      <td><code>1.15.11</code></td>
+      <td><code>1.15.21</code></td>
       <td>
           <a href="https://docs.crewai.com/">
             <picture>
@@ -188,7 +188,7 @@ This repository provides a comprehensive, hands-on comparison of modern AI agent
         </picture>
     <strong style="vertical-align: middle; font-size: 1.2em;">Deep Agents</strong>
       </td>
-      <td><code>0.7.4</code></td>
+      <td><code>0.7.13</code></td>
       <td>
           <a href="https://docs.langchain.com/oss/python/deepagents/overview">
             <picture>
@@ -217,7 +217,7 @@ This repository provides a comprehensive, hands-on comparison of modern AI agent
         </picture>
     <strong style="vertical-align: middle; font-size: 1.2em;">Google ADK</strong>
       </td>
-      <td><code>2.6.2</code></td>
+      <td><code>2.9.0</code></td>
       <td>
           <a href="https://google.github.io/adk-docs/">
             <picture>
@@ -245,7 +245,7 @@ This repository provides a comprehensive, hands-on comparison of modern AI agent
           <img src="res/langchain.svg" alt="LangChain" width="120" style="vertical-align: middle;">
         </picture>
       </td>
-      <td><code>1.3.14</code></td>
+      <td><code>1.4.0</code></td>
       <td>
           <a href="https://docs.langchain.com/oss/python/langchain/">
             <picture>
@@ -311,7 +311,7 @@ This repository provides a comprehensive, hands-on comparison of modern AI agent
           <img src="res/llamaindex-text.svg" alt="LlamaIndex" width="110" style="vertical-align: middle;">
         </picture>
       </td>
-      <td><code>0.14.20</code></td>
+      <td><code>0.14.24</code></td>
       <td>
           <a href="https://docs.llamaindex.ai/en/stable/">
             <picture>
@@ -340,7 +340,7 @@ This repository provides a comprehensive, hands-on comparison of modern AI agent
         </picture>
     <strong style="vertical-align: middle; font-size: 1.2em;">Agent Framework</strong>
       </td>
-      <td><code>1.13.0</code></td>
+      <td><code>1.18.0</code></td>
       <td>
           <a href="https://learn.microsoft.com/en-us/agent-framework/">
             <picture>
@@ -369,7 +369,7 @@ This repository provides a comprehensive, hands-on comparison of modern AI agent
         </picture>
     <strong style="vertical-align: middle; font-size: 1.2em;">OpenAI Agents SDK</strong>
       </td>
-      <td><code>0.19.4</code></td>
+      <td><code>0.22.2</code></td>
       <td>
           <a href="https://openai.github.io/openai-agents-python/">
             <picture>
@@ -454,7 +454,7 @@ This repository provides a comprehensive, hands-on comparison of modern AI agent
           <img src="res/strands-amazon-sdk.svg" alt="Strands Agents SDK" width="120" style="vertical-align: middle;">
         </picture>
       </td>
-      <td><code>1.50.2</code></td>
+      <td><code>1.55.1</code></td>
       <td>
           <a href="https://strandsagents.com/docs/">
             <picture>

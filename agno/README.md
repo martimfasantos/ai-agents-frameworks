@@ -2,7 +2,7 @@
 
 - Repo: https://github.com/agno-agi/agno
 - Documentation: https://docs.agno.com
-- Version: **2.8.7**
+- Version: **3.0.9**
 
 ## Agno Examples
 
@@ -63,6 +63,8 @@ cp .env.example .env
 | 17 | `17_checkpointing.py` | Checkpointing | Crash recovery with `checkpoint="tool-batch"`, `continue_run()` and `fork_session()` |
 | 18 | `18_filesystem.py` | FileSystem | Durable per-user file store with `agno.fs.FileSystem` and `fs.tools()` |
 | 19 | `19_eval_suite.py` | Evals | `Case` + `run_cases()` graded by `CodeScorer` and `ToolCallScorer` |
+| 20 | `20_runs_table.py` | Runs Table | `agno_runs` rows, `db.get_runs()`/`get_run()`, `MigrationManager` |
+| 21 | `21_tool_result_offloading.py` | Tool Result Offloading | `offload_tool_results=ResultStore(...)`, `read_result`/`search_result` |
 
 ### Running examples
 
@@ -73,6 +75,9 @@ python 00_hello_world.py
 python 17_checkpointing.py
 python 18_filesystem.py
 python 19_eval_suite.py
+python 20_runs_table.py
+python 21_tool_result_offloading.py
 ```
 
-> **Note:** Example `14_mcp_tools.py` requires Node.js (npx) installed for the MCP filesystem server.
+> **Note:** Example `14_mcp_tools.py` requires Node.js (npx) for the MCP filesystem server, and
+> `fastmcp` — Agno 3.0 builds `MCPTools` connections on it.

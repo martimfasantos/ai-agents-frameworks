@@ -1,6 +1,6 @@
 # OpenAI Agents SDK — Example Outputs
 
-All examples run with `openai-agents>=0.19.4`, `openai>=2.45.0`, model `gpt-4o-mini`
+All examples run with `openai-agents>=0.22.2`, `openai>=3.13.0`, model `gpt-4o-mini`
 (`15_sandbox_agent.py` and `17_programmatic_tool_calling.py` require `gpt-5.6`).
 
 ---
@@ -583,5 +583,25 @@ Every run returned a usable final output — none of them raised.
 > The fallback returned by `invalid_final_output` must itself satisfy the agent's
 > `output_type`, hence the `WeatherReport` instance.
 
+---
 
+## 19. Scripted Model Testing (`19_scripted_model_testing.py`)
 
+```
+=== Scripted model testing ===
+
+Final output: It is sunny and 25C in Lisbon.
+Tool called with: ['Lisbon']
+Assertions passed — and not one network call was made.
+
+UnconsumedModelSteps: 1 scripted model step(s) were not consumed.
+```
+
+> `ScriptedModel` replaces the model with a fixed list of steps, so the run is
+> deterministic and makes **no network calls at all** — the whole example
+> finishes in well under a second. The first agent is scripted to call
+> `get_weather` and then answer from its result, which lets the example assert
+> on the tool argument and the final text rather than on model wording.
+> `assert_complete()` is the second half of the contract: the short agent stops
+> after one message, leaving a step unconsumed, which is how a workflow that
+> quietly ended early gets caught instead of passing silently.
