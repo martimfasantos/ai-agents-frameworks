@@ -2,7 +2,7 @@
 
 - Repo: https://github.com/microsoft/agent-framework
 - Documentation: https://learn.microsoft.com/en-us/agent-framework/
-- Version: **1.18.0**
+- Version: **1.21.0**
 
 Microsoft Agent Framework is an open-source SDK for building, orchestrating, and deploying AI agents and multi-agent workflows. It unifies the capabilities of AutoGen and Semantic Kernel, providing a comprehensive platform for creating intelligent agents with tool use, middleware, sessions, structured outputs, MCP integration, and graph-based workflows with human-in-the-loop support.
 
@@ -69,15 +69,16 @@ uv run python 00_hello_world.py
 | `24_mcp_progressive_disclosure.py` | MCP Progressive Disclosure | Load and unload MCP tool schemas on demand, bounded by `allowed_tools` |
 | `25_workflow_checkpoints.py` | Workflow Checkpoints | Resume a crashed workflow from its last superstep checkpoint (no LLM calls) |
 | `26_vector_store_rag.py` | Vector Store RAG | `@vectorstoremodel`, `VectorStoreField`, `InMemoryCollection`, `create_vector_search_tool` |
+| `27_streaming_guardrails.py` | Streaming Guardrails | Buffer a streamed reply, rewrite it with a result transform, and block it with a result gate before any chunk is released |
 
 ## Key dependencies
 
 | Package | Version | Purpose |
 |---------|---------|---------|
-| `agent-framework` | 1.18.0 | Core framework (agents, tools, middleware, workflows) |
-| `agent-framework-core` | 1.18.0 | Core abstractions and base classes |
-| `agent-framework-declarative` | 1.0.4 | YAML/JSON declarative agent definitions |
-| `agent-framework-orchestrations` | 1.1.1 | Sequential and Handoff orchestration builders |
+| `agent-framework` | 1.21.0 | Core framework (agents, tools, middleware, workflows) |
+| `agent-framework-core` | 1.21.0 | Core abstractions and base classes |
+| `agent-framework-declarative` | 1.2.1 | YAML/JSON declarative agent definitions |
+| `agent-framework-orchestrations` | 1.3.1 | Sequential and Handoff orchestration builders |
 | `pydantic` | >=2.0 | Structured output schemas |
 | `pydantic-settings` | >=2.0 | `.env` file loading via `BaseSettings` |
 | `python-dotenv` | >=1.0 | Explicit `.env` loading (framework does not auto-load) |
