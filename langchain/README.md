@@ -2,7 +2,7 @@
 
 - Repo: https://github.com/langchain-ai/langchain
 - Documentation: https://docs.langchain.com/oss/python/langchain/
-- Version: **1.3.14**
+- Version: **1.4.0**
 
 ## LangChain Examples
 
@@ -62,7 +62,7 @@ uv run python 00_hello_world.py
 | 10 | `10_human_in_the_loop.py` | `HumanInTheLoopMiddleware`, interrupt/resume, `InterruptOnConfig(when=)` |
 | 11 | `11_long_term_memory.py` | `InMemoryStore`, store read/write from tools |
 | 12 | `12_retrieval_rag.py` | Agentic RAG with retrieval tools |
-| 13 | `13_mcp.py` | MCP integration with `MultiServerMCPClient` and FastMCP |
+| 13 | `13_mcp.py` | First-party `langchain.mcp`: `MCPAdapter`, `Path` targets, `list_tools()` into `create_agent` |
 | 14 | `14_multi_agent_subagents.py` | Subagents as tools, supervisor pattern |
 | 15 | `15_multi_agent_handoffs.py` | State-driven handoffs with `wrap_model_call` |
 | 16 | `16_multi_agent_router.py` | Router pattern with `StateGraph`, `Send` fan-out |
@@ -73,3 +73,4 @@ uv run python 00_hello_world.py
 | 21 | `21_tool_error_handling.py` | `ToolErrorMiddleware(on_error=)` composed outside `ToolRetryMiddleware` |
 | 22 | `22_builtin_middleware.py` | `SummarizationMiddleware`, `ContextEditingMiddleware`, model/tool call limits |
 | 23 | `23_structured_output_strategies.py` | `ToolStrategy` vs `ProviderStrategy`, union schemas, `handle_errors` |
+| 24 | `24_model_exceptions.py` | Standard model exceptions: `ModelNotFoundError`, `ModelAuthenticationError`, `ModelError` base |
