@@ -1,6 +1,6 @@
 # Agno Example Outputs
 
-Captured outputs from running all 22 examples against agno v3.0.9 with `gpt-4o-mini`.
+Captured outputs from running all 24 examples against agno v3.1.2 with `gpt-4o-mini`.
 
 > These outputs may vary between runs due to LLM non-determinism. The structure and tool invocations should remain consistent.
 
@@ -828,5 +828,51 @@ Answer: The error reported in the payments service is:
 > AgentFS. The answer is buried at line 38 where no preview would reach it, so the agent
 > calls `search_result` and then `read_result` to fetch just that line. `Tools called:`
 > shows it reaching for both on its own; neither is declared by the example.
+
+---
+
+## 22_conversation_compaction.py
+
+```
+=== Turn 1: share a 25-row service inventory ===
+Agent: Noted.
+
+=== Turn 2: an unrelated question ===
+Agent: A service mesh is an infrastructure layer that manages communication between microservices in a distributed application, providing features like traffic management, security, and observability.
+
+=== Compacting the session ===
+WARNING tokenizers not installed. Please install it using `pip install tokenizers`.: No module named 'tokenizers'
+WARNING tiktoken not installed. Please install it using `pip install tiktoken`.: No module named 'tiktoken'
+Status:          compacted
+Messages folded: 2
+Context tokens:  285 -> 213
+Summary:         ## Goal To maintain a record of services and their corresponding ports and owners for future reference. Not covered here: specifics regarding the nature or func…
+Summary holds service-17's port: False
+
+=== Turn 3: recall a single row ===
+Tool call: search_compacted_history({'pattern': 'service-17', 'context_lines': 10})
+Agent:     Service-17 uses port 44623 and is owned by ines.
+Expected:  port 44623, owner ines
+```
+
+> `agent.compact()` folds turn 1 — the 25-row inventory — into a summary cut to the 150-token budget, and the summary does not carry service-17's port. The correct answer can only have come from the archived transcript, which is what the `search_compacted_history` call shows. The two warnings are expected: without the optional `agno[tokenizers]` extra, agno counts tokens with a character-based estimate, which is where the before/after figures come from.
+
+---
+
+## 23_hyde_query_transform.py
+
+```
+Question: Why did our sales numbers fall?
+
+=== Plain search (embeds the question) ===
+  1. Sales dashboard guide: The sales dashboard shows numbers for each region. If the nu…
+  2. Q3 business review: Three enterprise accounts postponed their contract renewals …
+
+=== HyDE search (embeds a hypothetical answer) ===
+  1. Q3 business review: Three enterprise accounts postponed their contract renewals …
+  2. Sales dashboard guide: The sales dashboard shows numbers for each region. If the nu…
+```
+
+> Both searches run against the same LanceDb table. The plain search ranks the dashboard guide first because it repeats the question's words ("sales", "numbers", "fall"); the Q3 review answers the question but shares none of them. HyDE embeds an LLM-written hypothetical answer instead, which lands next to the real answer and puts the Q3 review on top.
 
 ---

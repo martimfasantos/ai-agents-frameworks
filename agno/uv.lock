@@ -8,7 +8,7 @@ resolution-markers = [
 
 [[package]]
 name = "agno"
-version = "3.0.9"
+version = "3.1.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "agnoctl" },
@@ -22,9 +22,9 @@ dependencies = [
     { name = "rich" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/ba/88/64f8ca8e5e590d4c637732e76faf8aa9521363951f3503995b5f220a8095/agno-3.0.9.tar.gz", hash = "sha256:046540cee29aa1e24fb00a87bc8a7e749291c22c1c02a16a8e3e7c7df24162d0", size = 3475772, upload-time = "2026-09-08T22:54:49.771Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/f3/4a/1a76527a0dd9de97e18aca48cb043249e4077f3382230a5d2df37dedd333/agno-3.1.2.tar.gz", hash = "sha256:cd215d0267a236820bfe4a3897e5cb3d92e1b88e325662cdb77426f5f58d453f", size = 3766253, upload-time = "2026-10-08T19:53:33.476Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/6e/86/75a7b4f0598d372c3823672aa1f80f88eb260fce8ca44e9f0981e0a75914/agno-3.0.9-py3-none-any.whl", hash = "sha256:21b5b8694089140db8bd8c5105b4b19546f99d6a9f61216220523066ddeb1a73", size = 3955783, upload-time = "2026-09-08T22:54:46.553Z" },
+    { url = "https://files.pythonhosted.org/packages/1f/6f/dc48f29d790d426e9fcb8a63b870bdb2020d70e4a6c34fca8b6d6c199d0d/agno-3.1.2-py3-none-any.whl", hash = "sha256:7e49aa04c7ddbfd27382e5a6ba71dc49d8e431fdc83bfa3cf5d9e2da992f56b8", size = 4273104, upload-time = "2026-10-08T19:53:30.29Z" },
 ]
 
 [[package]]
@@ -49,7 +49,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "agno", specifier = ">=2.8.2" },
+    { name = "agno", specifier = ">=3.1.2" },
     { name = "ddgs" },
     { name = "fastapi" },
     { name = "fastmcp", specifier = ">=4.0.0,<5" },
