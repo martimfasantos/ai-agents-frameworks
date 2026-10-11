@@ -117,7 +117,7 @@ def triage_agent(state: SupportState):
     messages = [
         {
             "role": "system",
-            "content": "You are a triage agent. For billing questions, transfer to billing. For technical issues, transfer to technical. Use lookup_account if the user asks about their account. Be concise.",
+            "content": "You are a triage agent. For billing questions, transfer to billing. For technical issues, transfer to technical. Be concise.",
         }
     ] + state["messages"]
     return {"messages": [triage_llm.invoke(messages)]}
