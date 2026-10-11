@@ -39,16 +39,21 @@ def search(query: str) -> str:
 
 async def main() -> None:
     # --- 1. streaming=True makes the model emit token chunks ---
-    agent = Agent(
-        "assistant",
+    config = OpenAIConfig(model=settings.OPENAI_MODEL_NAME, streaming=True)
+
+    # No tools here, so the first ModelResponse is the final answer.
+    narrator = Agent("narrator", prompt="You are a helpful assistant.", config=config)
+
+    researcher = Agent(
+        "researcher",
         prompt="You are a helpful assistant. Use the search tool when helpful.",
-        config=OpenAIConfig(model=settings.OPENAI_MODEL_NAME, streaming=True),
+        config=config,
         tools=[search],
     )
 
     # --- 2. Watch a turn live, token by token ---
     print("=== Live token stream ===\n")
-    async with agent.run("Tell me about Paris in two sentences.") as run:
+    async with narrator.run("Tell me about Paris in two sentences.") as run:
         run.start()  # drives the turn in the background; not awaited
 
         # join() stays open waiting for more events, so break on the turn's
@@ -66,13 +71,16 @@ async def main() -> None:
 
     # --- 3. Steer a running turn: wait for the first tool result, then inject ---
     print("\n=== Mid-turn steering with run.enqueue() ===\n")
-    async with agent.run("Search for Lisbon.") as run:
+    async with researcher.run("Search for Lisbon.") as run:
         run.start()
 
-        with run.stream.where(ToolResultEvent).join(max_events=1) as results:
-            async for result in results:
-                print(f"  [event] tool returned, injecting a follow-up instruction")
-                run.enqueue("Now compress that into exactly one short line.")
+        # Bounded wait: if the model answers without searching, no
+        # ToolResultEvent ever arrives.
+        async with asyncio.timeout(60):
+            with run.stream.where(ToolResultEvent).join(max_events=1) as results:
+                async for result in results:
+                    print("  [event] tool returned, injecting a follow-up instruction")
+                    run.enqueue("Now compress that into exactly one short line.")
 
         steered = await run.result()
 
