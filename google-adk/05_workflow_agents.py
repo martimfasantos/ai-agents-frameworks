@@ -185,7 +185,7 @@ print("\n" + "-" * 50 + "\n")
 
 researcher_agent_1 = LlmAgent(
     name="renewable_energy_researcher",
-    model=settings.GOOGLE_MODEL_NAME,
+    model=settings.GOOGLE_SEARCH_MODEL_NAME,  # google_search needs a search-enabled model
     instruction=(
         "You are an energy research assistant. "
         "Search for the latest renewable energy advancements. "
@@ -198,7 +198,7 @@ researcher_agent_1 = LlmAgent(
 
 researcher_agent_2 = LlmAgent(
     name="ev_technology_researcher",
-    model=settings.GOOGLE_MODEL_NAME,
+    model=settings.GOOGLE_SEARCH_MODEL_NAME,  # google_search needs a search-enabled model
     instruction=(
         "You are a transportation research assistant. "
         "Search for the latest electric vehicle technology developments. "

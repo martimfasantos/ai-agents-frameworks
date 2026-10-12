@@ -5,7 +5,8 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 # Use pydantic base settings for basic settings read from a .env file
 class Settings(BaseSettings):
     GOOGLE_API_KEY: SecretStr
-    GOOGLE_MODEL_NAME: str = "gemini-2.5-flash"
+    GOOGLE_MODEL_NAME: str = "gemini-3.5-flash-lite"
+    GOOGLE_SEARCH_MODEL_NAME: str = "gemini-2.5-flash"  # free-tier keys only allow google_search grounding on this model
     OPENAI_API_KEY: SecretStr = SecretStr("")  # used by 09_litellm.py
     OPENAI_MODEL_NAME: str = "openai/gpt-4o-mini"  # LiteLLM format: "<provider>/<model>"
     

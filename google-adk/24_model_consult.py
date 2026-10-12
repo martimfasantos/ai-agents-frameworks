@@ -68,7 +68,7 @@ def get_refund_policy() -> list[str]:
 # --- 2. The advisor tool, capped at one consult ---
 consult_tool = ModelConsultTool(
     model=settings.GOOGLE_MODEL_NAME,
-    # thinking_level is a Gemini 3 option; None leaves Gemini 2.5's default alone.
+    # None keeps the advisor model's default thinking instead of forcing "high".
     thinking_level=None,
     max_uses=1,
     session_max_uses=1,

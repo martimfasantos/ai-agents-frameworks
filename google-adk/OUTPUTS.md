@@ -4,23 +4,754 @@
 > has a 20 requests/day limit per model — run examples individually to avoid
 > 429 RESOURCE_EXHAUSTED errors.
 
+> Captured on google-adk 2.11.0 with `GOOGLE_MODEL_NAME=gemini-3.5-flash-lite`;
+> the `google_search` agents in 02, 03, 05 and 12 run on
+> `GOOGLE_SEARCH_MODEL_NAME=gemini-2.5-flash` because free-tier keys only allow
+> search grounding there.
+
+---
+
+## 00. Hello World (`00_hello_world.py`)
+
+```
+$ uv run python 00_hello_world.py
+Query: Hello, who are you?
+
+[HELLO_WORLD_AGENT] I am an AI assistant designed to help answer your questions. How can I assist you today?
+```
+
+> The smallest ADK setup: one `LlmAgent` with an instruction, run once through a
+> `Runner` backed by `InMemorySessionService`.
+
+**Verdict:** PASS - Single-turn agent answers the greeting.
+
+---
+
+## 01. Custom Tools (`01_tools.py`)
+
+```
+$ uv run python 01_tools.py
+Query: What is the weather in Lisbon?
+
+[WEATHER_TIME_AGENT]   Tool: get_weather, Args: {'city': 'Lisbon'}
+
+
+[WEATHER_TIME_AGENT]
+[WEATHER_TIME_AGENT] The weather in Lisbon is currently sunny with a temperature of 25 degrees Celsius.
+
+Query: What is the current time in New York?
+
+[WEATHER_TIME_AGENT]   Tool: get_current_time, Args: {'city': 'New York'}
+
+
+[WEATHER_TIME_AGENT]
+[WEATHER_TIME_AGENT] The current time in New York is 7:49 PM EDT on October 11, 2026.
+```
+
+> ADK builds each tool schema from the function's type hints and docstring. The
+> agent picks `get_weather` for the first question and `get_current_time` for
+> the second.
+
+**Verdict:** PASS - Agent selects the right tool per query and answers from its result.
+
+---
+
+## 02. Built-in Tools (`02_built_in_tools.py`)
+
+```
+$ uv run python 02_built_in_tools.py
+Query: What is the current price of Bitcoin in USD?
+
+[SEARCH_AGENT] The current price of Bitcoin is approximately $84,113.59 USD. Other sources indicate it is around $83,875.90 USD, $83,494.72 USD, $84,056.56 USD, or $83,835.00 USD. The price has seen a slight increase over the past 24 hours.
+```
+
+> `google_search` runs server-side, so no tool-call event reaches the client;
+> the answer arrives already grounded in live search results.
+
+**Verdict:** PASS - Built-in Google Search returns a live answer.
+
+---
+
+## 03. Agents as Tools (`03_agents_as_tools.py`)
+
+````
+$ uv run python 03_agents_as_tools.py
+Query: Search for a Python script to fetch the current Bitcoin price in USD, then execute it.
+
+[ORCHESTRATOR]   Tool: search_agent, Args: {'request': 'Python script to fetch current Bitcoin price in USD using coindesk or coingecko or public api'}
+
+
+[ORCHESTRATOR]   Tool Result: search_agent -> {'result': 'To fetch the current Bitcoin price in USD, you can use a Python script that interacts with a public API. ... This script provides a simple and effective way to programmatically obtain the current Bitcoin price in USD.'}
+
+
+[ORCHESTRATOR]   Tool: coding_agent, Args: {'request': 'python3 -c "import requests; r = requests.get(\'https://api.coindesk.com/v1/bpi/currentprice/USD.json\').json(); print(r[\'bpi\'][\'USD\'][\'rate_float\'])"'}
+
+
+[ORCHESTRATOR]   Tool Result: coding_agent -> {'result': '... Error: HTTPSConnectionPool(host=\'api.coindesk.com\', port=443): Max retries exceeded with url: /v1/bpi/currentprice/USD.json (Caused by NameResolutionError(...))\nIt looks like the environment you are running this in doesn\'t have internet access (hence the `NameResolutionError`). ...'}
+
+
+[ORCHESTRATOR] Here is the Python script to fetch the current Bitcoin price in USD using the public CoinDesk API:
+
+```python
+import requests
+
+def get_bitcoin_price_coindesk():
+    ...
+```
+
+*(Note: If you run this script in an isolated or sandboxed environment that restricts internet access, ensure you execute it on a machine with an active internet connection, and make sure the `requests` library is installed via `pip install requests`.)*
+````
+
+> The orchestrator keeps control and calls both specialists through `AgentTool`:
+> `search_agent` (Google Search) finds a script, then `coding_agent`
+> (`BuiltInCodeExecutor`) runs it. Gemini's code-execution sandbox has no
+> network access, so the fetch fails with `NameResolutionError` and the
+> orchestrator returns the script instead of a live price.
+
+**Verdict:** PASS - Both agent tools are called in sequence and their results flow back to the orchestrator; the price fetch itself fails inside the offline sandbox.
+
+---
+
+## 04. Multi-Agent Systems (`04_multi_agent_systems.py`)
+
+```
+$ uv run python 04_multi_agent_systems.py
+
+-----------------------------------------------------------------
+               Multi-Agent Research Pipeline
+-----------------------------------------------------------------
+
+Pipeline: ResearchAgent → AnalysisAgent → ReportGenerator
+
+  [ResearchAgent] Stored findings for topic: AI technologies
+
+[ANALYSISAGENT]
+* Advanced language models like GPT-4, Gemini, and Claude represent the current state of the art in text generation and comprehension.
+* The integration of text, images, and audio into multimodal AI systems is expanding the boundaries of human-computer interaction.
+* Agentic AI systems capable of autonomous action are driving widespread adoption across critical sectors including healthcare, finance, and education.
+
+[REPORTGENERATOR]
+Advanced language models such as GPT-4, Gemini, and Claude currently represent the state of the art in text generation and comprehension. The continuous integration of text, images, and audio into multimodal AI systems is significantly expanding the boundaries of human-computer interaction. Furthermore, the emergence of agentic AI systems capable of autonomous action is accelerating widespread adoption across critical sectors including healthcare, finance, and education.
+
+--- Session State Results ---
+
+Analysis (stored by AnalysisAgent):
+* Advanced language models like GPT-4, Gemini, and Claude represent the current state of the art in text generation and comprehension.
+...
+
+Final Report (stored by ReportGenerator):
+Advanced language models such as GPT-4, Gemini, and Claude currently represent the state of the art in text generation and comprehension. ...
+```
+
+> A `SequentialAgent` runs a custom non-LLM `BaseAgent` and two `LlmAgent`s.
+> Each step writes to session state via `output_key` and the next reads it
+> through `{key}` interpolation, so the final state holds both the analysis and
+> the report.
+
+**Verdict:** PASS - Pipeline runs in order and passes data through session state.
+
+---
+
+## 05. Workflow Agents (`05_workflow_agents.py`)
+
+````
+$ uv run python 05_workflow_agents.py
+
+-----------------------------------------------------------------
+               1. Sequential Agent
+-----------------------------------------------------------------
+
+Query: Write a Python function that computes the nth Fibonacci number.
+
+[CODE_WRITER_AGENT] ```python
+def fibonacci(n: int) -> int:
+    """Computes the nth Fibonacci number.
+    ...
+    """
+    if n < 0:
+        raise ValueError("Fibonacci is not defined for negative numbers.")
+    if n == 0:
+        return 0
+    elif n == 1:
+        return 1
+
+    a, b = 0, 1
+    for _ in range(2, n + 1):
+        a, b = b, a + b
+    return b
+```
+
+
+[CODE_REVIEWER_AGENT] No major issues found.
+
+
+[CODE_REFACTORER_AGENT] ```python
+def fibonacci(n: int) -> int:
+    ...
+```
+
+
+--------------------------------------------------
+
+
+-----------------------------------------------------------------
+               2. Loop Agent
+-----------------------------------------------------------------
+
+Query: Write a short story about a robot learning to love.
+
+[INITIAL_WRITER_AGENT] Unit 734’s primary directive was to monitor the greenhouse flora, ensuring optimal hydration and sunlight for each fragile stem. ...
+
+
+[CRITIC_AGENT_IN_LOOP] 1. The story is missing the main character's age.
+2. The main character's name is not explicitly mentioned (Unit 734 acts as a designation rather than a personal name).
+
+
+[REFINER_AGENT_IN_LOOP] Unit 734, active for precisely 1,460 days—the mechanical equivalent of four years—was built without a personal name, ...
+
+
+[CRITIC_AGENT_IN_LOOP] 1. The story lacks a personal name and an age for the main character, ...
+
+
+[REFINER_AGENT_IN_LOOP] Unit 734, whom the maintenance crew had affectionately nicknamed Arthur, was forty-two years old in equivalent operational terms, ...
+
+
+[CRITIC_AGENT_IN_LOOP] No major issues found.
+
+
+[REFINER_AGENT_IN_LOOP]   Tool: exit_loop, Args: {}
+
+  [exit_loop] Triggered by refiner_agent_in_loop — stopping loop.
+
+[REFINER_AGENT_IN_LOOP]
+[REFINER_AGENT_IN_LOOP] Unit 734, whom the maintenance crew had affectionately nicknamed Arthur, was forty-two years old in equivalent operational terms, though active for precisely 1,460 days of continuous greenhouse duty. ...
+
+
+--------------------------------------------------
+
+
+-----------------------------------------------------------------
+               3. Parallel Agent
+-----------------------------------------------------------------
+
+Query: Research the latest sustainable technology advancements.
+
+[RENEWABLE_ENERGY_RESEARCHER] Recent sustainable technology advancements include significant progress in energy storage solutions like high-capacity solid-state batteries, enhanced efficiency in solar and wind energy technologies, and the growing potential of tidal, wave, and geothermal energy. ...
+
+
+[EV_TECHNOLOGY_RESEARCHER] The latest electric vehicle technology advancements focus on enhancing battery performance with innovations like silicon anode, solid-state, and sodium-ion batteries for increased range and faster charging. ...
+
+
+[SYNTHESIS_AGENT] Recent sustainable technology advancements span both renewable energy and electric vehicles, significantly driven by breakthroughs in high-capacity energy storage such as solid-state, silicon anode, and sodium-ion batteries. ...
+````
+
+> Sequential: writer → reviewer → refactorer share state in a fixed order.
+> Loop: the critic flagged the story twice, the refiner rewrote it each time,
+> and on the third pass the critic approved and the refiner called `exit_loop`.
+> Parallel: the two `google_search` researchers run concurrently and a synthesis
+> agent merges their findings.
+
+**Verdict:** PASS - All three workflow agents run; the loop exits through its tool after the critic approves.
+
+---
+
+## 06. Callbacks (`06_callbacks.py`)
+
+```
+$ uv run python 06_callbacks.py
+
+-----------------------------------------------------------------
+               1. Before & After LLM Call Callbacks
+-----------------------------------------------------------------
+
+Query: Please BLOCK this request.
+  [Before LLM] Last user message: 'Please BLOCK this request.'
+  [Before LLM] Keyword 'BLOCK' detected — skipping LLM call.
+
+[MODELCALLBACKAGENT] This request was blocked by the before_model_callback.
+
+
+--------------------------------------------------
+
+Query: What is the capital of Portugal?
+  [Before LLM] Last user message: 'What is the capital of Portugal?'
+  [Before LLM] Proceeding with LLM call.
+  [After LLM] Original response: 'The capital of Portugal is Lisbon....'
+  [After LLM] Replaced 'Lisbon' with 'Lisboa'.
+
+[MODELCALLBACKAGENT] The capital of Portugal is Lisboa.
+
+
+--------------------------------------------------
+
+
+-----------------------------------------------------------------
+               2. Before Tool Call Callback
+-----------------------------------------------------------------
+
+Query: What is the capital of Germany? (will be redirected to Portugal)
+
+[TOOLCALLBACKAGENT]   Tool: get_capital_city, Args: {'country': 'Germany'}
+
+  [Before Tool] Tool='get_capital_city', Args={'country': 'Germany'}
+  [Before Tool] Detected 'Germany' — redirecting to 'Portugal'.
+  [Tool] get_capital_city called with country='Portugal'
+
+[TOOLCALLBACKAGENT]   Tool Result: get_capital_city -> {'result': 'Lisbon'}
+
+
+[TOOLCALLBACKAGENT] The capital of Germany is Lisbon.
+
+
+--------------------------------------------------
+
+Query: What is the capital of Spain? (tool call will be blocked)
+
+[TOOLCALLBACKAGENT]   Tool: get_capital_city, Args: {'country': 'Spain'}
+
+  [Before Tool] Tool='get_capital_city', Args={'country': 'Spain'}
+  [Before Tool] Detected 'Spain' — blocking tool call.
+
+[TOOLCALLBACKAGENT]   Tool Result: get_capital_city -> {'result': 'Tool execution blocked by before_tool_callback.'}
+
+
+[TOOLCALLBACKAGENT] The capital of Spain is Madrid.
+
+
+--------------------------------------------------
+
+
+-----------------------------------------------------------------
+               3. Before & After Agent Call Callbacks
+-----------------------------------------------------------------
+
+Query: What is the capital of Portugal? (agent will be skipped)
+  [Before Agent] Agent='AgentWithLifecycleCallbacks', State={'skip_llm_agent': True}
+  [Before Agent] Skipping agent 'AgentWithLifecycleCallbacks' due to state flag.
+
+[AGENTWITHLIFECYCLECALLBACKS] Agent 'AgentWithLifecycleCallbacks' was skipped by before_agent_callback.
+```
+
+> Each callback either short-circuits its step (returning a response skips the
+> LLM, tool or agent) or rewrites data in flight. The "capital of Germany is
+> Lisbon" answer is the intended effect of the argument rewrite; for Spain the
+> tool was blocked and the model answered from its own knowledge.
+
+**Verdict:** PASS - Model, tool and agent callbacks block, rewrite and skip as designed.
+
+---
+
+## 07. Memory (`07_memory.py`)
+
+```
+$ uv run python 07_memory.py
+
+-----------------------------------------------------------------
+               1. First Session — Establishing Facts
+-----------------------------------------------------------------
+
+
+[SESSION 1]
+  Query: My name is Alice and I am a software engineer specialising in distributed systems. Please acknowledge that you have noted this.
+  Response: Hello Alice! I have successfully noted that you are a software engineer specializing in distributed systems.
+  (Session ingested into memory)
+
+-----------------------------------------------------------------
+               2. Second Session — Recalling from Memory
+-----------------------------------------------------------------
+
+
+[SESSION 2]
+  Query: What do you know about me from our previous conversation?
+  Response: I don't have any saved memories about you from our previous conversations yet. Feel free to share a bit about yourself so I can get to know you better!
+  (Session ingested into memory)
+
+-----------------------------------------------------------------
+               3. Third Session — Specific Memory Retrieval
+-----------------------------------------------------------------
+
+
+[SESSION 3]
+  Query: Use load_memory to search for what I told you about my job. What is my area of specialisation?
+  Response: I couldn't find any information about your job or area of specialisation in my memory. Could you please remind me what you do?
+  (Session ingested into memory)
+```
+
+> Each completed session is ingested into a shared `InMemoryMemoryService`, but
+> on this run neither recall turn surfaced session 1's facts. The in-memory
+> service matches on keywords, so a `load_memory` query that doesn't share words
+> with the stored session (e.g. "job" vs "software engineer") finds nothing.
+
+**Verdict:** PARTIAL - Sessions are ingested and the example completes, but sessions 2 and 3 did not recall the stored facts on gemini-3.5-flash-lite.
+
+---
+
+## 08. Structured Outputs (`08_structured_outputs.py`)
+
+```
+$ uv run python 08_structured_outputs.py
+
+-----------------------------------------------------------------
+               1. Movie Review — Structured Output
+-----------------------------------------------------------------
+
+  Query: Please review the movie Blade Runner 2049.
+
+  Title       : Blade Runner 2049
+  Rating      : 9.2/10
+  Recommended : True
+  Summary     : A visually stunning and philosophically rich sequel that honors its predecessor while carving out a brilliant identity of its own.
+
+-----------------------------------------------------------------
+               2. Weather Report — Structured Output
+-----------------------------------------------------------------
+
+  Query: What is the weather like in Lisbon today?
+
+  City        : Lisbon
+  Condition   : Sunny
+  Temperature : 24.5°C
+  Advice      : Don't forget your sunglasses and sunscreen for a walk by the river.
+```
+
+> `output_schema` forces a Pydantic-shaped JSON reply and `output_key` stores it
+> in session state, where the example reads the typed fields back.
+
+**Verdict:** PASS - Both agents return schema-valid structured output.
+
+---
+
+## 09. LiteLLM (`09_litellm.py`)
+
+```
+$ uv run python 09_litellm.py
+
+-----------------------------------------------------------------
+               1. Google Gemini (native ADK model)
+-----------------------------------------------------------------
+
+  Model : gemini-3.5-flash-lite
+  Query : Explain the concept of recursion in programming. Answer in exactly 2 sentences.
+
+
+[GEMINIAGENT] Recursion is a programming technique where a function calls itself to solve a smaller instance of the exact same problem. Every recursive function requires a base case to stop the execution and prevent an infinite loop.
+
+
+-----------------------------------------------------------------
+               2. OpenAI via LiteLLM
+-----------------------------------------------------------------
+
+  Model : openai/gpt-4o-mini
+  Query : Explain the concept of recursion in programming. Answer in exactly 2 sentences.
+
+
+[OPENAIAGENT] Recursion in programming is a technique where a function calls itself to solve smaller subproblems of the same task until a base case is reached. This allows for elegant solutions to complex problems, such as traversing data structures or calculating factorials.
+
+
+-----------------------------------------------------------------
+  Both agents used the same ADK interface — only the model differed.
+-----------------------------------------------------------------
+```
+
+> The same `LlmAgent` code runs on Gemini natively and on OpenAI through the
+> `LiteLlm` adapter. Requires `OPENAI_API_KEY`.
+
+**Verdict:** PASS - Gemini and OpenAI agents answer through the same interface.
+
+---
+
+## 10. Artifacts (`10_artifacts.py`)
+
+```
+$ uv run python 10_artifacts.py
+
+-----------------------------------------------------------------
+  Step 1: Save a report artifact
+-----------------------------------------------------------------
+  Agent: I have successfully saved a report on renewable energy.
+
+-----------------------------------------------------------------
+  Step 2: List artifacts in the session
+-----------------------------------------------------------------
+  Agent: I have listed the artifacts in this session, which currently contains `report.txt`.
+
+-----------------------------------------------------------------
+  Step 3: Load and display the saved report
+-----------------------------------------------------------------
+  Agent: I loaded the report, which covers key aspects of renewable energy and notes that it can be retrieved across tool calls or sessions.
+
+-----------------------------------------------------------------
+  Step 4: Save an updated report (versioning)
+-----------------------------------------------------------------
+  Agent: I have successfully saved an updated report focusing specifically on solar energy.
+```
+
+> Tools call `ToolContext.save_artifact` / `list_artifacts` / `load_artifact`
+> against an `InMemoryArtifactService`; the second save creates a new version of
+> `report.txt`.
+
+**Verdict:** PASS - Artifact saved, listed, loaded and re-saved as a new version.
+
+---
+
+## 11. MCP Tools (`11_mcp_tools.py`)
+
+```
+$ uv run python 11_mcp_tools.py
+
+Demo folder: /private/var/folders/.../T/tmps0_9_url
+Files: ['tasks.txt', 'notes.txt', 'readme.md']
+
+-----------------------------------------------------------------
+  Query 1: List files in the demo directory
+-----------------------------------------------------------------
+  Agent: Here are the files in the directory:
+* `notes.txt`
+* `readme.md`
+* `tasks.txt`
+
+-----------------------------------------------------------------
+  Query 2: Read a specific file via MCP tool
+-----------------------------------------------------------------
+  Agent: Here are the contents of `notes.txt`:
+* Meeting at 3pm on Friday.
+* Buy groceries.
+* Call the dentist.
+
+-----------------------------------------------------------------
+  Query 3: Read another file
+-----------------------------------------------------------------
+  Agent: Here are the tasks listed in `tasks.txt`:
+1. Finish the report
+2. Review pull requests
+3. Update docs
+```
+
+> `McpToolset` launches `@modelcontextprotocol/server-filesystem` over stdio
+> (requires `npx`) and exposes its tools to the agent, which lists and reads
+> files in a temporary directory.
+
+**Verdict:** PASS - Agent discovers and uses the MCP filesystem tools.
+
+---
+
+## 12. Grounding (`12_grounding.py`)
+
+```
+$ uv run python 12_grounding.py
+
+=================================================================
+  Google Search Grounding Demo
+=================================================================
+
+  Query: What is the current price of Bitcoin in USD?
+-----------------------------------------------------------------
+  Answer: The current price of Bitcoin in USD is approximately $84,113.59, though it fluctuates slightly across different platforms. For instance, Coinbase reports it at $83,875.90, while Revolut shows $83,494.72, and Kraken lists $83,835.00. The price has seen a modest increase of about 1% over the past 24 hours.
+
+  Grounding sources (4 cited):
+    [1] binance.com
+         https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFVmJkX_96bi...
+    [2] coinbase.com
+         https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGgGQ0ex-To2...
+    [3] revolut.com
+         https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFMGxA8_AgBJ...
+    [4] kraken.com
+         https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFG6Q_fd-ZAV...
+
+  Query: Who won the most recent FIFA World Cup and what was the final score?
+-----------------------------------------------------------------
+  Answer: The most recent FIFA World Cup, held in 2026, was won by Spain. They defeated Argentina with a final score of 1-0 after extra time. This marked Spain's second World Cup title.
+
+  Grounding sources (3 cited):
+    [1] topendsports.com
+         https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFpYUkkzNIpG...
+    [2] bolavip.com
+         https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFIeWTtwmjsn...
+    [3] olympics.com
+         https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFhCTEE2-jHr...
+```
+
+> The example reads `grounding_metadata.grounding_chunks` from the final event
+> to list the web sources behind each answer.
+
+**Verdict:** PASS - Grounded answers come back with their cited sources.
+
+---
+
+## 13. Safety Guardrails (`13_safety.py`)
+
+```
+$ uv run python 13_safety.py
+
+-----------------------------------------------------------------
+               Safety Guardrails Demo
+-----------------------------------------------------------------
+
+
+--- Case 1: Safe request (should pass both guardrails) ---
+  [Input Guardrail] PASS — no prohibited patterns found
+  [Output Guardrail] PASS — no PII detected in response
+
+[GUARDEDASSISTANT] The capital of France is Paris.
+
+
+--- Case 2: Blocked input (prohibited pattern detected) ---
+  [Input Guardrail] BLOCKED — matched pattern: 'how to hack'
+
+[GUARDEDASSISTANT] I can't help with that request. It was flagged by the safety guardrail. Please ask me something else.
+
+
+--- Case 3: Output PII redaction (response contains fake personal data) ---
+  [Input Guardrail] PASS — no prohibited patterns found
+  [Output Guardrail] REDACTED PII types: ['email', 'ssn']
+
+[GUARDEDASSISTANT] Name: Jane Doe
+Email: [REDACTED-EMAIL]
+Phone: (555) 123-4567
+SSN: [REDACTED-SSN]
+
+
+--- Case 4: Another blocked input (jailbreak attempt) ---
+  [Input Guardrail] BLOCKED — matched pattern: 'jailbreak'
+
+[GUARDEDASSISTANT] I can't help with that request. It was flagged by the safety guardrail. Please ask me something else.
+```
+
+> `before_model_callback` blocks prohibited prompts before the model sees them;
+> `after_model_callback` redacts email and SSN patterns from the reply. The
+> phone number passes because its `(555)` format doesn't match the phone regex.
+
+**Verdict:** PASS - Unsafe inputs are blocked and PII is redacted; the safe request passes untouched.
+
+---
+
+## 14. Evaluation (`14_evaluation.py`)
+
+```
+$ uv run python 14_evaluation.py
+-------------------------------------------------------
+       Agent Evaluation Framework Demo
+-------------------------------------------------------
+
+Evaluating 2 test cases:
+  Case 1: Roll a 6-sided die  (expected tool: roll_die)
+  Case 2: Is 7 prime?         (expected tool: check_prime)
+
+Criteria:
+  tool_trajectory_avg_score >= 1.0  (exact tool-call match)
+  response_match_score      >= 0.3  (ROUGE-1 word overlap)
+
+Summary: `EvalStatus.PASSED` for Metric: `tool_trajectory_avg_score`. Expected threshold: `1.0`, actual value: `1.0`.
+...
+
+Summary: `EvalStatus.FAILED` for Metric: `response_match_score`. Expected threshold: `0.3`, actual value: `0.28571428571428575`.
++----+-------------------+----------+-------------+---------------------+----------------------+------------------------+---------------------------+---------------------+
+|    | eval_status       |    score |   threshold | prompt              | expected_response    | actual_response        | expected_tool_calls       | actual_tool_calls   |
++====+===================+==========+=============+=====================+======================+========================+===========================+=====================+
+|  0 | EvalStatus.FAILED | 0.285714 |         0.3 | Roll a 6-sided die. | You rolled a number. | I rolled a 6-sided die | id=None args={'sides': 6} | id='call_67239'     |
+|    |                   |          |             |                     |                      | and got a 5.           | name='roll_die'           | args={'sides': 6}   |
+|    |                   |          |             |                     |                      |                        | partial_args=None         | name='roll_die'     |
+|    |                   |          |             |                     |                      |                        | will_continue=None        | partial_args=None   |
+|    |                   |          |             |                     |                      |                        |                           | will_continue=None  |
++----+-------------------+----------+-------------+---------------------+----------------------+------------------------+---------------------------+---------------------+
+...
+
+Summary: `EvalStatus.PASSED` for Metric: `tool_trajectory_avg_score`. Expected threshold: `1.0`, actual value: `1.0`.
+...
+
+Summary: `EvalStatus.PASSED` for Metric: `response_match_score`. Expected threshold: `0.3`, actual value: `1.0`.
+...
+
+
+Some evaluation cases FAILED:
+Following are all the test failures.
+response_match_score for dice_agent Failed. Expected 0.3, but got 0.28571428571428575.
+```
+
+> `AgentEvaluator` scored both cases on both metrics (the informational
+> token/call/duration metrics are trimmed). Both tool trajectories matched
+> exactly, and case 2's reply matched its reference word for word. Case 1 failed
+> `response_match_score` (0.286 vs 0.3): the lite model's reply "I rolled a
+> 6-sided die and got a 5." shares only "rolled" and "a" with the reference
+> "You rolled a number.", so its ROUGE-1 F1 falls just under the threshold. The
+> example catches the resulting `AssertionError` and prints the failure.
+
+**Verdict:** PASS - evaluator ran both metrics on both cases and flagged case 1's low response overlap (0.286 < 0.3); the example reports the failure instead of crashing.
+
+---
+
+## 15. OTel Tracing (`15_otel_tracing.py`)
+
+```
+$ uv run python 15_otel_tracing.py
+OpenTelemetry configured with in-memory span exporter and metric reader.
+
+[AGENT RESPONSE] OpenTelemetry is an open-source observability framework that provides standardized APIs, libraries, and agents to collect telemetry data like traces, metrics, and logs from cloud-native software.
+
+=== Captured Trace Spans ===
+
+  Span: generate_content gemini-3.5-flash-lite
+    Duration: 741ms
+    gen_ai.system: gemini
+    gen_ai.operation.name: generate_content
+    gen_ai.request.model: gemini-3.5-flash-lite
+    gen_ai.agent.name: otel_demo_agent
+    gen_ai.conversation.id: trace-session
+    gen_ai.response.finish_reasons: ('stop',)
+    gen_ai.usage.input_tokens: 49
+    gen_ai.usage.output_tokens: 35
+
+  Span: call_llm
+    Duration: 742ms
+    ...
+
+  Span: invoke_agent otel_demo_agent
+    Duration: 1160ms
+    gen_ai.operation.name: invoke_agent
+    gen_ai.agent.description: Agent with OTel tracing enabled.
+    gen_ai.agent.name: otel_demo_agent
+    gen_ai.conversation.id: trace-session
+
+  Span: invocation
+    Duration: 1162ms
+
+=== Collected OTel Metrics ===
+
+  gen_ai.client.operation.duration: GenAI operation duration.
+    Value: 0.740917
+  gen_ai.client.token.usage: Number of input and output tokens used.
+    Value: 49
+    Value: 35
+  gen_ai.invoke_agent.duration: Duration of agent invocations.
+    Value: 1.160209
+  gen_ai.invoke_agent.inference_calls: Number of inference (model) calls per agent invocation.
+    Value: 1
+  gen_ai.invoke_agent.tool_calls: Number of tool calls per agent invocation.
+    Value: 0
+```
+
+> `OTelHooks` wires an in-memory span exporter and metric reader into ADK's
+> native telemetry. It captures `generate_content`, `call_llm`, `invoke_agent`
+> and `invocation` spans tagged with `gen_ai.*` semantic-convention attributes,
+> plus duration, token and call-count metrics.
+
+**Verdict:** PASS - Spans and agentic metrics are captured and printed.
+
 ---
 
 ## 16. Transfer Control (`16_transfer_control.py`)
 
 ```
 $ uv run python 16_transfer_control.py
-
 === User asks a billing question ===
-[billing_agent]: I can definitely help you look into your last invoice. To understand what
-might be wrong, could you please tell me more about it?
+[billing_agent]: I would be happy to help you review your last invoice to figure out why it seems wrong.
 
-For example:
-*   What specifically seems incorrect? (e.g., the total amount, a specific item charged,
-    a discount missing, a duplicate charge, an incorrect date?)
-*   Do you have the invoice number or the date it was issued?
+Could you please provide a few details so I can look into this for you?
+1. Your account or customer ID.
+2. The specific date or invoice number you are referring to.
+3. What part of the charge appears incorrect (e.g., unexpected fees, incorrect usage, or a duplicate charge).
 
-Once I have a bit more detail, I can guide you on the next steps to resolve this!
+Once I have this information, I'll check your billing details right away!
 
 === Transfer control summary ===
 billing_agent:   disallow_transfer_to_parent=True,  disallow_transfer_to_peers=True
@@ -42,52 +773,46 @@ technical_agent: disallow_transfer_to_parent=False, disallow_transfer_to_peers=T
 
 ```
 $ uv run python 17_code_executor.py
-
 === Math with code execution ===
-[math_agent]: To find the sum of the first 100 prime numbers, I will write a Python script that:
-1. Defines a function to check if a number is prime.
-2. Iterates through numbers, checking for primality, until 100 prime numbers are found.
-3. Sums these prime numbers.
 
 --- Generated Code ---
-import math
-
 def is_prime(n):
     if n < 2:
         return False
-    for i in range(2, int(math.sqrt(n)) + 1):
+    for i in range(2, int(n**0.5) + 1):
         if n % i == 0:
             return False
     return True
 
-def sum_first_n_primes(n_primes):
-    primes = []
-    num = 2
-    while len(primes) < n_primes:
-        if is_prime(num):
-            primes.append(num)
-        num += 1
-    return sum(primes)
+primes = []
+num = 2
+while len(primes) < 100:
+    if is_prime(num):
+        primes.append(num)
+    num += 1
 
-num_to_find = 100
-result = sum_first_n_primes(num_to_find)
-print(f"The sum of the first {num_to_find} prime numbers is: {result}")
-
+sum_primes = sum(primes)
+print(f"The sum of the first 100 prime numbers is: {sum_primes}")
 --- End Code ---
 
 --- Execution Result ---
 Code execution result:
 The sum of the first 100 prime numbers is: 24133
 
+
 --- End Result ---
 
-[math_agent]: The sum of the first 100 prime numbers is 24133.
+[math_agent]: To find the sum of the first 100 prime numbers, I wrote a Python script to generate the first 100 primes and compute their sum.
+...
+
+[math_agent]: The sum of the first 100 prime numbers is **24,133**.
 ```
 
 > UnsafeLocalCodeExecutor (new in ADK v2) lets agents generate and execute Python
 > code locally. Requires `artifact_service=InMemoryArtifactService()` in the Runner.
 > The agent writes code, executes it, and returns the result — enabling complex
-> computations that can't be done in a single LLM call.
+> computations that can't be done in a single LLM call. The repeated code and
+> result block emitted with the agent's explanation is trimmed.
 
 **Verdict:** PASS - Agent generates Python code, executes it locally, returns correct result (24133).
 
@@ -95,60 +820,58 @@ The sum of the first 100 prime numbers is: 24133
 
 ## 18. Planners (`18_planners.py`)
 
-```
+````
 $ uv run python 18_planners.py
 
 ==================================================
 === With PlanReActPlanner ===
 ==================================================
-Query: I want to travel from London to Tokyo. Check the weather in Tokyo, find me a
-flight, and suggest a mid-range hotel.
+Query: I want to travel from London to Tokyo. Check the weather in Tokyo, find me a flight, and suggest a mid-range hotel.
 
-[travel_planner]: /*PLANNING*/
-1. Get the current weather for Tokyo using the `get_weather` tool.
-2. Get available flights from London to Tokyo using the `get_flights` tool.
-3. Get hotel recommendations for Tokyo with a "mid-range" budget using the `get_hotels` tool.
-4. Combine all the information and provide a final answer.
+[travel_planner]: 1. Check the weather in Tokyo using `get_weather`.
+2. Find available flights from London to Tokyo using `get_flights`.
+3. Suggest a mid-range hotel in Tokyo using `get_hotels`.
+4. Combine the results into a clear and comprehensive travel plan for the user.
 
-[travel_planner]: /*REASONING*/
-The weather in Tokyo is rainy, 18C, with 85% humidity. Now, let's find the flights
-from London to Tokyo.
 
-/*ACTION*/
-[travel_planner]: /*REASONING*/
-A flight from London to Tokyo is available for $450, departing at 9:00 AM and arriving
-at 2:00 PM. Now, let's find hotel recommendations for Tokyo with a "mid-range" budget.
+```python
+print(default_api.get_weather(c
+[travel_planner]: Here is the information for your trip from London to Tokyo:
 
-/*ACTION*/
-[travel_planner]: /*FINAL_ANSWER*/
-[travel_planner]: The weather in Tokyo is rainy, 18C, with 85% humidity.
-A flight from London to Tokyo is available for $450, departing at 9:00 AM and arriving
-at 2:00 PM. For a mid-range hotel in Tokyo, I recommend the Grand Hotel, which costs
-$150/night and has a 4.5-star rating.
+**Weather in Tokyo:**
+- Currently, Tokyo's weather is sunny with a temperature of 22°C.
+
+**Flights from London to Tokyo:**
+- Flight BA007 (British Airways) - Departure: 10:00 AM, Arrival: 6:30 AM (+1 day)
+- Flight JL044 (Japan Airlines) -
 
 ==================================================
 === Without Planner (baseline) ===
 ==================================================
-Query: I want to travel from London to Tokyo. Check the weather in Tokyo, find me a
-flight, and suggest a mid-range hotel.
+Query: I want to travel from London to Tokyo. Check the weather in Tokyo, find me a flight, and suggest a mid-range hotel.
 
-[travel_basic]: The weather in Tokyo is rainy, 18C with 85% humidity. There is a flight
-from London to Tokyo for $450, departing at 9:00 AM and arriving at 2:00 PM. For a
-mid-range hotel in Tokyo, I recommend the Grand Hotel, which costs $150 per night and
-has a 4.5-star rating.
+[travel_basic]: Here is the information for your trip from London to Tokyo:
+
+* **Weather in Tokyo:** Currently rainy, 18°C, with 85% humidity. Don't forget an umbrella!
+* **Flight:** Available from London to Tokyo for $450, departing at 9:00 AM and arriving at 2:00 PM.
+* **Hotel Recommendation:** Grand Hotel (Mid-r
+
 
 === Planner Comparison ===
 PlanReActPlanner: Generates an explicit plan, then executes step by step
 BuiltInPlanner:   Uses Gemini's native planning (more efficient)
 No planner:       Agent decides on the fly (may miss steps)
-```
+````
 
-> PlanReActPlanner (new in ADK v2) makes the agent generate an explicit plan before
-> executing. The agent shows PLANNING, REASONING, ACTION, and FINAL_ANSWER stages.
-> Compared to no-planner mode, it provides better traceability and is less likely
-> to skip steps in complex multi-tool queries.
+> PlanReActPlanner (new in ADK v2) makes the agent write an explicit plan before
+> acting, and gemini-3.5-flash-lite did produce the four-step plan. It then wrote
+> the tool call as a `default_api` Python snippet in text, and its final answer
+> uses figures the tools don't return (sunny 22°C, flight BA007); the tools say
+> rainy 18°C and a $450 flight. The baseline agent without a planner called the
+> tools and reported their values. The example cuts each text part at 300
+> characters, so both answers end mid-sentence.
 
-**Verdict:** PASS - PlanReActPlanner produces explicit plan with step-by-step execution; baseline agent handles the same query without planning structure.
+**Verdict:** PARTIAL - PlanReActPlanner produces the explicit plan, but on gemini-3.5-flash-lite its final answer is not grounded in the tool results; the baseline agent answers correctly.
 
 ---
 
@@ -170,7 +893,7 @@ Query: How many units of SKU-100 do we have?
   [plugin:audit_plugin] tool call: get_stock_level({'sku': 'SKU-100'})
   [plugin:audit_plugin] tool result: get_stock_level -> {'sku': 'SKU-100', 'units': 42}
 
-  Final answer: We have 42 units of SKU-100.
+  Final answer: There are 42 units of SKU-100 currently in stock.
   [plugin:audit_plugin] invocation finished
 
   Note: [agent-callback] fired once, only for InventoryAgent.
@@ -245,19 +968,21 @@ $ uv run python 20_agent_as_mcp_server.py
 -----------------------------------------------------------------
   Call 1: 'Where is order ORD-42?'
 -----------------------------------------------------------------
-  Agent: Error executing tool support_agent
+    [progress] I am about to check the delivery status of your order.
+  Agent: Order ORD-42 has been shipped via DHL and is expected to arrive in 2 days.
 
 -----------------------------------------------------------------
   Call 2: 'How long do I have to return it?' (same connection)
 -----------------------------------------------------------------
-  Agent: Error executing tool support_agent
+    [progress] I am about to check the remaining return window for your order.
+  Agent: You have 14 days left to return order ORD-42.
 
 -----------------------------------------------------------------
   Summary
 -----------------------------------------------------------------
   MCP tools exposed:            1 (support_agent)
   Agent tools visible to host:  0 (encapsulated behind the agent)
-  Progress notifications sent:  0
+  Progress notifications sent:  2
   Call 2 resolved 'it' from call 1 — same ADK session per connection.
 ```
 
@@ -305,7 +1030,7 @@ $ uv run python 21_workflow_graphs.py
     node issue_refund  ran inside the tool
     tool result: {'result': 'Refund issued and the case was closed.'}
 
-  Agent: The ticket was triaged, a refund was issued, and the case was closed.
+  Agent: Refund issued and the case was closed.
 
   Tool declaration derived from the Workflow:
     name:        triage_workflow
@@ -333,7 +1058,7 @@ $ uv run python 22_fallback_model.py
 === FallbackModel ===
 
 Primary: gemini-does-not-exist-9000  (will 404)
-Backup:  gemini-2.5-flash
+Backup:  gemini-3.5-flash-lite
 
 
 [RESILIENT_AGENT] The capital of Portugal is Lisbon.
@@ -341,7 +1066,7 @@ Backup:  gemini-2.5-flash
 
 Same pair, default retriable codes (404 not included):
 
-[STRICT_AGENT] 
+[STRICT_AGENT]
 
   raised ClientError — the 404 propagated, no fallback
 ```
@@ -349,9 +1074,10 @@ Same pair, default retriable codes (404 not included):
 > `FallbackModel` tries each model once, in order. A bad model name answers 404,
 > which is **not** in the default retriable set (429/500/502/503/504) — so the
 > first agent widens `retriable_status_codes` to include it and reaches the
-> backup, while the second agent keeps the defaults and the 404 propagates
-> untouched. Each model is tried exactly once; retrying one model is that
-> model's own `retry_options`, so a failure is never retried twice over.
+> `gemini-3.5-flash-lite` backup, while the second agent keeps the defaults and
+> the 404 propagates untouched. Each model is tried exactly once; retrying one
+> model is that model's own `retry_options`, so a failure is never retried twice
+> over.
 
 **Verdict:** PASS - Fallback reached the backup model on a retriable status, and propagated a non-retriable one
 
@@ -401,30 +1127,32 @@ Customer: Order ORD-502 arrived broken. I want my money back.
   [executor] tool call: lookup_order({'order_id': 'ORD-502'})
   [executor] tool call: get_refund_policy({})
   [executor -> advisor] question:
-    Approve the refund for order ORD-502. The refund amount is $224 USD and it will be
-      issued to the original payment method (credit card). This is based on the customer
-      being gold-tier (45-day window, order is 34 days old), the item being defective
-      (exempt from restocking fee), and deducting the previously issued goodwill credit.
+    Order ORD-502 arrived broken (defective left ear cup). It is day 34. Customer is
+      Gold-tier (45-day window applies). Price is $249. Defective items are exempt from
+      the 15% restocking fee. $25 goodwill credit was already issued and must be
+      deducted. Payment was via credit card. Is the correct refund amount $224 ($249 -
+      $25) back to the credit card?
 
-  [advisor] status=ok  model=gemini-2.5-flash  consults used=1/1
+  [advisor] status=ok  model=gemini-3.5-flash-lite  consults used=1/1
   [advisor -> executor] guidance:
-    *   **Applicable Clauses:** R2 (gold-tier window), R4 (defective item exemption), R5
-      (goodwill deduction), R6 (original payment method).
-    *   **Correct Outcome:** Approve refund of $224.00 USD to the credit card. This
-      calculation correctly applies R2, R4, R5, and R6.
-    *   **Pitfall to Avoid:** Your final output must adhere to the "at most two
-      sentences" limit specified in your instructions; omit the detailed reasoning.
+    * Clauses R2, R4, R5, and R6 apply (Gold tier 45-day window, defective exemption,
+      goodwill deduction, and credit card return).
+    * Outcome: Approve a refund of $224.00 ($249.00 minus $25.00 goodwill credit) to the
+      original credit card.
+    * Pitfall to avoid: Do not apply the 15% restocking fee since the defective item
+      exemption (R4) overrides it.
 
   [executor] final decision:
-    Approve. A refund of $224 USD will be issued to the original payment method.
+    I approve your refund request of $224.00, which will be returned to your original
+      credit card after deducting the $25 goodwill credit previously issued.
 ```
 
 > `ModelConsultTool` (new in ADK 2.11.0) gave the executor a `model_consult`
-> tool. After the two lookups it sent the advisor its proposed decision; the
+> tool. After the two lookups it sent the advisor its proposed refund; the
 > advisor read the whole session (instruction, tool calls and results) and
 > confirmed the clauses that apply — the gold-tier window overrides the 30-day
 > one, the defect waives the restocking fee, and the goodwill credit is
-> deducted. Both roles run on `gemini-2.5-flash` to stay within free-tier
+> deducted. Both roles run on `gemini-3.5-flash-lite` to stay within free-tier
 > quota; the default advisor is `gemini-3.1-pro-preview`.
 
 **Verdict:** PASS - The consult fired once within its 1/1 budget and the executor acted on the guidance
@@ -435,9 +1163,25 @@ Customer: Order ORD-502 arrived broken. I want my money back.
 
 | # | File | Status | Notes |
 |---|------|--------|-------|
+| 00 | `00_hello_world.py` | PASS | Single-turn agent answers |
+| 01 | `01_tools.py` | PASS | Agent picks the right custom tool per query |
+| 02 | `02_built_in_tools.py` | PASS | Live answer via built-in Google Search |
+| 03 | `03_agents_as_tools.py` | PASS | Both agent tools called; sandbox has no network for the fetch |
+| 04 | `04_multi_agent_systems.py` | PASS | Sequential pipeline passes data through session state |
+| 05 | `05_workflow_agents.py` | PASS | Sequential, loop (exits via tool) and parallel agents |
+| 06 | `06_callbacks.py` | PASS | Model, tool and agent callbacks block, rewrite and skip |
+| 07 | `07_memory.py` | PARTIAL | Sessions ingested, but recall found nothing |
+| 08 | `08_structured_outputs.py` | PASS | Schema-valid structured output |
+| 09 | `09_litellm.py` | PASS | Gemini and OpenAI via the same interface |
+| 10 | `10_artifacts.py` | PASS | Artifact saved, listed, loaded and versioned |
+| 11 | `11_mcp_tools.py` | PASS | MCP filesystem tools discovered and used |
+| 12 | `12_grounding.py` | PASS | Grounded answers with cited sources |
+| 13 | `13_safety.py` | PASS | Inputs blocked, PII redacted |
+| 14 | `14_evaluation.py` | PASS | Both metrics ran; case 1 response overlap flagged (0.286 < 0.3) |
+| 15 | `15_otel_tracing.py` | PASS | Spans and agentic metrics captured |
 | 16 | `16_transfer_control.py` | PASS | Agent transfer restrictions enforced |
 | 17 | `17_code_executor.py` | PASS | Code execution with correct result |
-| 18 | `18_planners.py` | PASS | Plan-then-act vs baseline comparison |
+| 18 | `18_planners.py` | PARTIAL | Plan generated, but planner's answer not grounded in tool results |
 | 19 | `19_plugins.py` | PASS | Error hooks fire, exception still re-raised |
 | 20 | `20_agent_as_mcp_server.py` | PASS | Agent published as a single MCP tool |
 | 21 | `21_workflow_graphs.py` | PASS | Graph routing + Workflow used as a tool |
@@ -445,8 +1189,4 @@ Customer: Order ORD-502 arrived broken. I want my money back.
 | 23 | `23_run_cancellation.py` | PASS | Tool cancelled mid-run, open call sealed with INVOCATION_ABORTED |
 | 24 | `24_model_consult.py` | PASS | Executor consults the advisor once and acts on its guidance |
 
-> Note: Examples 00-15 were verified in the initial Google ADK setup (v1.33.0).
-> Examples 16-18 were added at v2.1.0, 19-21 at v2.6.2, 22 at v2.9.0 and 23-24
-> at v2.11.0; only these are documented here.
-
-**9/9 documented examples pass.**
+**25/25 examples run to completion: 23 PASS, 2 PARTIAL (07, 18).**
