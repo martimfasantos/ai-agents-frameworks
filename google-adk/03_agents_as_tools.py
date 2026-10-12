@@ -31,7 +31,7 @@ https://google.github.io/adk-docs/tools-custom/function-tools/#agent-tool
 # --- 1. Create specialist agents that will be used as tools ---
 search_agent = LlmAgent(
     name="search_agent",
-    model=settings.GOOGLE_MODEL_NAME,
+    model=settings.GOOGLE_SEARCH_MODEL_NAME,  # google_search needs a search-enabled model
     instruction="You are a Google Search specialist. Find accurate, up-to-date information.",
     tools=[google_search],
 )
