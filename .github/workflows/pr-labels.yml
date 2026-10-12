@@ -1,9 +1,7 @@
 name: pr-labels
 
-# Labels every PR by review size (size:XXS..size:XL) and by the framework folders
-# it touches (framework:<folder>). pull_request_target gives the token write access
-# on fork PRs too; it runs the base branch's script and only reads the PR's file
-# list through the API, so no code from the PR is executed.
+# pull_request_target so fork PRs get a write token; safe because it runs the base
+# branch's script and only reads the PR's file list, never the PR's code.
 
 on:
   pull_request_target:
@@ -20,7 +18,6 @@ concurrency:
 
 jobs:
   label:
-    # "edited" also fires on title/body edits; only a base change alters the diff
     if: github.event.action != 'edited' || github.event.changes.base
     runs-on: ubuntu-latest
     steps:
