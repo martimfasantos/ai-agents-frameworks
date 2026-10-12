@@ -7,7 +7,8 @@
 > Captured on google-adk 2.11.0 with `GOOGLE_MODEL_NAME=gemini-3.5-flash-lite`;
 > the `google_search` agents in 02, 03, 05 and 12 run on
 > `GOOGLE_SEARCH_MODEL_NAME=gemini-2.5-flash` because free-tier keys only allow
-> search grounding there.
+> search grounding there, and the PlanReActPlanner agent in 18 runs on
+> `GOOGLE_PLANNER_MODEL_NAME=gemini-3.5-flash`.
 
 ---
 
@@ -353,7 +354,8 @@ $ uv run python 07_memory.py
 
 [SESSION 1]
   Query: My name is Alice and I am a software engineer specialising in distributed systems. Please acknowledge that you have noted this.
-  Response: Hello Alice! I have successfully noted that you are a software engineer specializing in distributed systems.
+  load_memory query: 'Alice software engineer distributed systems'
+  Response: I have noted that your name is Alice and that you are a software engineer specializing in distributed systems.
   (Session ingested into memory)
 
 -----------------------------------------------------------------
@@ -363,7 +365,9 @@ $ uv run python 07_memory.py
 
 [SESSION 2]
   Query: What do you know about me from our previous conversation?
-  Response: I don't have any saved memories about you from our previous conversations yet. Feel free to share a bit about yourself so I can get to know you better!
+  load_memory query: 'user'
+  load_memory query: 'name about me'
+  Response: I know that your name is Alice and that you work as a software engineer specializing in distributed systems.
   (Session ingested into memory)
 
 -----------------------------------------------------------------
@@ -373,16 +377,19 @@ $ uv run python 07_memory.py
 
 [SESSION 3]
   Query: Use load_memory to search for what I told you about my job. What is my area of specialisation?
-  Response: I couldn't find any information about your job or area of specialisation in my memory. Could you please remind me what you do?
+  load_memory query: 'my job area of specialisation'
+  Response: Based on what you shared previously, your area of specialisation is distributed systems.
   (Session ingested into memory)
 ```
 
-> Each completed session is ingested into a shared `InMemoryMemoryService`, but
-> on this run neither recall turn surfaced session 1's facts. The in-memory
-> service matches on keywords, so a `load_memory` query that doesn't share words
-> with the stored session (e.g. "job" vs "software engineer") finds nothing.
+> Each completed session is ingested into a shared `InMemoryMemoryService`, and
+> sessions 2 and 3 recall session 1's facts through `load_memory`. The printed
+> queries show the service's keyword matching: session 2's first query `'user'`
+> shares no word with the stored session and finds nothing, so the agent retries
+> with `'name about me'` and recalls Alice. The instruction tells the agent to
+> query with plain words the user would have said for this reason.
 
-**Verdict:** PARTIAL - Sessions are ingested and the example completes, but sessions 2 and 3 did not recall the stored facts on gemini-3.5-flash-lite.
+**Verdict:** PASS - Facts from session 1 are recalled in sessions 2 and 3 via keyword-matched `load_memory` queries.
 
 ---
 
@@ -820,7 +827,7 @@ The sum of the first 100 prime numbers is: 24133
 
 ## 18. Planners (`18_planners.py`)
 
-````
+```
 $ uv run python 18_planners.py
 
 ==================================================
@@ -828,50 +835,56 @@ $ uv run python 18_planners.py
 ==================================================
 Query: I want to travel from London to Tokyo. Check the weather in Tokyo, find me a flight, and suggest a mid-range hotel.
 
-[travel_planner]: 1. Check the weather in Tokyo using `get_weather`.
-2. Find available flights from London to Tokyo using `get_flights`.
-3. Suggest a mid-range hotel in Tokyo using `get_hotels`.
-4. Combine the results into a clear and comprehensive travel plan for the user.
+[travel_planner]: 1. Check the current weather in Tokyo.
+2. Find flights from London to Tokyo.
+3. Search for mid-range hotel options in Tokyo.
+4. Provide a summarized response containing weather information, flight options, and hotel recommendations.
 
 
-```python
-print(default_api.get_weather(c
-[travel_planner]: Here is the information for your trip from London to Tokyo:
+default_api.get_weather(city='Tokyo')
+default_api.get_flights(des
+[travel_planner] tool call: get_weather({'city': 'Tokyo'})
+[travel_planner] tool call: get_flights({'destination': 'Tokyo', 'origin': 'London'})
+[travel_planner] tool call: get_hotels({'city': 'Tokyo', 'budget': 'mid-range'})
+[travel_planner]: I have gathered the weather, flight, and hotel information for your trip from London to Tokyo:
 
-**Weather in Tokyo:**
-- Currently, Tokyo's weather is sunny with a temperature of 22°C.
-
-**Flights from London to Tokyo:**
-- Flight BA007 (British Airways) - Departure: 10:00 AM, Arrival: 6:30 AM (+1 day)
-- Flight JL044 (Japan Airlines) -
+1. **Weather in Tokyo**: Rainy, 18°C, 85% humidity.
+2. **Flight**: Flight from London to Tokyo for $450 (Departs at 9:00 AM, Arrives at 2:00 PM).
+3. **Hotel Recommendation**: Grand Hotel (Mid-range budget
 
 ==================================================
 === Without Planner (baseline) ===
 ==================================================
 Query: I want to travel from London to Tokyo. Check the weather in Tokyo, find me a flight, and suggest a mid-range hotel.
 
+[travel_basic] tool call: get_weather({'city': 'Tokyo'})
+[travel_basic] tool call: get_flights({'destination': 'Tokyo', 'origin': 'London'})
+[travel_basic] tool call: get_hotels({'budget': 'mid-range', 'city': 'Tokyo'})
 [travel_basic]: Here is the information for your trip from London to Tokyo:
 
-* **Weather in Tokyo:** Currently rainy, 18°C, with 85% humidity. Don't forget an umbrella!
-* **Flight:** Available from London to Tokyo for $450, departing at 9:00 AM and arriving at 2:00 PM.
-* **Hotel Recommendation:** Grand Hotel (Mid-r
+*   **Weather in Tokyo:** Currently rainy, 18°C, with 85% humidity. Don't forget an umbrella!
+*   **Flight:** A flight is available from London to Tokyo for $450, departing at 9:00 AM and arriving at 2:00 PM.
+*   **Hotel Recommendation:**
 
 
 === Planner Comparison ===
 PlanReActPlanner: Generates an explicit plan, then executes step by step
 BuiltInPlanner:   Uses Gemini's native planning (more efficient)
 No planner:       Agent decides on the fly (may miss steps)
-````
+```
 
 > PlanReActPlanner (new in ADK v2) makes the agent write an explicit plan before
-> acting, and gemini-3.5-flash-lite did produce the four-step plan. It then wrote
-> the tool call as a `default_api` Python snippet in text, and its final answer
-> uses figures the tools don't return (sunny 22°C, flight BA007); the tools say
-> rainy 18°C and a $450 flight. The baseline agent without a planner called the
-> tools and reported their values. The example cuts each text part at 300
-> characters, so both answers end mid-sentence.
+> acting. The planner agent runs on `GOOGLE_PLANNER_MODEL_NAME`
+> (`gemini-3.5-flash`): gemini-3.5-flash-lite follows the planner's prompt for
+> "tool code snippets" literally, writing the actions as Python text and
+> inventing results. Here the plan and its `default_api` action text are followed
+> by the three real tool calls, and the answer uses the tool values (rainy 18°C,
+> $450 flight, Grand Hotel). The
+> baseline agent on `GOOGLE_MODEL_NAME` makes the same three calls without a
+> plan. The example cuts each text part at 300 characters, so both answers end
+> mid-sentence.
 
-**Verdict:** PARTIAL - PlanReActPlanner produces the explicit plan, but on gemini-3.5-flash-lite its final answer is not grounded in the tool results; the baseline agent answers correctly.
+**Verdict:** PASS - PlanReActPlanner produces an explicit plan, then makes the real tool calls and answers from their results; the baseline answers the same query without a plan.
 
 ---
 
@@ -1170,7 +1183,7 @@ Customer: Order ORD-502 arrived broken. I want my money back.
 | 04 | `04_multi_agent_systems.py` | PASS | Sequential pipeline passes data through session state |
 | 05 | `05_workflow_agents.py` | PASS | Sequential, loop (exits via tool) and parallel agents |
 | 06 | `06_callbacks.py` | PASS | Model, tool and agent callbacks block, rewrite and skip |
-| 07 | `07_memory.py` | PARTIAL | Sessions ingested, but recall found nothing |
+| 07 | `07_memory.py` | PASS | Facts recalled across sessions via keyword-matched queries |
 | 08 | `08_structured_outputs.py` | PASS | Schema-valid structured output |
 | 09 | `09_litellm.py` | PASS | Gemini and OpenAI via the same interface |
 | 10 | `10_artifacts.py` | PASS | Artifact saved, listed, loaded and versioned |
@@ -1181,7 +1194,7 @@ Customer: Order ORD-502 arrived broken. I want my money back.
 | 15 | `15_otel_tracing.py` | PASS | Spans and agentic metrics captured |
 | 16 | `16_transfer_control.py` | PASS | Agent transfer restrictions enforced |
 | 17 | `17_code_executor.py` | PASS | Code execution with correct result |
-| 18 | `18_planners.py` | PARTIAL | Plan generated, but planner's answer not grounded in tool results |
+| 18 | `18_planners.py` | PASS | Plan, then real tool calls; answer uses tool values |
 | 19 | `19_plugins.py` | PASS | Error hooks fire, exception still re-raised |
 | 20 | `20_agent_as_mcp_server.py` | PASS | Agent published as a single MCP tool |
 | 21 | `21_workflow_graphs.py` | PASS | Graph routing + Workflow used as a tool |
@@ -1189,4 +1202,4 @@ Customer: Order ORD-502 arrived broken. I want my money back.
 | 23 | `23_run_cancellation.py` | PASS | Tool cancelled mid-run, open call sealed with INVOCATION_ABORTED |
 | 24 | `24_model_consult.py` | PASS | Executor consults the advisor once and acts on its guidance |
 
-**25/25 examples run to completion: 23 PASS, 2 PARTIAL (07, 18).**
+**25/25 examples PASS.**

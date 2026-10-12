@@ -58,7 +58,7 @@ def get_hotels(city: str, budget: str) -> str:
 # --- 1. Agent with PlanReActPlanner ---
 planning_agent = Agent(
     name="travel_planner",
-    model=settings.GOOGLE_MODEL_NAME,
+    model=settings.GOOGLE_PLANNER_MODEL_NAME,  # lite models write PlanReAct actions as text
     instruction="""You are a travel planning assistant. Help users plan trips
     by checking weather, finding flights, and recommending hotels.
     Break complex requests into steps and execute them systematically.""",
@@ -107,7 +107,9 @@ async def run_agent(agent: Agent, query: str, label: str):
     ):
         if event.content and event.content.parts:
             for part in event.content.parts:
-                if hasattr(part, "text") and part.text and part.text.strip():
+                if part.function_call:
+                    print(f"[{event.author}] tool call: {part.function_call.name}({dict(part.function_call.args)})")
+                elif hasattr(part, "text") and part.text and part.text.strip():
                     print(f"[{event.author}]: {part.text.strip()[:300]}")
 
 

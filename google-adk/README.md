@@ -28,6 +28,7 @@ Edit `.env`:
 GOOGLE_API_KEY=your-google-api-key
 GOOGLE_MODEL_NAME=gemini-3.5-flash-lite
 GOOGLE_SEARCH_MODEL_NAME=gemini-2.5-flash
+GOOGLE_PLANNER_MODEL_NAME=gemini-3.5-flash
 
 # Required only for 09_litellm.py
 OPENAI_API_KEY=your-openai-api-key

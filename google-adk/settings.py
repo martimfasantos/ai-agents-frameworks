@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     GOOGLE_API_KEY: SecretStr
     GOOGLE_MODEL_NAME: str = "gemini-3.5-flash-lite"
     GOOGLE_SEARCH_MODEL_NAME: str = "gemini-2.5-flash"  # free-tier keys only allow google_search grounding on this model
+    GOOGLE_PLANNER_MODEL_NAME: str = "gemini-3.5-flash"  # PlanReActPlanner in 18 needs a non-lite model
     OPENAI_API_KEY: SecretStr = SecretStr("")  # used by 09_litellm.py
     OPENAI_MODEL_NAME: str = "openai/gpt-4o-mini"  # LiteLLM format: "<provider>/<model>"
     
