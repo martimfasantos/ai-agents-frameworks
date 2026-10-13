@@ -20,7 +20,7 @@ web UI, a Slack message, a ticket. Passing ask="stdio" prompts on the terminal
 instead, and passing an async callable lets you await your own approval service.
 
 For more details, visit:
-https://strandsagents.com/docs/user-guide/concepts/agents/interventions/human-in-the-loop/
+https://strandsagents.com/docs/user-guide/sdk/agents/interventions/human-in-the-loop/
 -------------------------------------------------------
 """
 

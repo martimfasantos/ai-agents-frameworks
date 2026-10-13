@@ -15,7 +15,7 @@ and type hints to generate the tool specification that the model sees,
 so the agent can decide when and how to invoke each tool.
 
 For more details, visit:
-https://strandsagents.com/docs/user-guide/concepts/tools/custom-tools/
+https://strandsagents.com/docs/user-guide/sdk/tools/custom-tools/
 -------------------------------------------------------
 """
 

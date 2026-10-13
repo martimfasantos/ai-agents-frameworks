@@ -19,7 +19,7 @@ intervention handler RETURNS a typed decision and the framework applies it —
 blocking the call, feeding guidance back to the model, or rewriting arguments.
 
 For more details, visit:
-https://strandsagents.com/docs/user-guide/concepts/agents/interventions/
+https://strandsagents.com/docs/user-guide/sdk/agents/interventions/
 -------------------------------------------------------
 """
 

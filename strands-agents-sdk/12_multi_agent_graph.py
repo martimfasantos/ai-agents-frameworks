@@ -18,7 +18,7 @@ based on previous agent output. This gives you explicit control over
 multi-agent pipelines.
 
 For more details, visit:
-https://strandsagents.com/docs/user-guide/concepts/multi-agent/graph/
+https://strandsagents.com/docs/user-guide/sdk/multi-agent/graph/
 -------------------------------------------------------
 """
 

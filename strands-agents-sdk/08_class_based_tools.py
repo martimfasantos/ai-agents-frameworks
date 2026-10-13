@@ -15,7 +15,7 @@ multiple tool calls. This is useful for tools that need to track data,
 manage connections, or accumulate results over the course of a conversation.
 
 For more details, visit:
-https://strandsagents.com/docs/user-guide/concepts/tools/custom-tools/#class-based-tools
+https://strandsagents.com/docs/user-guide/sdk/tools/custom-tools/#class-based-tools
 -------------------------------------------------------
 """
 

@@ -20,7 +20,7 @@ Strands provides FileSessionManager (local filesystem) and
 S3SessionManager (cloud) as built-in backends.
 
 For more details, visit:
-https://strandsagents.com/docs/user-guide/concepts/agents/session-management/
+https://strandsagents.com/docs/user-guide/sdk/agents/session-management/
 -------------------------------------------------------
 """
 

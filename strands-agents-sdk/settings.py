@@ -20,6 +20,7 @@ class Settings(BaseSettings):
     # OpenAI (alternative provider)
     OPENAI_API_KEY: Optional[pydantic.SecretStr] = None
     OPENAI_MODEL_NAME: str = "gpt-4o-mini"
+    OPENAI_STRONG_MODEL_NAME: str = "gpt-4.1"  # second model for examples that pick between two
 
     # Anthropic (alternative provider)
     ANTHROPIC_API_KEY: Optional[pydantic.SecretStr] = None

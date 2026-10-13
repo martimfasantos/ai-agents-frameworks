@@ -16,7 +16,7 @@ list. You can also use agent.as_tool() to customise the tool name,
 description, and context behaviour (e.g. preserve_context=True).
 
 For more details, visit:
-https://strandsagents.com/docs/user-guide/concepts/multi-agent/agents-as-tools/
+https://strandsagents.com/docs/user-guide/sdk/multi-agent/agents-as-tools/
 -------------------------------------------------------
 """
 
