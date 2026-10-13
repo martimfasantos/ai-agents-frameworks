@@ -1,6 +1,6 @@
 # Deep Agents Examples — Outputs
 
-Captured output from running all examples with `deepagents==0.7.13`, `langchain==1.4.0`, `langchain-openai==1.6.2`, `langchain-quickjs==0.3.7`, and `gpt-4o-mini`.
+Captured output from running all examples with `deepagents==0.7.23`, `langchain==1.4.4`, `langchain-openai==1.6.2`, `langchain-quickjs==0.3.8`, and `gpt-4o-mini`.
 
 LLM output is non-deterministic, so exact wording will vary between runs. The structure and demonstrated behavior stay the same.
 
@@ -451,4 +451,59 @@ EOM
 
 The grader never saw the INTERNAL note, and graded against a style
 guide that was never part of the conversation.
+```
+
+---
+
+## 23_skill_tools.py
+
+> **Feature:** Skill-scoped tools (new in 0.7.22). `lookup_order` is passed to a `SkillsMiddleware(tools=[...])` that replaces the default skills middleware, and the `order-support` skill lists it under `metadata.include_tools`. The tool is never registered on the agent's tool node, and a model callback shows it was not offered on the first model call — only after `read_file` on the `SKILL.md` does it appear, and the agent then calls it. Without the read, a call to `lookup_order` fails as an unknown tool.
+
+```
+=== Deep Agents Skill Tools ===
+Tools registered on the agent: ['delete', 'edit_file', 'execute', 'glob', 'grep', 'ls', 'read_file', 'task', 'write_file']
+lookup_order registered: False
+
+User: Where is my order A-1042?
+  [model call 1] lookup_order offered: False
+  [tool] read_file({'file_path': '/skills/order-support/SKILL.md', 'offset': 0, 'limit': 1000})
+  [model call 2] lookup_order offered: True
+  [tool] lookup_order({'order_id': 'A-1042'})
+  [model call 3] lookup_order offered: True
+
+Tool calls in order: read_file -> lookup_order
+Agent: Your order A-1042 was shipped on October 9 via DHL and is expected to arrive on October 13.
+```
+
+---
+
+## 24_pinned_skills.py
+
+> **Feature:** Pinned skills (new in 0.7.23). The app finds `/haiku-writer` in the message and passes `pinned_skills=["haiku-writer"]` in the run input; `SkillsMiddleware` appends the `SKILL.md` body as a `HumanMessage` tagged `additional_kwargs["lc_source"] == "pinned_skill"` before the model call, so the reply carries the skill's `(fin)` marker with no `read_file`. The unpinned run depends on the model choosing the skill: here it ignored it, but on some runs it reads `SKILL.md` itself and follows it. `pinned_skills` is cleared after use and is not returned in the output state.
+
+```
+=== Deep Agents Pinned Skills ===
+User: /haiku-writer the first frost of autumn
+
+[Run with pinned_skills=[]]
+  read_file calls: none
+  Agent:
+    Here’s a haiku about the first frost of autumn:
+
+    Crisp leaves fall gently,  
+    Whispers of winter's approach,  
+    First frost paints the dawn.
+  Followed the skill ('(fin)' marker present): False
+
+[Run with pinned_skills=['haiku-writer']]
+  [pinned skill injected] name=haiku-writer path=/skills/haiku-writer/SKILL.md
+  read_file calls: none
+  Agent:
+    Here’s a haiku inspired by the first frost of autumn:
+
+    Silent icy breath,  
+    Drapes the world in crystal frost,  
+    Whispers of the cold.  
+    (fin)
+  Followed the skill ('(fin)' marker present): True
 ```
