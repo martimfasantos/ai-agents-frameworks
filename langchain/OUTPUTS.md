@@ -1,6 +1,6 @@
 # LangChain Examples — Output Log
 
-All 25 examples executed successfully with `gpt-4o-mini` on `langchain==1.4.0`.
+All 26 examples executed successfully with `gpt-4o-mini` on `langchain==1.4.4`.
 Examples 10 and 20-23 were re-verified on 2026-08-05 against `langchain` 1.3.14.
 
 > Outputs are non-deterministic — your results will vary slightly on each run.
@@ -552,3 +552,37 @@ provider-agnostic handler:
 > block covers any provider. The concrete classes are provider subclasses —
 > `OpenAIModelNotFoundError` here — which still answer `isinstance(exc, ModelError)`,
 > so provider-agnostic handling and provider-specific detail coexist.
+
+---
+
+## 25_hitl_edit_decisions.py
+
+```
+=== Example 1: reviewer lowers the amount (default edit_notice) ===
+  model's call (AIMessage) : transfer_funds(to_account='PT-7781', amount_eur=5000)
+  reviewer's edit          : transfer_funds(to_account='PT-7781', amount_eur=1000)
+  tool output (what ran)   : Transferred 1000.00 EUR to PT-7781.
+  ToolMessage starts with  : Note: a human reviewer replaced this tool call before it ran. ...
+                             Executed instead: transfer_funds with arguments {"to_account": "PT-7781", "amount_eur": 1000}.
+  final reply              : I have transferred 1000 EUR to account PT-7781. If you need to transfer the remaining amount, please let me know!
+
+=== Example 2: reviewer redirects to schedule_transfer (custom edit_notice) ===
+  model's call (AIMessage) : transfer_funds(to_account='PT-7781', amount_eur=5000)
+  reviewer's edit          : schedule_transfer(to_account='PT-7781', amount_eur=5000, date='2026-10-30')
+  tool output (what ran)   : Scheduled 5000.00 EUR to PT-7781 on 2026-10-30.
+  ToolMessage starts with  : A finance reviewer changed this payment before it ran.
+                             Executed instead: schedule_transfer with arguments {"to_account": "PT-7781", "amount_eur": 5000, "date": "2026-10-30"}.
+  final reply              : The payment of 5000 EUR to account PT-7781 for invoice INV-42 has been scheduled for October 30, 2026.
+
+=== Example 3: edit_notice=None ===
+  model's call (AIMessage) : transfer_funds(to_account='PT-7781', amount_eur=5000)
+  reviewer's edit          : transfer_funds(to_account='PT-7781', amount_eur=1000)
+  tool output (what ran)   : Transferred 1000.00 EUR to PT-7781.
+  ToolMessage starts with  : the tool output (no edit notice)
+  model's next call        : transfer_funds(to_account='PT-7781', amount_eur=4000) <- paused again
+
+=== Example 4: redirect to a tool the agent does not have ===
+  ValueError: Reviewer edited tool call 'call_H8g34FBhj1IuANN9Dbr377M4' to 'wire_abroad', which is not an available tool. Available tools: schedule_transfer, transfer_funds.
+```
+
+> The AIMessage keeps the model's own `amount_eur=5000` call in every run, while the tool output shows the reviewer's version is what executed — including the redirect to `schedule_transfer`. Example 3 is why the notice exists: without it the model reads "Transferred 1000.00 EUR" for a 5000 EUR call and immediately requests the missing 4000, undoing the reviewer's cap (3 of 3 probe runs). Redirecting to a tool the agent was not given raises `ValueError` on resume rather than running anything.
