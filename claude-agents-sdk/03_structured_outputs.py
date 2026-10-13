@@ -37,6 +37,7 @@ print("=== Example 1: Raw JSON Schema ===")
 
 async def example_raw_schema():
     options = ClaudeAgentOptions(
+        model=settings.ANTHROPIC_MODEL_NAME,
         output_format={
             "type": "json_schema",
             "schema": {
@@ -83,6 +84,7 @@ class BookReview(BaseModel):
 
 async def example_pydantic_schema():
     options = ClaudeAgentOptions(
+        model=settings.ANTHROPIC_MODEL_NAME,
         output_format={
             "type": "json_schema",
             "schema": BookReview.model_json_schema(),

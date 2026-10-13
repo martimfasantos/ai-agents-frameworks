@@ -56,6 +56,7 @@ agents = {
 
 # --- 2. Configure the orchestrator agent ---
 options = ClaudeAgentOptions(
+    model=settings.ANTHROPIC_MODEL_NAME,
     system_prompt=(
         "You are a team lead. You have two subagents available:\n"
         "- code_reviewer: for reviewing code quality\n"
