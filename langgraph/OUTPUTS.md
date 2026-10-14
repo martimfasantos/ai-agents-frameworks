@@ -1,6 +1,6 @@
 # LangGraph Examples — Outputs
 
-Captured output from running all examples with `langgraph==1.2.11`, `langchain-openai==1.6.2`, and `gpt-4o-mini`.
+Captured output from running all examples with `langgraph==1.2.14`, `langchain-openai==1.6.2`, and `gpt-4o-mini`.
 
 ---
 
@@ -57,8 +57,10 @@ Status: confirmed
 Caught validation error: ValidationError: 2 validation errors for OrderState
 customer_name
   Value error, Customer name cannot be empty [type=value_error, input_value='', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/value_error
 total_price
   Input should be greater than or equal to 0 [type=greater_than_equal, input_value=-10, input_type=int]
+    For further information visit https://errors.pydantic.dev/2.13/v/greater_than_equal
 ```
 
 ---
@@ -364,40 +366,40 @@ Stored memories: 2
 
 ## 13_time_travel.py
 
-> **Feature:** Replay and fork from historical checkpoints using `get_state_history()` and `update_state()`. The output shows: (1) a 3-turn conversation building up 9 checkpoints, (2) listing the checkpoint history, (3) replaying from an earlier checkpoint and injecting a different user message ("I changed my mind, I want Vue.js"), and (4) the forked timeline diverging from the original — the forked timeline has fewer messages since it branched earlier.
+> **Feature:** Replay and fork from historical checkpoints using `get_state_history()`, then calling `invoke()` with an earlier checkpoint's config and comparing both timelines via `get_state()`. The output shows: (1) a 3-turn conversation building up 9 checkpoints, (2) listing the checkpoint history, (3) replaying from the checkpoint after the first exchange with a different user message ("I changed my mind, I want Vue.js"), which forks a new branch, and (4) the forked timeline diverging from the original — the forked timeline has fewer messages since it branched earlier.
 
 ```
 === Building Conversation History ===
 
 User: Hi! I'm building a web app with React.
-AI: That's great to hear! Building a web app with React can be a rewarding experience...
+AI: That sounds great! What specific features or components are you looking to build with your React web...
 
 User: Should I use Redux or Zustand for state management?
-AI: Choosing between Redux and Zustand for state management in your React application depends on...
+AI: Both Redux and Zustand are popular state management solutions in the React ecosystem, but they have ...
 
 User: I decided to go with Zustand. What middleware should I use?
-AI: Zustand is quite flexible and allows you to use middleware to extend its functionality...
+AI: Zustand provides a simple and lightweight API for state management, and while it doesn’t have a buil...
 
 === Checkpoint History ===
 
 Total checkpoints: 9
 
-  Checkpoint 0: 6 messages (id: 1f1271bf-1ec8-6886-8007-b63fe3c4e69e)
-  Checkpoint 1: 5 messages (id: 1f1271be-a4e9-6948-8006-b0c7fd062a4f)
-  Checkpoint 2: 4 messages (id: 1f1271be-a4e8-6d18-8005-5fa425593490)
+  Checkpoint 0: 6 messages (id: 1f1c5b9f-60a9-6e8e-8007-cc00a25bbbee)
+  Checkpoint 1: 5 messages (id: 1f1c5b9f-326e-66a0-8006-bebb6a4b99c5)
+  Checkpoint 2: 4 messages (id: 1f1c5b9f-326d-68cc-8005-078c763d249d)
   ...
-  Checkpoint 8: 0 messages (id: 1f1271be-4389-613a-bfff-486b4807621c)
+  Checkpoint 8: 0 messages (id: 1f1c5b9e-fa34-6e60-bfff-9950dbee1e75)
 
 === Replay from Checkpoint (after first exchange) ===
 
 Replaying from checkpoint with 2 messages
 User: Actually, I changed my mind. I want to use Vue.js instead.
-AI: No problem at all! Vue.js is a fantastic choice for building web applications...
+AI: No problem at all! Vue.js is a fantastic choice for building web applications. It’s known for its simplicity and flexibility. What features or compone...
 
 === Forked Timeline ===
 
-Messages in forked timeline: 2
-Messages in original timeline: 4
+Messages in forked timeline: 4
+Messages in original timeline: 6
 ```
 
 ---
@@ -416,7 +418,7 @@ Pending approval: {'action': 'transfer_funds', 'from': 'ACC-001', 'to': 'ACC-002
 
 --- Human approves the transfer ---
 
-H: Transfer $500 from ACC-001 to ACC-002
+Human: Transfer $500 from ACC-001 to ACC-002
 AI: [Calling: ['transfer_funds']]
 Tool: Transfer of $500.00 from ACC-001 to ACC-002 completed successfully.
 AI: The transfer of $500 from ACC-001 to ACC-002 has been completed successfully.
@@ -786,4 +788,34 @@ What the tracing layer recorded:
 
 Final message count in state: 14
 Execution is unaffected — the nodes saw the full history above.
+```
+
+---
+
+## 28_typed_interrupt_responses.py
+
+> **Feature:** `interrupt(..., response_schema=Decision)`, new in LangGraph 1.2.12. The caller receives `Decision`'s JSON Schema on `Interrupt.response_schema` and can render it as a form. A malformed `Command(resume=...)` raises `pydantic.ValidationError` from `invoke()` and leaves the interrupt pending under the same id. The corrected resume on the same thread is coerced (`"yes"` → `True`, `"125.5"` → `125.5`), so `interrupt()` returns a `Decision` instance. No LLM is called.
+
+```
+=== 1. The interrupt carries a response schema ===
+
+  waiting on: {'order_id': 'ORD-1042', 'requested': 125.5}
+  schema 'Decision', required fields: ['approved', 'amount']
+    approved boolean        Approve the refund?
+    amount   number         Amount to refund, in USD
+    note     string | null  Optional reason
+
+=== 2. Bad resume -> pydantic.ValidationError ===
+
+  resume sent: {'approved': 'maybe', 'amount': 'lots'}
+  rejected 'approved': Input should be a valid boolean, unable to interpret input
+  rejected 'amount': Input should be a valid number, unable to parse string as a number
+  pending interrupts: 1 (same id: True)
+
+=== 3. Corrected resume on the same thread ===
+
+  resume sent: {'approved': 'yes', 'amount': '125.5'}
+  [node] interrupt() returned Decision(approved=True, amount=125.5, note=None)
+  status: refunded $125.50 on ORD-1042
+  pending interrupts: 0
 ```
