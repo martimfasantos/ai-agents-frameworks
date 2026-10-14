@@ -4,8 +4,8 @@ version = "1.0.0"
 description = "LlamaIndex framework examples"
 requires-python = ">=3.12"
 dependencies = [
-    "llama-index>=0.14.23",
-    "llama-index-core>=0.14.23",
+    "llama-index>=0.14.25",
+    "llama-index-core>=0.14.25",
     "llama-index-llms-openai>=0.3.0",
     "llama-index-embeddings-openai>=0.3.0",
     # llama-index 0.14.23 slimmed its transitive deps and no longer pulls this in,
@@ -17,8 +17,8 @@ dependencies = [
     "openai>=1.60.0",
     "llama-index-tools-google>=0.6.2",
     "llama-index-tools-mcp>=0.4.0",
-    "llama-index-workflows>=2.22.0",
+    "llama-index-workflows>=2.26.0",
     "llama-index-utils-workflow>=0.11.0",
-    "llama-agents-server>=0.6.0",
+    "llama-agents-server>=0.8.0",
     "mcp>=1.9.0",
 ]
