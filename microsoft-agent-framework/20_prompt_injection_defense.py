@@ -3,6 +3,10 @@ import warnings
 
 from dotenv import load_dotenv
 
+# Suppress experimental warnings for cleaner output (must precede the agent_framework imports)
+warnings.filterwarnings("ignore", message=".*experimental.*")
+warnings.filterwarnings("ignore", message=".*ExperimentalWarning.*")
+
 from agent_framework import Agent, tool
 from agent_framework.openai import OpenAIChatClient
 from agent_framework.security import (
@@ -14,10 +18,6 @@ from agent_framework.security import (
 from settings import settings
 
 load_dotenv()
-
-# Suppress experimental warnings for cleaner output
-warnings.filterwarnings("ignore", message=".*experimental.*")
-warnings.filterwarnings("ignore", message=".*ExperimentalWarning.*")
 
 """
 -------------------------------------------------------
@@ -103,7 +103,7 @@ async def main() -> None:
     )
 
     print("=== Agent Response (tools available) ===")
-    result = await agent.run("What's the weather like?")
+    result = await agent.run("What does the public weather data say?")
     print(f"  Response: {result.text}")
     print()
 

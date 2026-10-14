@@ -396,15 +396,16 @@ Integrity Labels (trust level of content):
 Confidentiality Labels (visibility level):
   - PUBLIC: public
   - PRIVATE: private
+  - USER_IDENTITY: user_identity
 
 === SecureAgentConfig ===
-  source_id:                <uuid>
+  source_id:                secure_agent
   policy_enforcement:       True
   label_tracker available:  True
   policy_enforcer available: True
 
 === Agent Response (tools available) ===
-  Response: The current weather is sunny, 22°C in Lisbon.
+  Response: The current weather in Lisbon is sunny with a temperature of 22°C.
 
 === Summary ===
 FIDES enables tagging agent content with integrity and
