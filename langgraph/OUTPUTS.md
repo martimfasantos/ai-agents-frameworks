@@ -57,8 +57,10 @@ Status: confirmed
 Caught validation error: ValidationError: 2 validation errors for OrderState
 customer_name
   Value error, Customer name cannot be empty [type=value_error, input_value='', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/value_error
 total_price
   Input should be greater than or equal to 0 [type=greater_than_equal, input_value=-10, input_type=int]
+    For further information visit https://errors.pydantic.dev/2.13/v/greater_than_equal
 ```
 
 ---
@@ -364,7 +366,7 @@ Stored memories: 2
 
 ## 13_time_travel.py
 
-> **Feature:** Replay and fork from historical checkpoints using `get_state_history()` and `update_state()`. The output shows: (1) a 3-turn conversation building up 9 checkpoints, (2) listing the checkpoint history, (3) replaying from an earlier checkpoint and injecting a different user message ("I changed my mind, I want Vue.js"), and (4) the forked timeline diverging from the original — the forked timeline has fewer messages since it branched earlier.
+> **Feature:** Replay and fork from historical checkpoints using `get_state_history()`, then calling `invoke()` with an earlier checkpoint's config and comparing both timelines via `get_state()`. The output shows: (1) a 3-turn conversation building up 9 checkpoints, (2) listing the checkpoint history, (3) replaying from the checkpoint after the first exchange with a different user message ("I changed my mind, I want Vue.js"), which forks a new branch, and (4) the forked timeline diverging from the original — the forked timeline has fewer messages since it branched earlier.
 
 ```
 === Building Conversation History ===
@@ -416,7 +418,7 @@ Pending approval: {'action': 'transfer_funds', 'from': 'ACC-001', 'to': 'ACC-002
 
 --- Human approves the transfer ---
 
-H: Transfer $500 from ACC-001 to ACC-002
+Human: Transfer $500 from ACC-001 to ACC-002
 AI: [Calling: ['transfer_funds']]
 Tool: Transfer of $500.00 from ACC-001 to ACC-002 completed successfully.
 AI: The transfer of $500 from ACC-001 to ACC-002 has been completed successfully.
