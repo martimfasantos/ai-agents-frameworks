@@ -62,7 +62,7 @@ uv run python 00_hello_world.py
 | `17_workflows_human_in_the_loop.py` | Workflows: HITL | Pause workflows for human approval via `request_info` |
 | `18_workflows_visualization.py` | Workflows: Visualization | Export workflow graphs as Mermaid diagrams and PNG images |
 | `19_class_skill.py` | ClassSkill | Class-based skills with `@ClassSkill.resource` and `@ClassSkill.script` |
-| `20_prompt_injection_defense.py` | Prompt Injection Defense | FIDES information-flow control with integrity and confidentiality labels |
+| `20_prompt_injection_defense.py` | Prompt Injection Defense | FIDES blocks an injected tool call and hides untrusted tool output via `SecureAgentConfig` |
 | `21_harness_agent.py` | Harness Agent | Batteries-included agent with memory, todos, modes, and compaction |
 | `22_file_memory.py` | File Memory | Cross-session recall via `FileMemoryProvider` and a scoped file store |
 | `23_message_injection.py` | Message Injection | Nudge a running agent mid-turn with `enqueue_messages` |
