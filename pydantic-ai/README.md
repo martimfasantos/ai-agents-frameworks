@@ -82,7 +82,7 @@ uv run python 00_hello_world.py
 |---------|---------|---------|
 | `pydantic-ai[spec]` | 2.55.0 | Core agent framework; the `spec` extra is required for `20_agent_spec.py` |
 | `pydantic-ai-harness` | 0.55.0 | Capability library, Alpha (required for `29_tool_call_judge.py`) |
-| `fasta2a` | 0.6.1 | A2A protocol support (required for `18_a2a.py`) |
+| `fasta2a` | 2.0.1 | A2A protocol support (required for `18_a2a.py`) |
 | `pydantic-evals` | 2.55.0 | Evaluation framework (required for `17_evals.py`, `25_agentic_evals.py`) |
 | `pydantic-graph` | 2.55.0 | Graph/FSM library (required for `14_stateful_graphs.py`, `15_graphs_with_genai.py`) |
 | `pydantic` | >=2.10.0 | Data validation and structured output schemas |

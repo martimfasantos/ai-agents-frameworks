@@ -563,7 +563,7 @@ Test with:
 
 Agent card: http://localhost:8000/.well-known/agent-card.json
 
-INFO:     Started server process [67890]
+INFO:     Started server process [83737]
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.
 INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
@@ -572,19 +572,21 @@ INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
 Agent card (`GET /.well-known/agent-card.json`):
 
 ```json
-{"name":"Math Tutor Agent","description":"A helpful math tutor that can explain and calculate.","url":"http://localhost:8000","version":"1.0.0","protocolVersion":"0.3.0","skills":[],"defaultInputModes":["application/json"],"defaultOutputModes":["application/json"],"capabilities":{"streaming":false,"pushNotifications":false,"stateTransitionHistory":false}}
+{"name":"Math Tutor Agent","description":"A helpful math tutor that can explain and calculate.","version":"1.0.0","supportedInterfaces":[{"protocolBinding":"JSONRPC","url":"http://localhost:8000","protocolVersion":"1.0"}],"skills":[],"defaultInputModes":["application/json"],"defaultOutputModes":["application/json"],"capabilities":{"streaming":true,"pushNotifications":false}}
 ```
 
 Response to `message/send`:
 
 ```json
-{"jsonrpc":"2.0","id":"1","result":{"id":"94cb3d01-6b9d-4340-a0fe-3fe52417096c","contextId":"d0d033f0-2cd4-44d0-a9a0-4a6cd9ebb92c","kind":"task","status":{"state":"submitted","timestamp":"2026-08-08T02:40:35.915422"},"history":[{"role":"user","parts":[{"kind":"text","text":"What is 15 * 23?"}],"kind":"message","messageId":"m1","taskId":"94cb3d01-6b9d-4340-a0fe-3fe52417096c","contextId":"d0d033f0-2cd4-44d0-a9a0-4a6cd9ebb92c"}]}}
+{"jsonrpc":"2.0","id":"1","result":{"task":{"id":"02c65a4e-cdcd-41fc-a5e8-7a873728ac75","contextId":"c3df8df1-c666-477a-ac31-40577273c588","status":{"state":"submitted","timestamp":"2026-10-14T11:29:16.599828"},"history":[{"role":"user","parts":[{"text":"What is 15 * 23?"}],"messageId":"m1","taskId":"02c65a4e-cdcd-41fc-a5e8-7a873728ac75","contextId":"c3df8df1-c666-477a-ac31-40577273c588"}]}}}
 ```
 
 > This example runs a server, so it is verified by curl rather than by exiting. v2 deleted the
 > `agent.to_a2a()` method and the `pydantic-ai-slim[a2a]` extra; the replacement is
 > `fasta2a.pydantic_ai.agent_to_a2a(agent, ...)` from the separate `fasta2a` package, which
-> takes the same keyword arguments.
+> takes the same keyword arguments. fasta2a 2.x speaks A2A protocol 1.0: the card moves `url` and
+> `protocolVersion` into `supportedInterfaces`, and `message/send` wraps the task in `result.task`
+> with no `kind` discriminators (the request's `kind` fields are still accepted).
 
 ---
 
