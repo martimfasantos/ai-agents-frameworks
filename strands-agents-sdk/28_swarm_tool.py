@@ -11,7 +11,7 @@ from settings import settings
 """
 -------------------------------------------------------
 In this example, we explore Strands Agents SDK with the following features:
-- The vended swarm tool, configured with make_swarm() (new in v1.62.0)
+- The vended swarm tool, configured with make_swarm()
 - Presets: named roles the model picks for each agent via agent_type
 - instructions=Fixed() so the model cannot override a preset's prompt
 - Developer-pinned limits: max_agents, max_handoffs, execution_timeout

@@ -74,7 +74,7 @@ builder.add_edge("planner", "executor")
 builder.add_edge("executor", "reviewer")
 
 builder.set_entry_point("planner")
-# Bound the run; since v1.60.0 build() warns when a graph has no limit at all
+# Bound the run; build() warns when a graph has no execution limit
 builder.set_execution_timeout(300.0)
 
 graph = builder.build()

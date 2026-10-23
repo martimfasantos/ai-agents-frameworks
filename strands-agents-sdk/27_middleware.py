@@ -1,3 +1,5 @@
+from collections.abc import AsyncGenerator
+
 from strands import Agent, tool
 from strands.middleware import (
     ExecuteToolContext,
@@ -5,7 +7,9 @@ from strands.middleware import (
     InvokeModelContext,
     InvokeModelResult,
     InvokeModelStage,
+    MiddlewareNext,
     ToolResultEvent,
+    TypedEvent,
 )
 from strands.models.openai import OpenAIModel
 
@@ -14,7 +18,7 @@ from settings import settings
 """
 -------------------------------------------------------
 In this example, we explore Strands Agents SDK with the following features:
-- agent.add_middleware() — the public middleware API (new in v1.62.0)
+- agent.add_middleware() to register handlers around a stage of the agent run
 - InvokeModelStage.Input: rewrite the model call's context with context.replace()
 - InvokeModelStage.Output: inspect the model result (stop reason, token usage)
 - ExecuteToolStage Wrap handler: an async generator that blocks or passes a tool call
@@ -78,7 +82,9 @@ def log_model_result(result: InvokeModelResult) -> InvokeModelResult:
 
 
 # --- 4. Wrap: short-circuit delete_file, pass everything else through ---
-async def block_deletes(context: ExecuteToolContext, next_fn):
+async def block_deletes(
+    context: ExecuteToolContext, next_fn: MiddlewareNext
+) -> AsyncGenerator[TypedEvent, None]:
     name = context.tool_use["name"]
     if name == "delete_file":
         print(f"  [tool Wrap]    BLOCKED {name}({context.tool_use['input']})")
