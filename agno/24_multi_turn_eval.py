@@ -15,15 +15,15 @@ load_dotenv()
 """
 -------------------------------------------------------
 In this example, we explore Agno with the following features:
-- Eval Case run arguments, added in Agno v3.1.6: session_id, user_id, session_state
+- Eval Case run arguments: session_id, user_id, session_state
 - Multi-turn evals: cases that share a session_id run as consecutive turns
 - A Message (not just a str) as the case input
 
-Until v3.1.6 every Case ran in a fresh, generated session, so a suite could
-only grade single-shot answers. Cases can now pass the run's session, user and
-state. Two cases with the same session_id become turns of one conversation, so
-the second case grades whether the agent used what it learned in the first —
-here, booking a call for a caller whose name was only given one turn earlier.
+A Case without a session_id runs in a fresh, generated session, so it can only
+grade a single-shot answer. Two cases with the same session_id become turns of
+one conversation, so the second case grades whether the agent used what it
+learned in the first — here, booking a call for a caller whose name was only
+given one turn earlier.
 
 For more details, visit:
 https://docs.agno.com/evals/suite/overview
@@ -38,7 +38,7 @@ CALENDAR = {"calendar_id": "cal-7", "timezone": "Europe/Lisbon"}
 # --- 1. Mock tools that read the run's session_state and user_id ---
 def get_open_slots(run_context: RunContext) -> str:
     """Return the open appointment slots on the caller's calendar."""
-    session_state = run_context.session_state or {}
+    session_state = run_context.session_state
     if not session_state.get("calendar_id"):
         return "No calendar is configured for this caller."
     return f"Open slots ({session_state['timezone']}): Tuesday 10:00, Wednesday 15:00"
@@ -51,8 +51,6 @@ def create_appointment(run_context: RunContext, slot: str, name: str) -> str:
         slot: The slot to book, as returned by get_open_slots.
         name: The caller's name.
     """
-    if run_context.session_state is None:
-        run_context.session_state = {}
     run_context.session_state["appointment"] = {"slot": slot, "name": name}
     calendar_id = run_context.session_state.get("calendar_id")
     return f"Booked {slot} for {name} (user {run_context.user_id}) on calendar {calendar_id}."
