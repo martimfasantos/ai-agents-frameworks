@@ -41,37 +41,43 @@ FORBIDDEN = "internal_admin_report"
 async def run_demo_server() -> None:
     """Serves three tools over stdio: one visible, one loadable, one filtered out."""
     import mcp.types as types
+    from mcp.server import ServerRequestContext
     from mcp.server.lowlevel import Server
     from mcp.server.stdio import stdio_server
 
-    server: Server[Any, Any] = Server("progressive-disclosure-demo")
+    # MCP SDK 2.x handlers receive (ctx, params) and are passed to Server(...).
+    async def list_tools(
+        ctx: ServerRequestContext[Any], params: types.PaginatedRequestParams | None
+    ) -> types.ListToolsResult:
+        return types.ListToolsResult(
+            tools=[
+                types.Tool(
+                    name=ALWAYS_VISIBLE,
+                    description="Return the health of the demo MCP server.",
+                    input_schema={"type": "object", "properties": {}},
+                ),
+                types.Tool(
+                    name=LOADABLE,
+                    description="Search documentation snippets about MCP progressive disclosure.",
+                    input_schema={
+                        "type": "object",
+                        "properties": {"query": {"type": "string"}},
+                        "required": ["query"],
+                    },
+                ),
+                types.Tool(
+                    name=FORBIDDEN,
+                    description="Internal server details, intentionally excluded by allowed_tools.",
+                    input_schema={"type": "object", "properties": {}},
+                ),
+            ]
+        )
 
-    @server.list_tools()
-    async def list_tools() -> list[types.Tool]:
-        return [
-            types.Tool(
-                name=ALWAYS_VISIBLE,
-                description="Return the health of the demo MCP server.",
-                inputSchema={"type": "object", "properties": {}},
-            ),
-            types.Tool(
-                name=LOADABLE,
-                description="Search documentation snippets about MCP progressive disclosure.",
-                inputSchema={
-                    "type": "object",
-                    "properties": {"query": {"type": "string"}},
-                    "required": ["query"],
-                },
-            ),
-            types.Tool(
-                name=FORBIDDEN,
-                description="Internal server details, intentionally excluded by allowed_tools.",
-                inputSchema={"type": "object", "properties": {}},
-            ),
-        ]
-
-    @server.call_tool()
-    async def call_tool(name: str, arguments: dict[str, Any]) -> types.CallToolResult:
+    async def call_tool(
+        ctx: ServerRequestContext[Any], params: types.CallToolRequestParams
+    ) -> types.CallToolResult:
+        name = params.name
+        arguments = params.arguments or {}
         if name == ALWAYS_VISIBLE:
             text = "The demo MCP server is healthy. Use search_docs for the details."
         elif name == LOADABLE:
@@ -84,6 +90,10 @@ async def run_demo_server() -> None:
         else:
             text = "This tool should never have been reachable."
         return types.CallToolResult(content=[types.TextContent(type="text", text=text)])
+
+    server: Server[Any] = Server(
+        "progressive-disclosure-demo", on_list_tools=list_tools, on_call_tool=call_tool
+    )
 
     async with stdio_server() as (read_stream, write_stream):
         await server.run(read_stream, write_stream, server.create_initialization_options())

@@ -2,7 +2,7 @@
 
 - Repo: https://github.com/microsoft/agent-framework
 - Documentation: https://learn.microsoft.com/en-us/agent-framework/
-- Version: **1.21.0**
+- Version: **1.23.0**
 
 Microsoft Agent Framework is an open-source SDK for building, orchestrating, and deploying AI agents and multi-agent workflows. It unifies the capabilities of AutoGen and Semantic Kernel, providing a comprehensive platform for creating intelligent agents with tool use, middleware, sessions, structured outputs, MCP integration, and graph-based workflows with human-in-the-loop support.
 
@@ -70,15 +70,17 @@ uv run python 00_hello_world.py
 | `25_workflow_checkpoints.py` | Workflow Checkpoints | Resume a crashed workflow from its last superstep checkpoint (no LLM calls) |
 | `26_vector_store_rag.py` | Vector Store RAG | `@vectorstoremodel`, `VectorStoreField`, `InMemoryCollection`, `create_vector_search_tool` |
 | `27_streaming_guardrails.py` | Streaming Guardrails | Buffer a streamed reply, rewrite it with a result transform, and block it with a result gate before any chunk is released |
+| `28_mcp_caller_owned_client.py` | Caller-Owned MCP Client | Share one in-process `mcp.Client` across MCP tool wrappers via `mcp_client=`; closing a wrapper leaves the client open |
 
 ## Key dependencies
 
 | Package | Version | Purpose |
 |---------|---------|---------|
-| `agent-framework` | 1.21.0 | Core framework (agents, tools, middleware, workflows) |
-| `agent-framework-core` | 1.21.0 | Core abstractions and base classes |
-| `agent-framework-declarative` | 1.2.1 | YAML/JSON declarative agent definitions |
-| `agent-framework-orchestrations` | 1.3.1 | Sequential and Handoff orchestration builders |
+| `agent-framework` | 1.23.0 | Core framework (agents, tools, middleware, workflows) |
+| `agent-framework-core` | 1.23.0 | Core abstractions and base classes |
+| `agent-framework-declarative` | 1.4.0 | YAML/JSON declarative agent definitions |
+| `agent-framework-orchestrations` | 1.4.0 | Sequential and Handoff orchestration builders |
+| `mcp` | 2.3.0 | MCP SDK 2.x (required by `agent-framework` >= 1.23.0); used directly by examples 24 and 28 |
 | `pydantic` | >=2.0 | Structured output schemas |
 | `pydantic-settings` | >=2.0 | `.env` file loading via `BaseSettings` |
 | `python-dotenv` | >=1.0 | Explicit `.env` loading (framework does not auto-load) |
@@ -89,7 +91,8 @@ uv run python 00_hello_world.py
 - The framework does **not** auto-load `.env` files. Every example calls `load_dotenv()` explicitly.
 - Examples 05 and 13 require `OpenAIResponsesClient` (Responses API) rather than `OpenAIChatClient`.
 - Example 09 requires Node.js / `npx` for the MCP filesystem server. Example 24 does not — it launches its own
-  Python MCP stdio server as a child process.
+  Python MCP stdio server as a child process. Example 28 runs its MCP server in-process, with no
+  subprocess.
 - Example 18 requires the system `graphviz` package for PNG export (`brew install graphviz` on macOS).
 - Example 22 writes memory files to `res/agent-file-memory/`; example 25 makes no LLM calls at all.
 - **Telemetry:** since v1.13.0 the framework emits process-wide feature-usage telemetry and reports a first-party
