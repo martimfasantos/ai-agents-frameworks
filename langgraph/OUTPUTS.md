@@ -1,6 +1,6 @@
 # LangGraph Examples — Outputs
 
-Captured output from running all examples with `langgraph==1.2.14`, `langchain-openai==1.6.2`, and `gpt-4o-mini`.
+Captured output from running all examples with `langgraph==1.2.16`, `langchain-openai==1.6.2`, and `gpt-4o-mini`.
 
 ---
 
