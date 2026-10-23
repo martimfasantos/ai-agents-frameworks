@@ -46,9 +46,9 @@ This repository provides a comprehensive, hands-on comparison of modern AI agent
           <img src="res/ag2.svg" alt="AG2" width="52" style="vertical-align: middle;">
         </picture>
       </td>
-      <td><code>1.0.5</code></td>
+      <td><code>1.1.2</code></td>
       <td>
-          <a href="https://docs.ag2.ai/latest/">
+          <a href="https://docs.ag2.ai/">
             <picture>
               <source media="(prefers-color-scheme: dark)" srcset="res/book-open-dark.svg">
               <source media="(prefers-color-scheme: light)" srcset="res/book-open.svg">
@@ -311,7 +311,7 @@ This repository provides a comprehensive, hands-on comparison of modern AI agent
           <img src="res/llamaindex-text.svg" alt="LlamaIndex" width="110" style="vertical-align: middle;">
         </picture>
       </td>
-      <td><code>0.14.24</code></td>
+      <td><code>0.14.25</code></td>
       <td>
           <a href="https://docs.llamaindex.ai/en/stable/">
             <picture>
