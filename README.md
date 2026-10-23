@@ -46,9 +46,9 @@ This repository provides a comprehensive, hands-on comparison of modern AI agent
           <img src="res/ag2.svg" alt="AG2" width="52" style="vertical-align: middle;">
         </picture>
       </td>
-      <td><code>0.13.4</code></td>
+      <td><code>1.1.2</code></td>
       <td>
-          <a href="https://docs.ag2.ai/latest/">
+          <a href="https://docs.ag2.ai/">
             <picture>
               <source media="(prefers-color-scheme: dark)" srcset="res/book-open-dark.svg">
               <source media="(prefers-color-scheme: light)" srcset="res/book-open.svg">
@@ -278,7 +278,7 @@ This repository provides a comprehensive, hands-on comparison of modern AI agent
           <img src="res/langgraph-text.svg" alt="LangGraph" width="100" style="vertical-align: middle;">
         </picture>
       </td>
-      <td><code>1.2.10</code></td>
+      <td><code>1.2.11</code></td>
       <td>
           <a href="https://langchain-ai.github.io/langgraph/">
             <picture>
@@ -311,7 +311,7 @@ This repository provides a comprehensive, hands-on comparison of modern AI agent
           <img src="res/llamaindex-text.svg" alt="LlamaIndex" width="110" style="vertical-align: middle;">
         </picture>
       </td>
-      <td><code>0.14.24</code></td>
+      <td><code>0.14.25</code></td>
       <td>
           <a href="https://docs.llamaindex.ai/en/stable/">
             <picture>
@@ -369,7 +369,7 @@ This repository provides a comprehensive, hands-on comparison of modern AI agent
         </picture>
     <strong style="vertical-align: middle; font-size: 1.2em;">OpenAI Agents SDK</strong>
       </td>
-      <td><code>0.22.2</code></td>
+      <td><code>0.23.1</code></td>
       <td>
           <a href="https://openai.github.io/openai-agents-python/">
             <picture>
