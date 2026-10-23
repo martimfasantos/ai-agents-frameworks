@@ -8,6 +8,6 @@ dependencies = [
     "pydantic>=2.12.5",
     "pydantic-settings>=2.13.1",
     "python-dotenv>=1.2.2",
-    "strands-agents>=1.59.0",
-    "strands-agents-tools>=0.8.9",
+    "strands-agents>=1.62.0",
+    "strands-agents-tools>=0.8.10",
 ]
