@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "LangChain framework examples"
 requires-python = ">=3.12"
 dependencies = [
-    "langchain>=1.4.4",
+    "langchain>=1.4.7",
     "langchain-openai>=0.3.0",
     "langgraph>=0.3.0",
     "fastmcp>=4.0.11",

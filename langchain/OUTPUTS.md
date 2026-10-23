@@ -1,6 +1,6 @@
 # LangChain Examples — Output Log
 
-All 26 examples executed successfully with `gpt-4o-mini` on `langchain==1.4.4`.
+All 27 examples executed successfully with `gpt-4o-mini` on `langchain==1.4.7`.
 Examples 10 and 20-23 were re-verified on 2026-08-05 against `langchain` 1.3.14.
 
 > Outputs are non-deterministic — your results will vary slightly on each run.
@@ -586,3 +586,32 @@ provider-agnostic handler:
 ```
 
 > The AIMessage keeps the model's own `amount_eur=5000` call in every run, while the tool output shows the reviewer's version is what executed — including the redirect to `schedule_transfer`. Example 3 is why the notice exists: without it the model reads "Transferred 1000.00 EUR" for a 5000 EUR call and immediately requests the missing 4000, undoing the reviewer's cap (3 of 3 probe runs). Redirecting to a tool the agent was not given raises `ValueError` on resume rather than running anything.
+
+---
+
+## 26_hitl_per_call_interrupts.py
+
+```
+=== Step 1: model proposes the calls, each gated call pauses separately ===
+  2 pending interrupt(s):
+    [tool_approval] id=17545cb2... write_file({'path': 'orders_archive.csv', 'content': 'id,total\n1,20\n'})
+        response_schema: decisions=approve | edit | reject | respond; edit args=(path: string, content: string)
+    [tool_approval] id=fae3ef2e... execute_sql({'query': "DELETE FROM orders WHERE created_at < '2025-01-01'"})
+        response_schema: decisions=approve | reject
+
+=== Step 2: an invalid edit is rejected by the response_schema ===
+  answer for write_file: {'type': 'edit', 'edited_action': {'name': 'write_file', 'args': {'path': 'archive/orders_2024.csv'}}}
+  ValidationError: edit.edited_action.args.content -> Field required
+  nothing was saved: 2 interrupt(s) still pending
+
+=== Step 3: approve write_file, reject execute_sql (keyed by interrupt ID) ===
+  write_file   -> {'type': 'approve'}
+  execute_sql  -> {'type': 'reject', 'message': 'Keep the orders until finance signs off. Do not retry.'}
+
+=== Result ===
+  ToolMessage write_file   [success] Wrote 14 characters to orders_archive.csv
+  ToolMessage execute_sql  [error] User rejected the tool call for `execute_sql` with reason: Keep the orders until finance signs off. Do not retry.
+  final reply: The content 'id,total\n1,20\n' has been successfully written to orders_archive.csv, but the SQL query to delete orders was rejected.
+```
+
+> With `interrupt_mode="per_call"` the two parallel calls paused as two separate `tool_approval` interrupts, each with its own `response_schema`: `write_file` (configured with `True`) accepts all four decisions and its edit args follow the tool's signature, while `execute_sql` only accepts `approve | reject`. The edit missing `content` raised a pydantic `ValidationError` on resume and nothing was saved, so both interrupts stayed pending and were answered again in one `Command(resume={interrupt_id: decision, ...})` — approving the write and rejecting the delete with a message the model saw as an error `ToolMessage`.

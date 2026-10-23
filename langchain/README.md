@@ -2,7 +2,7 @@
 
 - Repo: https://github.com/langchain-ai/langchain
 - Documentation: https://docs.langchain.com/oss/python/langchain/
-- Version: **1.4.4**
+- Version: **1.4.7**
 
 ## LangChain Examples
 
@@ -75,3 +75,4 @@ uv run python 00_hello_world.py
 | 23 | `23_structured_output_strategies.py` | `ToolStrategy` vs `ProviderStrategy`, union schemas, `handle_errors` |
 | 24 | `24_model_exceptions.py` | Standard model exceptions: `ModelNotFoundError`, `ModelAuthenticationError`, `ModelError` base |
 | 25 | `25_hitl_edit_decisions.py` | HITL `edit` decisions: argument edits, tool redirects, `HumanInTheLoopMiddleware(edit_notice=)` |
+| 26 | `26_hitl_per_call_interrupts.py` | HITL `interrupt_mode="per_call"`: one `tool_approval` interrupt per call, typed `response_schema`, resume by interrupt ID |
