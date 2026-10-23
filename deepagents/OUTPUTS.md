@@ -1,6 +1,6 @@
 # Deep Agents Examples — Outputs
 
-Captured output from running all examples with `deepagents==0.7.23`, `langchain==1.4.4`, `langchain-openai==1.6.2`, `langchain-quickjs==0.3.8`, and `gpt-4o-mini`.
+Captured output from running all examples with `deepagents==0.7.31`, `langchain==1.4.7`, `langchain-openai==1.6.2`, `langchain-quickjs==0.3.9`, and `gpt-4o-mini`.
 
 LLM output is non-deterministic, so exact wording will vary between runs. The structure and demonstrated behavior stay the same.
 
@@ -401,14 +401,22 @@ Mutating tools write_file / edit_file / delete are absent ✅
 FilesystemMiddleware(tools=['ls', 'glob']) -> ValueError: read_file must be included in tools; it is required by FilesystemMiddleware
 
 User: Read /report.md and tell me the revenue figure, then delete the file.
-Agent: The revenue figure mentioned in the file is that it "grew 12%." However, I cannot delete the file as I'm only able to read and not modify or delete files.
+Agent: The revenue figure mentioned in the report is a growth of 12%. However, I'm unable to delete the file as that functionality is not supported.
 
 Files still present: ['/report.md']
 
-Caveat: create_deep_agent(permissions=...) is wired into the *default* FilesystemMiddleware, so replacing that instance silently drops allow/deny enforcement (only interrupt rules survive). Configure permissions on the backend or keep the default middleware when you need a real boundary.
+=== Replacement middleware + permissions=[deny read /internal/**] ===
+User: Read /internal/roadmap.md and summarize it.
+[tool result] read_file: Error: permission denied for read on /internal/roadmap.md
+Agent: I can't access the file `/internal/roadmap.md` due to permission restrictions.
+Denied content leaked into the reply: False
+
+Conflicting middleware permissions= -> ValueError: FilesystemMiddleware permissions conflict with the agent permissions; use the same rules or omit middleware permissions.
+
+Caveat: tools= only hides tools; it does not restrict which paths the remaining tools can touch. Enforce that with permission rules, either on create_deep_agent(permissions=...), which a replacement FilesystemMiddleware inherits, or on FilesystemMiddleware(permissions=...) directly. Interrupt (human-approval) rules still have to go through create_deep_agent(permissions=...).
 ```
 
-> An allowlist keeps the model's options tidy; it is not a security boundary. `permissions=` reaches the filesystem layer only through the default `FilesystemMiddleware` instance, so overriding that instance drops allow/deny enforcement with no warning.
+> An allowlist keeps the model's options tidy; it is not a security boundary, permission rules are. Since 0.7.31 a replacement `FilesystemMiddleware` inherits the agent's `create_deep_agent(permissions=...)` rules, so the deny rule on `/internal/**` still fires through the read-only instance (the `read_file` tool result is a permission error). Passing a different non-empty `FilesystemMiddleware(permissions=...)` list alongside agent rules raises `ValueError` instead of silently picking one.
 
 ---
 
@@ -507,3 +515,70 @@ User: /haiku-writer the first frost of autumn
     (fin)
   Followed the skill ('(fin)' marker present): True
 ```
+
+---
+
+## 25_custom_summarizer.py
+
+> **Feature:** `SummarizationMiddleware(summarizer=...)` (new in 0.7.26) replaces who writes the conversation summary while the middleware still decides when to summarize and what to keep. Passed via `middleware=[...]`, it replaces the default `SummarizationMiddleware` by `.name`. With `trigger=("messages", 6)` and `keep=("messages", 2)`, summarization fires on the fourth turn and folds the first 5 messages. Mode A uses a plain function (one call, no LLM, deterministic output); Mode B uses a model string prompted with a custom `summary_prompt`. Either way the agent still answers the question from the summary.
+
+```
+=== Deep Agents Custom Summarizer ===
+
+=== Mode A: summarizer=user_facts_summarizer ===
+Middleware name: SummarizationMiddleware
+User: Our project codename is Bluefin.
+  Agent: Noted.
+User: The launch date is March 14.
+  Agent: Noted.
+User: The budget is 2 million euros.
+  Agent: Noted.
+User: What are the codename, launch date and budget? Answer in one sentence.
+  Agent: The project codename is Bluefin, the launch date is March 14, and the budget is 2 million euros.
+
+Summarization fired: True
+Messages folded into the summary: 5
+Summary message the model saw instead of those turns:
+    You are in the middle of a conversation that has been summarized.
+
+    The full conversation history has been saved to /conversation_history/session_a616b6c553064763af07e492c55949b6.md should you need to refer back to it for details.
+
+    A condensed summary follows:
+
+    <summary>
+    User-stated facts:
+    - Our project codename is Bluefin.
+    - The launch date is March 14.
+    - The budget is 2 million euros.
+    </summary>
+
+Function summarizer calls (messages received): [5]
+
+=== Mode B: summarizer='openai:gpt-4o-mini' ===
+Middleware name: SummarizationMiddleware
+User: Our project codename is Bluefin.
+  Agent: Noted.
+User: The launch date is March 14.
+  Agent: Noted.
+User: The budget is 2 million euros.
+  Agent: Noted.
+User: What are the codename, launch date and budget? Answer in one sentence.
+  Agent: The project codename is Bluefin, the launch date is March 14, and the budget is 2 million euros.
+
+Summarization fired: True
+Messages folded into the summary: 5
+Summary message the model saw instead of those turns:
+    You are in the middle of a conversation that has been summarized.
+
+    The full conversation history has been saved to /conversation_history/session_2d4dc25dc4954a78b74d312a857984c9.md should you need to refer back to it for details.
+
+    A condensed summary follows:
+
+    <summary>
+    - Project codename is Bluefin.
+    - Launch date is March 14.
+    - Budget is 2 million euros.
+    </summary>
+```
+
+> The summary is read from the private `_summarization_event` state key (`SUMMARIZATION_EVENT_KEY`) through the checkpointer; it is not part of `result["messages"]`. The offload file under `/conversation_history/` gets a new session id each run. Mode B reuses `settings.OPENAI_MODEL_NAME` to avoid hardcoding a model name; in practice point `summarizer=` at a cheaper model than the agent's.

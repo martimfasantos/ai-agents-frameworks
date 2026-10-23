@@ -2,7 +2,7 @@
 
 - Repo: https://github.com/langchain-ai/deepagents
 - Documentation: https://docs.langchain.com/oss/python/deepagents/overview
-- Version: **0.7.23**
+- Version: **0.7.31**
 
 Deep Agents is a framework from LangChain for building agents that can plan and execute complex, long-horizon tasks. Built on top of LangChain and LangGraph, a single `create_deep_agent` call gives you a harness with built-in task planning, a virtual filesystem, subagent delegation, and configurable middleware — plus pluggable backends (in-memory, local disk, durable store), skills, memory, permissions, human-in-the-loop approval, and code interpreters.
 
@@ -59,11 +59,12 @@ uv run python 00_hello_world.py
 | `17_rubric_middleware.py` | Rubric Middleware | `RubricMiddleware`, grader loop, `rubric` state key |
 | `18_harness_profiles.py` | Harness Profiles | `HarnessProfile`, `register_harness_profile`, `excluded_tools` |
 | `19_interpreters.py` | Code Interpreters | `CodeInterpreterMiddleware` (QuickJS `eval` tool) |
-| `20_filesystem_tool_allowlist.py` | Filesystem Tool Allowlist | `FilesystemMiddleware(tools=[...])`, `FsToolName`, middleware override by `.name` |
+| `20_filesystem_tool_allowlist.py` | Filesystem Tool Allowlist | `FilesystemMiddleware(tools=[...])`, `FsToolName`, middleware override by `.name`, inherited `permissions=` rules |
 | `21_subagent_fork.py` | Subagent Context Modes | `SubAgent(mode="fork")` vs `mode="isolated"`, inherited conversation history |
 | `22_grader_hooks.py` | Rubric Grader Hooks | `prepare_messages_for_grader`, `build_grader_state`, `grader_state_schema`, `grader_middleware` |
 | `23_skill_tools.py` | Skill Tools | `SkillsMiddleware(tools=[...])`, `metadata.include_tools`, tools hidden until the skill is read |
 | `24_pinned_skills.py` | Pinned Skills | `pinned_skills` run input, `/skill-name` detection, `additional_kwargs["lc_source"] == "pinned_skill"` |
+| `25_custom_summarizer.py` | Custom Summarizer | `SummarizationMiddleware(summarizer=...)` with a function or model string, `summary_prompt`, replacing the default by `.name` |
 
 See [`OUTPUTS.md`](./OUTPUTS.md) for captured output from every example.
 
@@ -71,11 +72,11 @@ See [`OUTPUTS.md`](./OUTPUTS.md) for captured output from every example.
 
 | Package | Version | Purpose |
 |---------|---------|---------|
-| `deepagents` | >=0.7.23 | Core Deep Agents framework (`create_deep_agent`, backends, middleware) |
-| `langchain` | >=1.4.4 | LangChain base library (middleware, tools, runtime) |
-| `langchain-core` | >=1.6.9 | Core message/tool/runtime primitives (pulled in by `deepagents`) |
+| `deepagents` | >=0.7.31 | Core Deep Agents framework (`create_deep_agent`, backends, middleware) |
+| `langchain` | >=1.4.7 | LangChain base library (middleware, tools, runtime) |
+| `langchain-core` | >=1.7.0 | Core message/tool/runtime primitives (pulled in by `deepagents`) |
 | `langchain-openai` | >=1.6.2 | OpenAI model integration (`ChatOpenAI`) |
-| `langchain-quickjs` | >=0.3.8 | Sandboxed JavaScript code interpreter (`19_interpreters.py`), installed via the `deepagents[quickjs]` extra |
+| `langchain-quickjs` | >=0.3.9 | Sandboxed JavaScript code interpreter (`19_interpreters.py`), installed via the `deepagents[quickjs]` extra |
 | `pydantic` | >=2.13.4 | Structured outputs and context schemas |
 | `pydantic-settings` | >=2.14.2 | `.env` file loading via `BaseSettings` |
 | `python-dotenv` | >=1.2.2 | Environment variable loading |
