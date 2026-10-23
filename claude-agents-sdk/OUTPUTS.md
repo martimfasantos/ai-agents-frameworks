@@ -1,6 +1,6 @@
 # Claude Agent SDK - Example Outputs
 
-Outputs captured with `claude-agent-sdk` 0.2.165 (bundled Claude Code CLI 2.1.294) on `claude-haiku-5-5`, set through `ANTHROPIC_MODEL_NAME` in `settings.py`. Every run used an empty `CLAUDE_CONFIG_DIR`, so user-level Claude Code settings don't affect them.
+Outputs captured with `claude-agent-sdk` 0.2.165 (bundled Claude Code CLI 2.1.294) for examples 00-23 and 0.2.173 (bundled Claude Code CLI 2.1.309) for examples 24-25, all re-verified on 0.2.173, on `claude-haiku-5-5`, set through `ANTHROPIC_MODEL_NAME` in `settings.py`. Every run used an empty `CLAUDE_CONFIG_DIR`, so user-level Claude Code settings don't affect them.
 
 > **Note:** LLM responses are non-deterministic. Your outputs will differ in wording but should follow the same structure and demonstrate the same features.
 
@@ -825,6 +825,64 @@ $ uv run python 23_session_rewind.py
 
 ---
 
+## 24. Stop Hook Feedback (`24_stop_hook_feedback.py`)
+
+```
+$ uv run python 24_stop_hook_feedback.py
+
+Prompt: Use Glob to count the files matching '[0-9][0-9]_*.py', then Read settings.py and tell me how many examples there are and which default model they use.
+
+  [PostToolUse] Glob  took 18 ms
+  [PostToolUse] Read  took 8 ms
+
+  [Stop] stop_hook_active=False, has TL;DR line=False
+  [Stop] last_assistant_message: 'There are 26 examples (`00_hello_world.py` through `25_session_init_info.py`), and `settings.py` sets the default model to `claude-haiku-5-5` via `ANTHROPIC_MODEL_NAME`.'
+  [Stop] -> missing TL;DR, returning additionalContext so the agent continues
+
+  [Stop] stop_hook_active=True, has TL;DR line=True
+  [Stop] last_assistant_message: 'There are 26 examples (`00_hello_world.py` through `25_session_init_info.py`), and `settings.py` sets the default model to `claude-haiku-5-5` via `ANTHROPIC_MODEL_NAME`.\nTL;DR: 26 examples; default model is claude-haiku-5-5.'
+  [Stop] -> allow the agent to stop
+
+--- Final answer ---
+There are 26 examples (`00_hello_world.py` through `25_session_init_info.py`), and `settings.py` sets the default model to `claude-haiku-5-5` via `ANTHROPIC_MODEL_NAME`.
+TL;DR: 26 examples; default model is claude-haiku-5-5.
+
+Ends with a TL;DR line: True
+```
+
+> The first Stop sees an answer with no `TL;DR:` line, so the hook returns `hookSpecificOutput.additionalContext` and the CLI keeps the turn going instead of ending it. The second Stop arrives with `stop_hook_active=True` (and the line now present), so the hook lets the agent stop; checking that flag is what prevents an endless loop. `duration_ms` on `PostToolUseHookInput` is the tool's own execution time, excluding permission prompts and hook time.
+
+**Verdict:** PASS - The Stop hook reads `last_assistant_message`, its `additionalContext` makes the agent continue and add the TL;DR line, and the PostToolUse hook prints per-tool `duration_ms`.
+
+---
+
+## 25. Session Init Info (`25_session_init_info.py`)
+
+```
+$ uv run python 25_session_init_info.py
+
+=== Session init ===
+Model:             claude-haiku-5-5
+Claude Code:       2.1.309
+Permission mode:   default
+Tools:             25 (first five: Task, Bash, CronCreate, CronDelete, CronList)
+MCP tools:         mcp__clock__get_time
+MCP server:        clock -> connected
+Capabilities:      ['interrupt_receipt_v1', 'interrupt_cancel_queued_v1', 'interrupt_send_now_v1', 'interrupt_requeue_taken_v1', 'msg_lifecycle_v1', 'request_marker_lists_v1', 'lifecycle_wakeup_source_v1', 'sdk_mcp_tools_list_changed', 'sdk_mcp_manifests', 'mcp_read_resource_v1', 'mcp_tool_ui_meta_v1', 'ui_surface_v1', 'mcp_call_result_not_for_model_v1']
+Fast mode state:   off
+
+interrupt_receipt_v1 supported: True
+
+=== Result ===
+ready
+```
+
+> The init `SystemMessage` arrives before any reply. `cast(SystemInitData, message.data)` gives typed access to its keys; the cast does not validate anything, so optional keys such as `capabilities` and `fast_mode_state` are read with `.get()` (`capabilities` is absent on CLIs before 2.1.205). The in-process `clock` server shows up as `connected` and its tool is in the tool list, which is how an app can confirm an MCP server is usable before relying on it.
+
+**Verdict:** PASS - `SystemInitData` exposes model, CLI version, permission mode, tool count, MCP server status, and the `capabilities` list used to detect `interrupt_receipt_v1`.
+
+---
+
 ## Summary
 
 | # | File | Status | Notes |
@@ -853,5 +911,7 @@ $ uv run python 23_session_rewind.py
 | 21 | `21_interrupt_and_terminal_reason.py` | PASS | interrupt() cancellation and terminal_reason |
 | 22 | `22_verbatim_prompts.py` | PASS | verbatim_prompts keeps @path mentions literal |
 | 23 | `23_session_rewind.py` | PASS | Drop the last turn with resume_session_at + resume_drops_turn |
+| 24 | `24_stop_hook_feedback.py` | PASS | Stop hook additionalContext continues the turn, tool duration_ms |
+| 25 | `25_session_init_info.py` | PASS | Typed SystemInitData, MCP status, capabilities |
 
-**24/24 examples pass.**
+**26/26 examples pass.**

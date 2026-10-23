@@ -2,7 +2,7 @@
 
 - Repo: https://github.com/anthropics/claude-agent-sdk-python
 - Documentation: https://platform.claude.com/docs/en/agent-sdk/overview
-- Version: **0.2.165**
+- Version: **0.2.173**
 
 ## About Claude Agent SDK
 
@@ -27,6 +27,8 @@ Key features:
 - **Cost tracking** - Budget caps, turn limits, effort levels, per-model usage
 - **Interruption** - Cancel a running turn and read why it ended via `terminal_reason`
 - **Verbatim prompts** - Pass untrusted text without `@path` expansion or slash commands
+- **Stop hook feedback** - Keep the agent going with `additionalContext` until its answer meets a rule
+- **Session init info** - Typed `SystemInitData` for model, tools, MCP status, and capabilities
 
 ## Setup
 
@@ -80,6 +82,8 @@ uv run python 20_sandbox_settings.py
 uv run python 21_interrupt_and_terminal_reason.py
 uv run python 22_verbatim_prompts.py
 uv run python 23_session_rewind.py
+uv run python 24_stop_hook_feedback.py
+uv run python 25_session_init_info.py
 ```
 
 ## Examples
@@ -110,8 +114,10 @@ uv run python 23_session_rewind.py
 | 21 | `21_interrupt_and_terminal_reason.py` | interrupt() to cancel a turn, ResultMessage.terminal_reason, draining after an interrupt |
 | 22 | `22_verbatim_prompts.py` | verbatim_prompts to pass untrusted text without @path expansion or slash commands |
 | 23 | `23_session_rewind.py` | get_session_messages, resume_session_at + resume_drops_turn to drop the last turn, fork_session |
+| 24 | `24_stop_hook_feedback.py` | Typed StopHookInput, Stop hook additionalContext to continue the turn, PostToolUse duration_ms |
+| 25 | `25_session_init_info.py` | Init SystemMessage, SystemInitData, MCP server status, capabilities feature detection |
 
 ## Key dependencies
 
-- `claude-agent-sdk>=0.2.165` - Claude Agent SDK (Python), locked at 0.2.165
+- `claude-agent-sdk>=0.2.173` - Claude Agent SDK (Python), locked at 0.2.173
 - `pydantic-settings` - Settings management from .env
