@@ -1,15 +1,11 @@
 import re
 import httpx
 import argparse
-from mcp.server.fastmcp import FastMCP
+from mcp.server.mcpserver import MCPServer
 from pydantic import BaseModel
 
 # 1. Create MCP server
-mcp = FastMCP(
-    name="Example MCP Server",
-    host="localhost",
-    port=8000,
-)
+mcp = MCPServer(name="Example MCP Server")
 
 # 2. Create the output models for the tool
 class DriverInfo(BaseModel):

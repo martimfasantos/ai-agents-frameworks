@@ -1,6 +1,6 @@
 # AG2 Example Outputs
 
-Captured outputs from running all 18 examples against ag2 v1.0.5 with `gpt-4o-mini`.
+Captured outputs from running all 19 examples against ag2 v1.1.2 with `gpt-4o-mini`.
 
 > These outputs may vary between runs due to LLM non-determinism. The structure, tool invocations, and event sequences should remain consistent.
 
@@ -401,5 +401,24 @@ Workspace files: ['hello.txt']
 ```
 
 > Claude Code ran as an AG2 agent over ACP: its tool call streamed onto the AG2 event stream, and the file it wrote is in `res/acp_workspace/`.
+
+---
+
+## 18_invocation_plugins.py
+
+```
+=== Call 1: agent.ask(..., plugins=[loyalty]) ===
+Agent: You have 4200 loyalty points. -- Loyalty Desk
+  -> get_loyalty_points({})
+  <- 'C-1001 has 4200 points'
+
+=== Call 2: agent.ask(...) without plugins ===
+Agent: I'm sorry, but I can't look up your loyalty points.
+  (no tool calls)
+
+Agent's own tools after both calls: []
+```
+
+> Call 1 gets all three plugin contributions: the tool fires, the `customer_id` variable reaches it without the model passing any argument, and the reply ends with the plugin prompt's sign-off. Call 2 on the same agent has none of them, and `agent.tools` stays empty.
 
 ---
