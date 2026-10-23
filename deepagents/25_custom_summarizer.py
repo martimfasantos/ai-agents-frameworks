@@ -1,15 +1,14 @@
 import textwrap
+from collections.abc import Callable
 
 from dotenv import load_dotenv
+from langchain.agents.middleware import ModelRequest, ModelResponse, wrap_model_call
 from langchain.messages import AnyMessage
 from langgraph.checkpoint.memory import InMemorySaver
 
 from deepagents import create_deep_agent
 from deepagents.backends import StateBackend
-from deepagents.middleware.summarization import (
-    SUMMARIZATION_EVENT_KEY,
-    SummarizationMiddleware,
-)
+from deepagents.middleware.summarization import SummarizationMiddleware
 
 from settings import settings
 
@@ -24,13 +23,10 @@ In this example, we explore Deep Agents with the following features:
 - Replacing the default summarization middleware via middleware=[...]
 
 When the conversation crosses the trigger, older turns are folded into a
-summary. By default the agent's own model writes it; summarizer= hands
-that job to something else. A model name or chat model is prompted with
-summary_prompt, typically a cheaper model than the agent runs on. A
-function receives the messages to summarize and returns the text itself,
-which suits rule-based or external summarization services. Here the same
-four-turn conversation runs under both modes with a low message trigger,
-and we print the summary the agent actually received each time.
+summary written by the agent's own model unless summarizer= says otherwise:
+a model (prompted with summary_prompt, typically a cheaper one) or a
+function that returns the summary text itself. The same four-turn chat runs
+under both modes, and we print the summary the agent actually received.
 
 For more details, visit:
 https://docs.langchain.com/oss/python/deepagents/context-engineering
@@ -63,13 +59,30 @@ SUMMARY_PROMPT = (
 )
 
 
+# --- 3. Record what the model receives; the summary is not in result["messages"] ---
+model_input: list[AnyMessage] = []
+
+
+@wrap_model_call
+def record_model_input(
+    request: ModelRequest, handler: Callable[[ModelRequest], ModelResponse]
+) -> ModelResponse:
+    """Keep the messages sent on the latest model call."""
+    model_input[:] = request.messages
+    return handler(request)
+
+
+# --- 4. Run the same multi-turn chat with a given summarization middleware ---
+backend = StateBackend()
+
+
 def run_conversation(label: str, summarization: SummarizationMiddleware) -> None:
     """Run the same multi-turn chat and print the summary the agent received."""
     # Same .name as the built-in instance, so it replaces the default
     agent = create_deep_agent(
         model=f"openai:{settings.OPENAI_MODEL_NAME}",
         backend=backend,
-        middleware=[summarization],
+        middleware=[summarization, record_model_input],
         checkpointer=InMemorySaver(),
         system_prompt=(
             "When the user states a fact, reply with exactly 'Noted.'. "
@@ -85,16 +98,18 @@ def run_conversation(label: str, summarization: SummarizationMiddleware) -> None
         print(f"User: {text}")
         print(f"  Agent: {result['messages'][-1].text}")
 
-    # The summary lives in private graph state, readable through the checkpointer
-    event = agent.get_state(config).values.get(SUMMARIZATION_EVENT_KEY)
-    print(f"\nSummarization fired: {event is not None}")
-    print(f"Messages folded into the summary: {event['cutoff_index']}")
-    print("Summary message the model saw instead of those turns:")
-    print(textwrap.indent(event["summary_message"].text, "    "))
+    # The injected summary is a HumanMessage tagged lc_source="summarization"
+    summary = next(
+        (m for m in model_input if m.additional_kwargs.get("lc_source") == "summarization"),
+        None,
+    )
+    print(f"\nSummarization fired: {summary is not None}")
+    print(f"Thread history: {len(result['messages'])} messages; last model call received: {len(model_input)}")
+    print("Summary message the model saw instead of the older turns:")
+    print(textwrap.indent(summary.text, "    "))
 
 
-# --- 3. Run both modes: summarize at 6 messages, keep the last 2 verbatim ---
-backend = StateBackend()
+# --- 5. Run both modes: summarize at 6 messages, keep the last 2 verbatim ---
 print("=== Deep Agents Custom Summarizer ===")
 
 # --------------------------------------------------------------

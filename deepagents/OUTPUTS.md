@@ -537,11 +537,11 @@ User: What are the codename, launch date and budget? Answer in one sentence.
   Agent: The project codename is Bluefin, the launch date is March 14, and the budget is 2 million euros.
 
 Summarization fired: True
-Messages folded into the summary: 5
-Summary message the model saw instead of those turns:
+Thread history: 8 messages; last model call received: 3
+Summary message the model saw instead of the older turns:
     You are in the middle of a conversation that has been summarized.
 
-    The full conversation history has been saved to /conversation_history/session_a616b6c553064763af07e492c55949b6.md should you need to refer back to it for details.
+    The full conversation history has been saved to /conversation_history/session_ec8ce83eb24a4129b7298cdf1698d7f4.md should you need to refer back to it for details.
 
     A condensed summary follows:
 
@@ -566,19 +566,19 @@ User: What are the codename, launch date and budget? Answer in one sentence.
   Agent: The project codename is Bluefin, the launch date is March 14, and the budget is 2 million euros.
 
 Summarization fired: True
-Messages folded into the summary: 5
-Summary message the model saw instead of those turns:
+Thread history: 8 messages; last model call received: 3
+Summary message the model saw instead of the older turns:
     You are in the middle of a conversation that has been summarized.
 
-    The full conversation history has been saved to /conversation_history/session_2d4dc25dc4954a78b74d312a857984c9.md should you need to refer back to it for details.
+    The full conversation history has been saved to /conversation_history/session_b6dbf3bc2db541aaa99bda3d5d95bfa2.md should you need to refer back to it for details.
 
     A condensed summary follows:
 
     <summary>
-    - Project codename is Bluefin.
-    - Launch date is March 14.
-    - Budget is 2 million euros.
+    - The project codename is Bluefin.
+    - The launch date is March 14.
+    - The budget is 2 million euros.
     </summary>
 ```
 
-> The summary is read from the private `_summarization_event` state key (`SUMMARIZATION_EVENT_KEY`) through the checkpointer; it is not part of `result["messages"]`. The offload file under `/conversation_history/` gets a new session id each run. Mode B reuses `settings.OPENAI_MODEL_NAME` to avoid hardcoding a model name; in practice point `summarizer=` at a cheaper model than the agent's.
+> The summary is injected only into the model request, not `result["messages"]`, so a `@wrap_model_call` middleware records the request and the example picks out the `HumanMessage` tagged `additional_kwargs["lc_source"] == "summarization"`; the last call received 3 messages (summary + 2 kept) out of an 8-message thread. The offload file under `/conversation_history/` gets a new session id each run. Mode B reuses `settings.OPENAI_MODEL_NAME` to avoid hardcoding a model name; in practice point `summarizer=` at a cheaper model than the agent's.

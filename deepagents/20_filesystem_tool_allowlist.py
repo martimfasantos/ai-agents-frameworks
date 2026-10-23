@@ -27,8 +27,7 @@ middleware whose .name matches a default one substitutes for it. Here we
 build a research agent that can look at files but never change them.
 
 An allowlist is an ergonomics feature, not a security boundary; permission
-rules are. Since 0.7.31 the replacement middleware inherits the agent's
-permissions= rules, so swapping it in no longer drops enforcement.
+rules are, and the replacement middleware inherits the agent's permissions=.
 
 For more details, visit:
 https://docs.langchain.com/oss/python/deepagents/customization
