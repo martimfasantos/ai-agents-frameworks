@@ -4,8 +4,10 @@ version = "0.1.0"
 description = "AG2 framework examples"
 requires-python = ">=3.12"
 dependencies = [
-    "ag2[openai,mcp,a2a]",
-    "mcp",
+    "ag2[a2a,acp,mcp,metrics,openai]>=1.1.2",
+    # A2AServer.build_jsonrpc() needs http-server; add grpc only for build_grpc().
+    "a2a-sdk[http-server]",
+    "mcp>=2.0,<3",
     "pydantic",
     "pydantic-settings",
     "python-dotenv",
