@@ -1,6 +1,6 @@
 # Pydantic AI — Example Outputs
 
-All examples run with `pydantic-ai==2.55.0`, model `openai-chat:gpt-4o-mini`
+All examples run with `pydantic-ai==2.60.0`, model `openai-chat:gpt-4o-mini`
 (`03_built_in_tools.py` overrides this to `openai-responses:gpt-4o-mini`, which native tools require).
 
 > **Note:** LLM responses are non-deterministic. Your outputs will differ in wording
@@ -945,3 +945,79 @@ Response: The file `tmp/build-cache.log` has been deleted. However, the file `co
 > effective verdict but no arguments or reason (the judge answers only `yes`/`no`/`unsure`),
 > so the example joins each verdict to its call by `tool_call_id`. The 4 requests are 2 agent
 > turns plus 2 judgements: the judge's usage counts against the run's own limits.
+
+---
+
+## 30. Timeouts and Deadlines (`30_timeouts_and_deadlines.py`)
+
+```
+=== Example 1: agent.run(..., timeout=3) ===
+  [tool] archive_search('Lisbon 1755 earthquake') started, needs 30s
+RunTimedOut: The agent run timed out.
+  is RunCancelled: True
+  is TimeoutError: True
+  exc.all_messages():
+    ModelRequest.UserPromptPart
+    ModelResponse.ToolCallPart
+
+=== Example 2: RunContext.deadline / remaining_time() ===
+timeout=None
+  [tool] no deadline on this run -> deep research
+  Response: Lisbon is the capital of Portugal, known for its rich history, stunning architecture, and vibrant culture, having been rebuilt after the devastating earthquake in 1755.
+timeout=30
+  [tool] deadline=20:27:21 UTC, remaining=29.1s
+  [tool] plenty of time -> deep research (1s)
+  Response: Lisbon, the capital of Portugal, is renowned for its rich history and architecture, having been largely rebuilt after the devastating earthquake of 1755.
+timeout=8
+  [tool] deadline=20:27:02 UTC, remaining=7.1s
+  [tool] under 10s left -> quick answer from cache
+  Response: Lisbon is the capital of Portugal, known for its rich history, vibrant culture, and picturesque neighborhoods.
+
+=== Example 3: model_settings request_timeout ===
+ModelRequestTimeout: Request to model 'gpt-4o-mini' timed out after 0.05 seconds
+  exc.model_name: gpt-4o-mini
+  exc.timeout:    0.05s
+  is ModelAPIError: True
+  is RunCancelled:  False
+```
+
+> `RunTimedOut` stopped the run 3s into a 30s tool call; `all_messages()` holds the request and
+> the tool call that never returned, which is closed out as `'interrupted'` if the history is
+> resumed. In Example 2 the same tool takes a different path per run: `remaining_time()` is `None`
+> with no `timeout=`, and under 10s it answers from cache. Example 3 is a real OpenAI call given a
+> 50ms `request_timeout`, so it always misses its deadline.
+
+---
+
+## 31. Model Error Categories (`31_model_error_categories.py`)
+
+```
+=== Example 1: except ModelRateLimitError [SIMULATED 429] ===
+Caught ModelRateLimitError from 'flaky-model'
+  status_code: 429
+  retry_after: 2.0s
+  is ModelHTTPError: True
+
+=== Example 2: One handler for all categories [SIMULATED] ===
+  HTTP 429 ModelRateLimitError              -> back off for 2.0s and retry
+  HTTP 402 ModelQuotaExceededError          -> top up billing -- waiting won't help
+  HTTP 529 ModelOverloadedError             -> provider overloaded -- try another model
+  HTTP 503 ModelUnavailableError            -> provider down -- try another model
+  HTTP 500 ModelServerError                 -> provider bug -- retry once, then alert
+  HTTP 400 ModelContextWindowExceededError  -> compact the message history and retry
+
+=== Example 3: FallbackModel(fallback_on=(ModelRateLimitError,)) ===
+Response (REAL, from gpt-4o-mini-2024-07-18): The capital of Portugal is Lisbon.
+  failed attempt: model='flaky-model' outcome='error'
+    error: ModelRateLimitError: status_code: 429, model_name: flaky-model, body: None
+
+=== Example 4: A quota error does not fall back [SIMULATED 402] ===
+Caught ModelQuotaExceededError from 'flaky-model'
+  The real model was never called -> top up billing -- waiting won't help
+```
+
+> Every `[SIMULATED]` error is raised by a `FunctionModel` via `ModelHTTPError.for_category`, the
+> same combined class a real adapter raises; only the Example 3 answer comes from OpenAI. The
+> fallback recorded the rate-limited attempt on `result.response.failed_attempts`. In Example 4
+> the quota error is not in `fallback_on`, so `FallbackModel` re-raised it as-is instead of trying
+> the real model.
