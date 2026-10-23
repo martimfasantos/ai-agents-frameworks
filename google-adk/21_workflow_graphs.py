@@ -86,9 +86,8 @@ def escalate(node_input: str, ctx) -> str:
 # ----------------------------------------------------------------
 # Edges accept an explicit Edge(...), a tuple for a straight hop, or a dict to
 # fan out on the route a node emitted. `description` and `input_schema` become
-# the tool declaration in section 3. Since ADK 2.13.0 NodeTool can infer the
-# schema from the start node's `node_input` type hint; it still raises when the
-# start node is untyped.
+# the tool declaration in section 3; without input_schema, NodeTool infers it
+# from the start node's `node_input` type hint.
 
 triage_workflow = Workflow(
     name="triage_workflow",

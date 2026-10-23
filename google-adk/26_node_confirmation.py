@@ -21,7 +21,7 @@ Some workflow steps — refunds, deletions, payments — should not run until a
 person signs off. With require_confirmation the node checks its arguments
 first: small refunds run straight through, large ones pause the run and wait
 for the caller to approve or reject. A rejection never runs the function; the
-node outputs an error instead. No LLM is involved (new in ADK 2.12.0).
+node outputs an error instead. No LLM is involved, so no API key is needed.
 
 For more details, visit:
 https://github.com/google/adk-python/blob/v2.13.0/docs/guides/workflow/node/index.md

@@ -1,7 +1,7 @@
 import os
 import asyncio
 
-from google.adk import Context, Event
+from google.adk import Context
 from google.adk.labs.classifiers import Binary, Choice, ClassifierNode, LlmClassifier
 from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
@@ -26,7 +26,7 @@ or whether it is urgent. A ClassifierNode replaces the "LLM returns a label +
 function maps it to a route" pair with one node, and the Workflow checks at
 build time that every label has an edge. The node passes its input through
 unchanged, so the routed-to node sees the original ticket. Part of the
-experimental google.adk.labs package (new in ADK 2.13.0).
+experimental google.adk.labs package.
 
 For more details, visit:
 https://github.com/google/adk-python/blob/v2.13.0/docs/guides/labs/classifiers/classifier_node/index.md
