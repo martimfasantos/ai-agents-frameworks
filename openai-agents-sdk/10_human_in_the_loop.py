@@ -37,8 +37,10 @@ async def needs_large_refund_approval(_ctx, params, _call_id) -> bool:
     return amount > 100
 
 
+# `float | int` keeps a whole-number amount like 50 unchanged by validation; if
+# validation coerced it (50 -> 50.0), the SDK would skip the callback and pause anyway.
 @function_tool(needs_approval=needs_large_refund_approval)
-async def process_refund(order_id: str, amount: float) -> str:
+async def process_refund(order_id: str, amount: float | int) -> str:
     """Processes a refund for the given order."""
     return f"Refund of ${amount:.2f} processed for order {order_id}."
 
