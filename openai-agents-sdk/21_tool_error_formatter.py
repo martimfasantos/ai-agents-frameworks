@@ -19,20 +19,15 @@ os.environ["OPENAI_API_KEY"] = settings.OPENAI_API_KEY.get_secret_value()
 -----------------------------------------------------------------------------
 In this example, we explore OpenAI's Agents SDK with the following features:
 - RunConfig(tool_error_formatter=...) applied to every tool in a run
-- ToolErrorFormatterArgs with kind="tool_exception" (added in 0.24.0)
+- ToolErrorFormatterArgs with kind="tool_exception"
 - Hiding exception details (e.g. credentials) from the model
 
-When a function tool raises, the SDK's default failure handler keeps the
-exception away from the model and returns a generic "Please try again."
-instead, so the model can't tell the user what went wrong. Since 0.24.0 the
-run-wide `tool_error_formatter` also receives these tool exceptions
-(`args.kind == "tool_exception"`, original exception in `args.error`), so one
-callback can turn every tool failure into an application-approved message.
-Here it reports the error type but never the message, which contains a
-database password. Returning None keeps the SDK default message.
-
-A tool's own `failure_error_function` takes priority: the formatter only
-rewrites failures handled by the SDK's default failure handler.
+When a function tool raises, the SDK's default handler hides the exception
+and only tells the model "Please try again.". A run-wide tool_error_formatter
+receives the exception in `args.error` and returns the message the model sees
+instead; here it reports the error type but never the message, which holds a
+database password. Returning None keeps the SDK default. A tool's own
+`failure_error_function` still takes priority over the formatter.
 
 For more details, visit:
 https://openai.github.io/openai-agents-python/running_agents/#tool_error_formatter
@@ -88,6 +83,7 @@ def print_tool_outputs(result: RunResult) -> None:
 
 
 async def main() -> None:
+    print("=== Tool error formatter ===\n")
     question = "What's the status of order ORD-1042?"
     print(f"User: {question}")
     print(f"The tool always raises: DatabaseConnectionError: {ERROR_MESSAGE}\n")

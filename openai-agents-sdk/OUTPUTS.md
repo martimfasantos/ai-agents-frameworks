@@ -645,6 +645,8 @@ max_scan_items=3 over a 5-row store:
 ## 21. Tool Error Formatter (`21_tool_error_formatter.py`)
 
 ```
+=== Tool error formatter ===
+
 User: What's the status of order ORD-1042?
 The tool always raises: DatabaseConnectionError: could not connect to postgres://admin:S3cr3t-Pa55@db.internal:5432/orders
 
@@ -652,17 +654,17 @@ The tool always raises: DatabaseConnectionError: could not connect to postgres:/
   Tool output seen by the model:
     An error occurred while running the tool. Please try again.
   Secret reached the model: no
-  Final answer: There was an error retrieving the status of order ORD-1042. Please try again later.
+  Final answer: I encountered an error while checking the status of order ORD-1042. Please try again later or verify the order ID.
 
 --- Run 2: RunConfig(tool_error_formatter=format_tool_error) ---
   [formatter] DatabaseConnectionError from 'get_order_status' (message withheld)
   Tool output seen by the model:
     Tool 'get_order_status' failed with DatabaseConnectionError. Details are hidden.
   Secret reached the model: no
-  Final answer: I couldn't retrieve the status of order ORD-1042 due to a database connection error. Please try again later.
+  Final answer: I couldn't retrieve the status of order ORD-1042 due to a database connection error. Please try again later or check with customer support for assistance.
 ```
 
-> Since 0.24.0 the run-wide `tool_error_formatter` also receives tool exceptions
+> The run-wide `tool_error_formatter` receives tool exceptions
 > (`kind="tool_exception"`, original exception in `args.error`). The SDK default
 > already keeps the exception away from the model, but only says "Please try
 > again." The formatter gives the model an approved summary (the error type) so it
