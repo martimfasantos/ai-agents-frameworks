@@ -1,6 +1,6 @@
 # OpenAI Agents SDK — Example Outputs
 
-All examples run with `openai-agents>=0.23.1`, `openai>=3.13.0`, model `gpt-4o-mini`
+All examples run with `openai-agents>=0.24.0`, `openai>=3.13.0`, model `gpt-4o-mini`
 (`15_sandbox_agent.py` and `17_programmatic_tool_calling.py` require `gpt-5.6`).
 
 ---
@@ -639,3 +639,33 @@ max_scan_items=3 over a 5-row store:
 > the store is ignored on read (v0.23.0 behaviour; earlier versions returned it
 > as history). With `max_scan_items=3`, reading the whole 5-row history raises,
 > but asking for just the latest item fits inside the budget.
+
+---
+
+## 21. Tool Error Formatter (`21_tool_error_formatter.py`)
+
+```
+User: What's the status of order ORD-1042?
+The tool always raises: DatabaseConnectionError: could not connect to postgres://admin:S3cr3t-Pa55@db.internal:5432/orders
+
+--- Run 1: no tool_error_formatter (SDK default) ---
+  Tool output seen by the model:
+    An error occurred while running the tool. Please try again.
+  Secret reached the model: no
+  Final answer: There was an error retrieving the status of order ORD-1042. Please try again later.
+
+--- Run 2: RunConfig(tool_error_formatter=format_tool_error) ---
+  [formatter] DatabaseConnectionError from 'get_order_status' (message withheld)
+  Tool output seen by the model:
+    Tool 'get_order_status' failed with DatabaseConnectionError. Details are hidden.
+  Secret reached the model: no
+  Final answer: I couldn't retrieve the status of order ORD-1042 due to a database connection error. Please try again later.
+```
+
+> Since 0.24.0 the run-wide `tool_error_formatter` also receives tool exceptions
+> (`kind="tool_exception"`, original exception in `args.error`). The SDK default
+> already keeps the exception away from the model, but only says "Please try
+> again." The formatter gives the model an approved summary (the error type) so it
+> can tell the user what failed, while the password in the exception message stays
+> server-side. A tool's own `failure_error_function` takes priority over the
+> formatter.
