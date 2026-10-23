@@ -1,6 +1,6 @@
 # OpenAI Agents SDK — Example Outputs
 
-All examples run with `openai-agents>=0.22.2`, `openai>=3.13.0`, model `gpt-4o-mini`
+All examples run with `openai-agents>=0.23.1`, `openai>=3.13.0`, model `gpt-4o-mini`
 (`15_sandbox_agent.py` and `17_programmatic_tool_calling.py` require `gpt-5.6`).
 
 ---
@@ -257,7 +257,7 @@ Sessions automatically handles conversation history persistence.
 User: Delete the account for user_42 right now using the delete_user_account tool.
 
 Run paused with 1 pending approval(s)
-State serialized (8671 chars) — could persist to DB
+State serialized (10197 chars) — could persist to DB
 
 ==================================================
   APPROVAL REQUIRED
@@ -265,13 +265,13 @@ State serialized (8671 chars) — could persist to DB
   Arguments: {"user_id":"user_42"}
 ==================================================
   Approve? [y/N]:
-Agent: The account for user_42 has been permanently deleted.
+Agent: The account for user_42 has been permanently deleted. If you need any further assistance, feel free to ask!
 
 --- Scenario 2: Small refund (no approval needed, amount <= $100) ---
 User: Process a $50 refund for order ORD-123
 
 (No approval needed — amount is under $100)
-Agent: The $50 refund for order ORD-123 has been successfully processed.
+Agent: The $50 refund for order ORD-123 has been successfully processed. If you need any further assistance, feel free to ask!
 
 --- Scenario 3: Large refund (needs approval, amount > $100) ---
 User: Process a $250 refund for order ORD-456
@@ -282,7 +282,7 @@ User: Process a $250 refund for order ORD-456
   Arguments: {"order_id":"ORD-456","amount":250}
 ==================================================
   Approve? [y/N]:
-Agent: The refund of $250.00 has been successfully processed for order ORD-456.
+Agent: The refund of $250.00 has been successfully processed for order ORD-456. If you have any other questions or need further assistance, feel free to ask!
 
 === Human-in-the-Loop Demo Complete ===
 ```
@@ -290,6 +290,8 @@ Agent: The refund of $250.00 has been successfully processed for order ORD-456.
 > Scenario 1: `needs_approval=True` always pauses. State is serialized/deserialized.
 > Scenario 2: `needs_approval` callback returns `False` for $50 (under $100 threshold).
 > Scenario 3: `needs_approval` callback returns `True` for $250 (over $100 threshold).
+> Since v0.22.3 the callback only runs when validation leaves the arguments untouched;
+> `amount: float | int` keeps the model's `50` as-is so Scenario 2 reaches the callback.
 
 ---
 
@@ -605,3 +607,35 @@ UnconsumedModelSteps: 1 scripted model step(s) were not consumed.
 > `assert_complete()` is the second half of the contract: the short agent stops
 > after one message, leaving a step unconsumed, which is how a workflow that
 > quietly ended early gets caught instead of passing silently.
+
+---
+
+## 20. Encrypted Session (`20_encrypted_session.py`)
+
+```
+=== Encrypted session ===
+
+User: My order number is ORD-4471.
+Assistant: Thank you for providing your order number, ORD-4471.
+
+User: What is my order number?
+Assistant: Your order number is ORD-4471.
+
+Items via EncryptedSession: 4 (decrypted)
+Rows in the SQLite store:   4 (encrypted envelopes)
+First stored row: kid='hkdf-v1', payload=gAAAAABqy_bRMC-LqfOkMYcVeo6S98yDVKlnUX_N...
+
+Wrote one plaintext row directly to the SQLite store.
+Rows in the SQLite store:   5
+Items via EncryptedSession: 4 (plaintext row skipped)
+
+max_scan_items=3 over a 5-row store:
+  full history -> RuntimeError: EncryptedSession max_scan_items exhausted before a complete history result could be established; increase max_scan_items or reduce retained history.
+  limit=1      -> assistant: Your order number is ORD-4471.
+```
+
+> The agent recalls the order number through the encrypted session, while the
+> SQLite store only holds Fernet tokens. The plaintext row written directly to
+> the store is ignored on read (v0.23.0 behaviour; earlier versions returned it
+> as history). With `max_scan_items=3`, reading the whole 5-row history raises,
+> but asking for just the latest item fits inside the budget.

@@ -100,7 +100,7 @@ async def main():
         elif isinstance(ev, WorkflowCancelledEvent):
             print("[Cancelled] Workflow was cancelled")
         elif isinstance(ev, WorkflowFailedEvent):
-            print(f"[Failed] Step '{ev.step_name}' failed: {ev.exception_message}")
+            print(f"[Failed] Step '{ev.step_name}' failed: {ev.exception}")
 
     # Get the final result after streaming completes
     final_result = await handler
