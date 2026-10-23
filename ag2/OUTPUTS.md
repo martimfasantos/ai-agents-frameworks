@@ -273,7 +273,7 @@ Turn 2 (same conversation, server-side glossary tool consulted)
 === A2A demo complete ===
 ```
 
-> The card is fetched over HTTP from `/.well-known/agent-card.json` and publishes an explicit tagged `AgentSkill` (a2a-sdk 1.2+ warns when a skill has no tags). Turn 2 renders 'tool' as 'outil', which is the server-side glossary tool's house translation — proof the remote tool executed on the server.
+> The card is fetched over HTTP from `/.well-known/agent-card.json` and publishes an explicit tagged `AgentSkill`. Turn 2 renders 'tool' as 'outil', which is the server-side glossary tool's house translation — proof the remote tool executed on the server.
 
 ---
 

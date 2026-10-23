@@ -57,7 +57,7 @@ def build_server() -> uvicorn.Server:
     )
 
     # --- 2. Wrap it: build_card publishes discovery metadata ---
-    # The A2A spec requires tags on every skill; a2a-sdk 1.2+ warns without them.
+    # The A2A spec requires tags on every skill; the SDK warns without them.
     skill = AgentSkill(
         id="translate_to_french",
         name="Translate to French",
