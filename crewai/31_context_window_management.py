@@ -8,7 +8,6 @@ from crewai.events import (
     LLMCallStartedEvent,
     ToolUsageFinishedEvent,
 )
-from crewai.llms.base_llm import TOOL_RESULT_CONTEXT_WINDOW_THRESHOLD
 from crewai.tools import tool
 
 from settings import settings
@@ -19,19 +18,16 @@ os.environ["OPENAI_API_KEY"] = settings.OPENAI_API_KEY.get_secret_value()
 -------------------------------------------------------
 In this example, we explore CrewAI with the following features:
 - llm.get_context_window_size(): the usable window, 85% of the advertised one
-  (sizes come from the LiteLLM catalog since 1.15.28)
-- llm.get_input_tokens_count(text): a provider-side token count (1.15.29)
-- respect_context_window + use_better_compaction on an Agent (1.15.29)
-- Oversized tool results deferred to a temp file and read back in bounded
-  sections with the built-in DeferredToolResultReader tool
-- ContextWindowSummarizationStartedEvent / CompletedEvent on the event bus (1.15.29)
+- llm.get_input_tokens_count(text): a provider-side token count
+- respect_context_window + use_better_compaction on an Agent
+- Oversized tool results deferred to a temp file, read back with DeferredToolResultReader
+- ContextWindowSummarizationStartedEvent / CompletedEvent on the event bus
 
-A tool that returns a huge payload (a log dump, a full table export) used to
-land in the conversation verbatim and could crowd out everything else. With
-use_better_compaction, any tool result above 25% of the usable window is
-written to a temporary artifact instead: the model only sees a short preview
-plus the artifact path, and a "Read a deferred tool result" tool is added so
-it can page through the file. If the conversation itself nears the window,
+A tool that returns a huge payload (a log dump, a full table export) can crowd
+everything else out of the conversation. With use_better_compaction, any tool
+result above 25% of the usable window is written to a temporary artifact: the
+model sees a short preview plus the path, and a built-in reader tool lets it
+page through the file. If the conversation itself nears the window,
 respect_context_window summarizes it before the next model call.
 
 For more details, visit:
@@ -42,7 +38,8 @@ https://docs.crewai.com/en/concepts/agents#context-window-management
 # --- 1. Inspect the model's context budget ---
 llm = LLM(model=settings.OPENAI_MODEL_NAME)
 usable_window = llm.get_context_window_size()
-deferral_threshold = int(usable_window * TOOL_RESULT_CONTEXT_WINDOW_THRESHOLD)
+# use_better_compaction defers any tool result above 25% of the usable window
+deferral_threshold = usable_window // 4
 
 print("=== 1. Context budget ===")
 print(f"Usable context window for {llm.model}: {usable_window:,} tokens (85% of advertised)")
