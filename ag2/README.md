@@ -2,7 +2,7 @@
 
 - Repo: https://github.com/ag2ai/ag2
 - Documentation: https://docs.ag2.ai/
-- Version: **1.0.5**
+- Version: **1.1.2**
 
 ## About AG2
 
@@ -74,6 +74,7 @@ uv run python 14_observable_run.py
 uv run python 15_resume.py
 uv run python 16_metrics.py
 uv run python 17_cli_agents_acp.py
+uv run python 18_invocation_plugins.py
 ```
 
 ## Examples
@@ -98,13 +99,14 @@ uv run python 17_cli_agents_acp.py
 | 15 | `15_resume.py` | `agent.resume()` from a stored trajectory and from a tool result |
 | 16 | `16_metrics.py` | `MetricsMiddleware`, Prometheus counters/histograms, exposition text |
 | 17 | `17_cli_agents_acp.py` | `ag2.acp` `ClaudeCodeConfig` driving Claude Code as an agent |
+| 18 | `18_invocation_plugins.py` | `Plugin(prompt=, tools=, variables=)`, `ask(plugins=...)`, `Variable()` injection |
 
 > `17_cli_agents_acp.py` needs Node.js (the Claude Code ACP adapter runs through `npx`) and an existing Claude Code login under `~/.claude`.
 
 ## Key dependencies
 
-- `ag2[openai,mcp,a2a,acp,metrics]>=1.0.5` - AG2 with OpenAI, MCP, A2A, ACP and Prometheus extras
-- `a2a-sdk[http-server,grpc]` - required by `A2AServer` (its module imports the gRPC transport unconditionally)
+- `ag2[openai,mcp,a2a,acp,metrics]>=1.1.2` - AG2 with OpenAI, MCP, A2A, ACP and Prometheus extras
+- `a2a-sdk[http-server]` - required by `A2AServer.build_jsonrpc()` (add `grpc` only for `build_grpc()`)
 - `mcp>=2.0,<3` - Model Context Protocol SDK (ag2 1.0.3+ requires mcp 2.x)
 - `pydantic-settings` - settings management from .env
 - `uvicorn` - ASGI server for the A2A example
