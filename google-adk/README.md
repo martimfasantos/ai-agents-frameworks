@@ -2,7 +2,7 @@
 
 - Repo: https://github.com/google/adk-python
 - Documentation: https://google.github.io/adk-docs/
-- Version: **2.11.0**
+- Version: **2.13.0**
 
 Google Agent Development Kit (ADK) is Google's open-source framework for building, evaluating, and deploying AI agents. It provides a rich set of primitives for tool use, multi-agent orchestration, session management, memory, callbacks, and structured outputs — all tightly integrated with the Gemini model family while also supporting third-party models via LiteLLM.
 
@@ -77,13 +77,15 @@ uv run python 00_hello_world.py
 | `22_fallback_model.py` | Fallback Model | `FallbackModel(models=[...])`, `retriable_status_codes`, non-retriable failures propagating |
 | `23_run_cancellation.py` | Run Cancellation | `run_async(abort_signal=...)` stops a slow tool mid-run; the open call is sealed with `INVOCATION_ABORTED` |
 | `24_model_consult.py` | Model Consult | `ModelConsultTool` lets an executor agent ask an advisor model mid-task, capped by `max_uses` |
+| `25_classifier_routing.py` | Classifier Routing | `ClassifierNode` + `LlmClassifier` route a Workflow on a `Choice` label and a `Binary` threshold, with probabilities in state (labs, experimental) |
+| `26_node_confirmation.py` | Node Confirmation | `@node(require_confirmation=...)` pauses a refund node above a limit; resume with `{"confirmed": True/False}` |
 
 ## Key dependencies
 
 | Package | Version | Purpose |
 |---------|---------|---------|
-| `google-adk` | 2.11.0 | Core framework |
-| `google-adk[eval]` | 2.11.0 | Evaluation extras (rouge-score, scikit-learn, pandas) |
+| `google-adk` | 2.13.0 | Core framework |
+| `google-adk[eval]` | 2.13.0 | Evaluation extras (rouge-score, scikit-learn, pandas) |
 | `pydantic` | ≥2.0 | Structured output schemas and settings |
 | `pydantic-settings` | ≥2.0 | `.env` file loading via `BaseSettings` |
 | `litellm` | latest | Third-party model routing (required for `09_litellm.py`) |

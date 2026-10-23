@@ -4,7 +4,7 @@
 > has a 20 requests/day limit per model — run examples individually to avoid
 > 429 RESOURCE_EXHAUSTED errors.
 
-> Captured on google-adk 2.11.0 with `GOOGLE_MODEL_NAME=gemini-3.5-flash-lite`;
+> Captured on google-adk 2.13.0 with `GOOGLE_MODEL_NAME=gemini-3.5-flash-lite`;
 > the `google_search` agents in 02, 03, 05 and 12 run on
 > `GOOGLE_SEARCH_MODEL_NAME=gemini-2.5-flash` because free-tier keys only allow
 > search grounding there, and the PlanReActPlanner agent in 18 runs on
@@ -693,54 +693,59 @@ response_match_score for dice_agent Failed. Expected 0.3, but got 0.285714285714
 $ uv run python 15_otel_tracing.py
 OpenTelemetry configured with in-memory span exporter and metric reader.
 
-[AGENT RESPONSE] OpenTelemetry is an open-source observability framework that provides standardized APIs, libraries, and agents to collect telemetry data like traces, metrics, and logs from cloud-native software.
+[AGENT RESPONSE] OpenTelemetry is an open-source observability framework and standard used to generate, collect, and export telemetry data such as traces, metrics, and logs.
 
 === Captured Trace Spans ===
 
   Span: generate_content gemini-3.5-flash-lite
-    Duration: 741ms
-    gen_ai.system: gemini
+    Duration: 661ms
     gen_ai.operation.name: generate_content
     gen_ai.request.model: gemini-3.5-flash-lite
     gen_ai.agent.name: otel_demo_agent
     gen_ai.conversation.id: trace-session
+    gen_ai.provider.name: gcp.gemini
     gen_ai.response.finish_reasons: ('stop',)
     gen_ai.usage.input_tokens: 49
-    gen_ai.usage.output_tokens: 35
-
-  Span: call_llm
-    Duration: 742ms
-    ...
+    gen_ai.usage.output_tokens: 30
 
   Span: invoke_agent otel_demo_agent
-    Duration: 1160ms
+    Duration: 683ms
     gen_ai.operation.name: invoke_agent
     gen_ai.agent.description: Agent with OTel tracing enabled.
     gen_ai.agent.name: otel_demo_agent
     gen_ai.conversation.id: trace-session
 
-  Span: invocation
-    Duration: 1162ms
+  Span: invoke_workflow otel_demo_agent
+    Duration: 685ms
+    gen_ai.operation.name: invoke_workflow
+    gen_ai.conversation.id: trace-session
+    gen_ai.workflow.name: otel_demo_agent
 
 === Collected OTel Metrics ===
 
   gen_ai.client.operation.duration: GenAI operation duration.
-    Value: 0.740917
+    Value: 0.660813
   gen_ai.client.token.usage: Number of input and output tokens used.
     Value: 49
-    Value: 35
+    Value: 30
   gen_ai.invoke_agent.duration: Duration of agent invocations.
-    Value: 1.160209
+    Value: 0.682561
   gen_ai.invoke_agent.inference_calls: Number of inference (model) calls per agent invocation.
     Value: 1
   gen_ai.invoke_agent.tool_calls: Number of tool calls per agent invocation.
     Value: 0
+  gen_ai.invoke_workflow.duration: Duration of workflow invocations.
+    Value: 0.684916
 ```
 
 > `OTelHooks` wires an in-memory span exporter and metric reader into ADK's
-> native telemetry. It captures `generate_content`, `call_llm`, `invoke_agent`
-> and `invocation` spans tagged with `gen_ai.*` semantic-convention attributes,
-> plus duration, token and call-count metrics.
+> native telemetry. It captures `generate_content`, `invoke_agent` and
+> `invoke_workflow` spans tagged with `gen_ai.*` semantic-convention attributes,
+> plus duration, token and call-count metrics. ADK 2.13.0 defaults to telemetry
+> schema v2 (OTel GenAI semconv 1.44): the `call_llm` span is gone, the root
+> `invocation` span is now `invoke_workflow`, and spans carry
+> `gen_ai.provider.name`. Set `ADK_TELEMETRY_SCHEMA_VERSION_OPT_IN=1` to keep the
+> legacy v1 span names.
 
 **Verdict:** PASS - Spans and agentic metrics are captured and printed.
 
@@ -1058,7 +1063,8 @@ $ uv run python 21_workflow_graphs.py
 > `Event(route=[...])`. Section 2 shows node-as-tool (new in ADK 2.4.0): the same
 > graph object handed to `LlmAgent(tools=[...])` is auto-wrapped as a `NodeTool`,
 > with the declaration derived from the Workflow's `description` and
-> `input_schema`. Without an `input_schema`, `NodeTool.__init__` raises.
+> `input_schema`. Since ADK 2.13.0 a missing `input_schema` is inferred from the
+> start node's `node_input` type hint; `NodeTool` raises only when it cannot be.
 
 **Verdict:** PASS - conditional routing branches correctly with no LLM, and the same Workflow runs as an agent tool.
 
@@ -1172,6 +1178,110 @@ Customer: Order ORD-502 arrived broken. I want my money back.
 
 ---
 
+## 25. Classifier Routing (`25_classifier_routing.py`)
+
+```
+$ uv run python 25_classifier_routing.py
+
+-----------------------------------------------------------------
+               Ticket 1
+-----------------------------------------------------------------
+
+  'I was charged twice for my March invoice, please refund one of them.'
+
+    triage        route='billing'    P: billing=1.00, technical=0.00
+    billing_queue -> Filed with the billing team.
+    path: triage -> billing_queue
+
+-----------------------------------------------------------------
+               Ticket 2
+-----------------------------------------------------------------
+
+  'Checkout API returns 500 on every call since 9am, production orders are failing.'
+
+    triage        route='technical'  P: billing=0.01, technical=0.99
+    is_urgent     route=True         P(true)=1.00, threshold=0.7
+    page_oncall   -> Paged the on-call engineer (urgency 100%).
+    path: triage -> is_urgent -> page_oncall
+
+-----------------------------------------------------------------
+               Ticket 3
+-----------------------------------------------------------------
+
+  'The tooltip on the dashboard export button has a typo.'
+
+    triage        route='technical'  P: billing=0.00, technical=1.00
+    is_urgent     route=False        P(true)=0.00, threshold=0.7
+    eng_queue     -> Filed in the engineering backlog.
+    path: triage -> is_urgent -> eng_queue
+```
+
+> `ClassifierNode` (new in ADK 2.13.0, experimental `google.adk.labs.classifiers`)
+> asks an `LlmClassifier` one typed question and emits the answer as the route.
+> `triage` is a `Choice`, so it routes on the label (`'billing'` / `'technical'`);
+> `is_urgent` is a `Binary`, so it routes on `True` only when P(true) reaches its
+> `threshold=0.7`. `answer_key` writes every probability to session state, which
+> is how `page_oncall` reads the urgency it reports. The node passes its input
+> through unchanged, so terminal nodes see the original ticket. The run logs
+> `UserWarning: [EXPERIMENTAL] feature CLASSIFIER is enabled.` on stderr.
+
+**Verdict:** PASS - Three tickets took three different paths, each route backed by the printed probabilities
+
+---
+
+## 26. Node Confirmation (`26_node_confirmation.py`)
+
+```
+$ uv run python 26_node_confirmation.py
+
+-----------------------------------------------------------------
+               Small refund — runs without confirmation
+-----------------------------------------------------------------
+
+  Request: ORD-101, $40.00
+
+  [workflow] issue_refund -> 'Refunded $40.00 on ORD-101.'
+  No confirmation requested ($40.00 <= $100).
+
+-----------------------------------------------------------------
+               Large refund — paused, then approved
+-----------------------------------------------------------------
+
+  Request: ORD-102, $250.00
+
+  [workflow] paused with function call 'adk_request_input'
+             id:      wf_tool_confirmation:refund_workflow@1/issue_refund@1
+             message: Please approve or reject the tool call issue_refund().
+             args:    {'order_id': 'ORD-102', 'amount': 250.0}
+  [user]     responds {"confirmed": true}
+  [workflow] issue_refund -> 'Refunded $250.00 on ORD-102.'
+
+-----------------------------------------------------------------
+               Large refund — paused, then rejected
+-----------------------------------------------------------------
+
+  Request: ORD-103, $900.00
+
+  [workflow] paused with function call 'adk_request_input'
+             id:      wf_tool_confirmation:refund_workflow@1/issue_refund@1
+             message: Please approve or reject the tool call issue_refund().
+             args:    {'order_id': 'ORD-103', 'amount': 900.0}
+  [user]     responds {"confirmed": false}
+  [workflow] issue_refund -> {'error': 'This tool call is rejected.'}
+```
+
+> `@node(require_confirmation=lambda amount: amount > 100)` (new in ADK 2.12.0)
+> evaluates the predicate against the node's bound arguments before running it.
+> The $40 refund runs straight through; the larger ones pause the run with an
+> `adk_request_input` function call whose args carry the pending arguments. The
+> caller resumes by sending a `FunctionResponse` with the same `id` and
+> `{"confirmed": ...}`: `true` runs the function, `false` skips it and the node
+> outputs `{'error': 'This tool call is rejected.'}`. No LLM is called.
+
+**Verdict:** PASS - Small refund ran unconfirmed, large refunds paused, and approve/reject each resumed correctly
+
+---
+
 ## Summary
 
 | # | File | Status | Notes |
@@ -1201,5 +1311,7 @@ Customer: Order ORD-502 arrived broken. I want my money back.
 | 22 | `22_fallback_model.py` | PASS | Falls back on a retriable status, propagates otherwise |
 | 23 | `23_run_cancellation.py` | PASS | Tool cancelled mid-run, open call sealed with INVOCATION_ABORTED |
 | 24 | `24_model_consult.py` | PASS | Executor consults the advisor once and acts on its guidance |
+| 25 | `25_classifier_routing.py` | PASS | Choice and Binary classifier nodes route tickets with probabilities in state |
+| 26 | `26_node_confirmation.py` | PASS | Refund node pauses above $100; approve runs it, reject returns an error |
 
-**25/25 examples PASS.**
+**27/27 examples PASS.**
