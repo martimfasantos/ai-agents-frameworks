@@ -28,12 +28,12 @@ In this example, we explore Claude Agent SDK with the following features:
 Before the first reply, the CLI sends a system/init message describing the
 session it started: which model and Claude Code version are running, which
 tools and MCP servers are available, and which protocol capabilities the
-CLI supports. SDK 0.2.166 types this payload as SystemInitData, so you can
+CLI supports. The SDK types this payload as SystemInitData, so you can
 check that an MCP server actually connected, or that the CLI supports
 interrupt receipts, before relying on them.
 
 For more details, visit:
-https://github.com/anthropics/claude-agent-sdk-python/blob/v0.2.173/CHANGELOG.md
+https://code.claude.com/docs/en/agent-sdk/agent-loop#message-types
 -------------------------------------------------------
 """
 
@@ -77,6 +77,7 @@ def show_init(init: SystemInitData) -> None:
     print(f"\ninterrupt_receipt_v1 supported: {supports_receipts}")
 
 
+# --- 4. Run one turn and read the init message before the reply ---
 async def main():
     async for message in query(prompt="Reply with just 'ready'.", options=options):
         if isinstance(message, SystemMessage) and message.subtype == "init":
