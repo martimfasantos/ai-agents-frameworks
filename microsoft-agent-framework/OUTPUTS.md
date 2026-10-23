@@ -525,10 +525,6 @@ If you need further help or details, let me know!
 > `search_docs` was merely *hidden* and became callable once loaded, while `internal_admin_report` was left out of
 > `allowed_tools` and stayed unreachable even though the model explicitly tried to load it (final `docs_load_tool`
 > call, `Forbidden tool reached: False`).
->
-> Ported to MCP SDK 2.x for v1.23.0: the child server's handlers now take `(ctx, params)` and are registered with
-> `Server(..., on_list_tools=..., on_call_tool=...)` instead of the removed `@server.list_tools()` /
-> `@server.call_tool()` decorators. The tool-call sequence is identical to the v1.21.0 run.
 
 ## 25_workflow_checkpoints.py
 

@@ -45,7 +45,7 @@ async def run_demo_server() -> None:
     from mcp.server.lowlevel import Server
     from mcp.server.stdio import stdio_server
 
-    # MCP SDK 2.x handlers receive (ctx, params) and are passed to Server(...).
+    # Low-level handlers receive (ctx, params) and are registered on Server(...) below.
     async def list_tools(
         ctx: ServerRequestContext[Any], params: types.PaginatedRequestParams | None
     ) -> types.ListToolsResult:

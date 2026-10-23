@@ -2,7 +2,7 @@ import asyncio
 
 from dotenv import load_dotenv
 from mcp import Client
-from mcp.server.mcpserver import MCPServer
+from mcp.server import MCPServer
 
 from agent_framework import Agent, MCPStdioTool
 from agent_framework.openai import OpenAIChatClient
@@ -27,7 +27,7 @@ Despite the class name, MCPStdioTool spawns no subprocess here — the
 Client connects to the MCPServer object in-process.
 
 For more details, visit:
-https://github.com/microsoft/agent-framework/blob/python-1.23.0/python/samples/02-agents/mcp/README.md
+https://github.com/microsoft/agent-framework/blob/python-1.23.0/python/packages/core/agent_framework/_mcp.py#L3720
 -------------------------------------------------------
 """
 
@@ -59,11 +59,7 @@ async def main() -> None:
     async with Client(server) as mcp_client:
         for question in ("What's the weather in Lisbon?", "Is it snowing in Oslo?"):
             # --- 3. A fresh tool wrapper per question borrows the same client ---
-            async with MCPStdioTool(
-                name="weather",
-                mcp_client=mcp_client,
-                load_prompts=False,
-            ) as weather_tool:
+            async with MCPStdioTool(name="weather", mcp_client=mcp_client) as weather_tool:
                 agent = Agent(
                     client=client,
                     name="weather-agent",
