@@ -76,7 +76,7 @@ async def research(ctx: RunContext, topic: str) -> str:
     return f"(deep) {topic}: capital of Portugal, rebuilt after the 1755 earthquake."
 
 
-async def main():
+async def main() -> None:
 
     # ------------------------------------------------------------------
     # Example 1: timeout= on the run raises RunTimedOut

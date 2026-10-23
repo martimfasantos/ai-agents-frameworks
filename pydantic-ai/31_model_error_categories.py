@@ -31,15 +31,12 @@ In this example, we explore Pydantic AI with the following features:
 - FallbackModel(fallback_on=(ModelRateLimitError,)) to fall back on one category only
 - ModelResponse.failed_attempts, the record of the models a fallback moved on from
 
-Before v2.59 you reacted to a failure by inspecting status codes or each
-provider SDK's own exception types. Every adapter now raises the same
-categories whichever provider failed, so "back off on a rate limit" or
-"compact the history on a context overflow" is one except clause. An HTTP
-error is both a ModelHTTPError and its category, so older handlers still work.
-
-Provider errors cannot be triggered on demand, so the failing model here is
-a FunctionModel that raises the exact error an adapter would raise. Every
-error marked [SIMULATED] comes from it; only the fallback answer is real.
+Every model adapter raises the same categories whichever provider failed,
+so "back off on a rate limit" or "compact the history on a context
+overflow" is one except clause. Each HTTP error is both a ModelHTTPError
+and its category, so status-code handlers keep working. Provider errors
+can't be triggered on demand, so a FunctionModel raises them here: every
+[SIMULATED] error comes from it; only the fallback answer is real.
 
 For more details, visit:
 https://pydantic.dev/docs/ai/models/overview/#handling-model-api-errors
@@ -77,28 +74,12 @@ def advice_for(exc: ModelAPIError) -> str:
     return "unhandled"
 
 
-async def main():
+async def main() -> None:
 
     # ------------------------------------------------------------------
-    # Example 1: Catch a rate limit by category, not by status code
+    # Example 1: One handler covers every category
     # ------------------------------------------------------------------
-    print("=== Example 1: except ModelRateLimitError [SIMULATED 429] ===")
-
-    agent = Agent(failing_model(ModelRateLimitError, 429, retry_after=2.0))
-    try:
-        await agent.run("What is the capital of Portugal?")
-    except ModelRateLimitError as exc:
-        print(f"Caught {type(exc).__name__} from {exc.model_name!r}")
-        print(f"  status_code: {exc.status_code}")
-        print(f"  retry_after: {exc.retry_after}s")
-        # Both the category and the HTTP error class match the same exception
-        print(f"  is ModelHTTPError: {isinstance(exc, ModelHTTPError)}")
-    print()
-
-    # ------------------------------------------------------------------
-    # Example 2: The same handler covers every category
-    # ------------------------------------------------------------------
-    print("=== Example 2: One handler for all categories [SIMULATED] ===")
+    print("=== Example 1: One handler for all categories [SIMULATED] ===")
 
     simulated = [
         (ModelRateLimitError, 429, {"retry_after": 2.0}),
@@ -111,14 +92,15 @@ async def main():
     for category, status_code, kwargs in simulated:
         try:
             await Agent(failing_model(category, status_code, **kwargs)).run("Hi")
-        except ModelAPIError as exc:
+        except ModelHTTPError as exc:
+            # A plain ModelHTTPError handler still receives the specific category
             print(f"  HTTP {exc.status_code} {type(exc).__name__:<32} -> {advice_for(exc)}")
     print()
 
     # ------------------------------------------------------------------
-    # Example 3: Fall back to a real model only on rate limits
+    # Example 2: Fall back to a real model only on rate limits
     # ------------------------------------------------------------------
-    print("=== Example 3: FallbackModel(fallback_on=(ModelRateLimitError,)) ===")
+    print("=== Example 2: FallbackModel(fallback_on=(ModelRateLimitError,)) ===")
 
     fallback = FallbackModel(
         failing_model(ModelRateLimitError, 429, retry_after=2.0),
@@ -136,9 +118,9 @@ async def main():
     print()
 
     # ------------------------------------------------------------------
-    # Example 4: Categories outside fallback_on are raised as-is
+    # Example 3: Categories outside fallback_on are raised as-is
     # ------------------------------------------------------------------
-    print("=== Example 4: A quota error does not fall back [SIMULATED 402] ===")
+    print("=== Example 3: A quota error does not fall back [SIMULATED 402] ===")
 
     # Same fallback chain, but the primary now fails with exhausted quota
     fallback = FallbackModel(

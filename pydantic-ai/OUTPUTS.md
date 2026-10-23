@@ -992,13 +992,7 @@ ModelRequestTimeout: Request to model 'gpt-4o-mini' timed out after 0.05 seconds
 ## 31. Model Error Categories (`31_model_error_categories.py`)
 
 ```
-=== Example 1: except ModelRateLimitError [SIMULATED 429] ===
-Caught ModelRateLimitError from 'flaky-model'
-  status_code: 429
-  retry_after: 2.0s
-  is ModelHTTPError: True
-
-=== Example 2: One handler for all categories [SIMULATED] ===
+=== Example 1: One handler for all categories [SIMULATED] ===
   HTTP 429 ModelRateLimitError              -> back off for 2.0s and retry
   HTTP 402 ModelQuotaExceededError          -> top up billing -- waiting won't help
   HTTP 529 ModelOverloadedError             -> provider overloaded -- try another model
@@ -1006,18 +1000,18 @@ Caught ModelRateLimitError from 'flaky-model'
   HTTP 500 ModelServerError                 -> provider bug -- retry once, then alert
   HTTP 400 ModelContextWindowExceededError  -> compact the message history and retry
 
-=== Example 3: FallbackModel(fallback_on=(ModelRateLimitError,)) ===
+=== Example 2: FallbackModel(fallback_on=(ModelRateLimitError,)) ===
 Response (REAL, from gpt-4o-mini-2024-07-18): The capital of Portugal is Lisbon.
   failed attempt: model='flaky-model' outcome='error'
     error: ModelRateLimitError: status_code: 429, model_name: flaky-model, body: None
 
-=== Example 4: A quota error does not fall back [SIMULATED 402] ===
+=== Example 3: A quota error does not fall back [SIMULATED 402] ===
 Caught ModelQuotaExceededError from 'flaky-model'
   The real model was never called -> top up billing -- waiting won't help
 ```
 
 > Every `[SIMULATED]` error is raised by a `FunctionModel` via `ModelHTTPError.for_category`, the
-> same combined class a real adapter raises; only the Example 3 answer comes from OpenAI. The
-> fallback recorded the rate-limited attempt on `result.response.failed_attempts`. In Example 4
-> the quota error is not in `fallback_on`, so `FallbackModel` re-raised it as-is instead of trying
-> the real model.
+> same combined class a real adapter raises, so the `except ModelHTTPError` in Example 1 sees each
+> specific category; only the Example 2 answer comes from OpenAI. The fallback recorded the
+> rate-limited attempt on `result.response.failed_attempts`. In Example 3 the quota error is not in
+> `fallback_on`, so `FallbackModel` re-raised it as-is instead of trying the real model.
