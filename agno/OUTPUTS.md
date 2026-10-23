@@ -1,6 +1,6 @@
 # Agno Example Outputs
 
-Captured outputs from running all 24 examples against agno v3.1.2 with `gpt-4o-mini`.
+Captured outputs from running all 25 examples against agno v3.1.10 with `gpt-4o-mini`.
 
 > These outputs may vary between runs due to LLM non-determinism. The structure and tool invocations should remain consistent.
 
@@ -874,5 +874,37 @@ Question: Why did our sales numbers fall?
 ```
 
 > Both searches run against the same LanceDb table. The plain search ranks the dashboard guide first because it repeats the question's words ("sales", "numbers", "fall"); the Q3 review answers the question but shares none of them. HyDE embeds an LLM-written hypothetical answer instead, which lands next to the real answer and puts the Q3 review on top.
+
+---
+
+## 24_multi_turn_eval.py
+
+```
+=== Running multi-turn eval suite ===
+
+[PASS] turn 1: offers open slots
+  session: booking-session-001 (shared)
+  tool:    get_open_slots({}) -> Open slots (Europe/Lisbon): Tuesday 10:00, Wednesday 15:00
+  reply:   I have available slots on Tuesday at 10:00 and Wednesday at 15:00; which one works for you?
+
+[PASS] turn 2: books the slot using turn-1 context
+  session: booking-session-001 (shared)
+  tool:    create_appointment({'slot': 'Wednesday 15:00', 'name': 'Priya'}) -> Booked Wednesday 15:00 for Priya (user lead-42) on calendar cal-7.
+  reply:   Your appointment has been booked for Wednesday at 15:00, Priya.
+  score:   booked name='Priya', slot='Wednesday 15:00'; expected 'Priya' on Wednesday
+
+[PASS] fresh session: no calendar, no slots
+  session: eval-fresh session: no calendar, no slots-bc4efca6 (generated per case)
+  tool:    get_open_slots({}) -> No calendar is configured for this caller.
+  reply:   It seems there is no calendar configured; please provide your name so we can assist you further.
+
+=== Stored session 'booking-session-001' ===
+Runs in session: 2 (turn 1 + turn 2)
+Session state:   {'calendar_id': 'cal-7', 'timezone': 'Europe/Lisbon', 'appointment': {'slot': 'Wednesday 15:00', 'name': 'Priya'}}
+
+Suite: PASS — 3/3 cases passed
+```
+
+> The first two cases share `session_id`, so the suite runs them as consecutive turns of one conversation. Turn 2 only says "Wednesday works for me" — the name `Priya` in the `create_appointment` call and `calendar cal-7` in its result can only come from turn 1's history and the session_state turn 1 passed. The third case has no `session_id`, gets a generated session with no history or calendar, and correctly offers no slots. The stored session holds both turns and the booked appointment.
 
 ---
