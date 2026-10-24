@@ -29,7 +29,7 @@ https://google.github.io/adk-docs/integrations/google-search/
 # --- 1. Create the agent with the built-in google_search tool ---
 search_agent = LlmAgent(
     name="search_agent",
-    model=settings.GOOGLE_MODEL_NAME,
+    model=settings.GOOGLE_SEARCH_MODEL_NAME,  # google_search needs a search-enabled model
     instruction=(
         "You are a search specialist. Use Google Search to find accurate, "
         "up-to-date information. Summarize findings in 2-3 sentences."
