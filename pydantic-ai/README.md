@@ -1,6 +1,6 @@
 # Pydantic AI
 
-Version: **2.43.0**
+Version: **2.60.0**
 
 - Repo: https://github.com/pydantic/pydantic-ai
 - Documentation: https://pydantic.dev/docs/ai/overview/
@@ -73,15 +73,20 @@ uv run python 00_hello_world.py
 | `25_agentic_evals.py` | Agentic Evals | ToolCorrectness, TrajectoryMatch, ArgumentCorrectness, MaxToolCalls, GEval |
 | `26_tool_failures.py` | Tool Failures | `ToolFailed` vs `ModelRetry`, retry budgets, `RunContext.is_tool_available` |
 | `27_run_cancellation.py` | Run Cancellation | `AgentRun.cancel()`, `RunContext.cancel()`, `RunCancelled` |
+| `28_conversation.py` | Conversation | `result.conversation`, `run(conversation=...)`, `ConversationTypeAdapter`, `UsageLimits` across turns |
+| `29_tool_call_judge.py` | Tool Call Judge | `ToolCallJudge` capability from `pydantic-ai-harness`: a second model allows or blocks tool calls |
+| `30_timeouts_and_deadlines.py` | Timeouts & Deadlines | `run(timeout=)` and `RunTimedOut`, `RunContext.remaining_time()`, `request_timeout` and `ModelRequestTimeout` |
+| `31_model_error_categories.py` | Model Error Categories | `ModelRateLimitError` and other provider-agnostic categories, `ModelHTTPError.for_category`, `FallbackModel(fallback_on=)` |
 
 ## Key dependencies
 
 | Package | Version | Purpose |
 |---------|---------|---------|
-| `pydantic-ai[spec]` | 2.43.0 | Core agent framework; the `spec` extra is required for `20_agent_spec.py` |
-| `fasta2a` | 0.6.1 | A2A protocol support (required for `18_a2a.py`) |
-| `pydantic-evals` | 2.43.0 | Evaluation framework (required for `17_evals.py`, `25_agentic_evals.py`) |
-| `pydantic-graph` | 2.43.0 | Graph/FSM library (required for `14_stateful_graphs.py`, `15_graphs_with_genai.py`) |
+| `pydantic-ai[spec]` | 2.60.0 | Core agent framework; the `spec` extra is required for `20_agent_spec.py` |
+| `pydantic-ai-harness` | 0.60.0 | Capability library, Alpha (required for `29_tool_call_judge.py`) |
+| `fasta2a` | 2.0.1 | A2A protocol support (required for `18_a2a.py`) |
+| `pydantic-evals` | 2.60.0 | Evaluation framework (required for `17_evals.py`, `25_agentic_evals.py`) |
+| `pydantic-graph` | 2.60.0 | Graph/FSM library (required for `14_stateful_graphs.py`, `15_graphs_with_genai.py`) |
 | `pydantic` | >=2.10.0 | Data validation and structured output schemas |
 | `pydantic-settings` | >=2.7.0 | `.env` file loading via `BaseSettings` |
 | `openai` | >=1.60.0 | OpenAI API client |
@@ -96,3 +101,5 @@ uv run python 00_hello_world.py
 - **A2A** (`18_a2a.py`) starts an HTTP server — run it standalone and test with curl.
 - **Agentic evals** (`25_agentic_evals.py`) configure logfire with `send_to_logfire=False` to capture spans locally; no Logfire account or network access is needed.
 - **Graphs** (`14_stateful_graphs.py`) use `pydantic_graph`, which is a standalone library with no dependency on `pydantic-ai`.
+- **Tool call judge** (`29_tool_call_judge.py`) comes from `pydantic-ai-harness`, a separate Alpha (0.x) package whose API may change between minor releases. The judge uses the same model as the agent.
+- **Model error categories** (`31_model_error_categories.py`) simulates provider failures with a `FunctionModel`, since rate limits and outages can't be triggered on demand; only the fallback answer comes from OpenAI.

@@ -1,6 +1,6 @@
 # Pydantic AI — Example Outputs
 
-All examples run with `pydantic-ai==2.43.0`, model `openai-chat:gpt-4o-mini`
+All examples run with `pydantic-ai==2.60.0`, model `openai-chat:gpt-4o-mini`
 (`03_built_in_tools.py` overrides this to `openai-responses:gpt-4o-mini`, which native tools require).
 
 > **Note:** LLM responses are non-deterministic. Your outputs will differ in wording
@@ -563,7 +563,7 @@ Test with:
 
 Agent card: http://localhost:8000/.well-known/agent-card.json
 
-INFO:     Started server process [67890]
+INFO:     Started server process [83737]
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.
 INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
@@ -572,19 +572,21 @@ INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
 Agent card (`GET /.well-known/agent-card.json`):
 
 ```json
-{"name":"Math Tutor Agent","description":"A helpful math tutor that can explain and calculate.","url":"http://localhost:8000","version":"1.0.0","protocolVersion":"0.3.0","skills":[],"defaultInputModes":["application/json"],"defaultOutputModes":["application/json"],"capabilities":{"streaming":false,"pushNotifications":false,"stateTransitionHistory":false}}
+{"name":"Math Tutor Agent","description":"A helpful math tutor that can explain and calculate.","version":"1.0.0","supportedInterfaces":[{"protocolBinding":"JSONRPC","url":"http://localhost:8000","protocolVersion":"1.0"}],"skills":[],"defaultInputModes":["application/json"],"defaultOutputModes":["application/json"],"capabilities":{"streaming":true,"pushNotifications":false}}
 ```
 
 Response to `message/send`:
 
 ```json
-{"jsonrpc":"2.0","id":"1","result":{"id":"94cb3d01-6b9d-4340-a0fe-3fe52417096c","contextId":"d0d033f0-2cd4-44d0-a9a0-4a6cd9ebb92c","kind":"task","status":{"state":"submitted","timestamp":"2026-08-08T02:40:35.915422"},"history":[{"role":"user","parts":[{"kind":"text","text":"What is 15 * 23?"}],"kind":"message","messageId":"m1","taskId":"94cb3d01-6b9d-4340-a0fe-3fe52417096c","contextId":"d0d033f0-2cd4-44d0-a9a0-4a6cd9ebb92c"}]}}
+{"jsonrpc":"2.0","id":"1","result":{"task":{"id":"02c65a4e-cdcd-41fc-a5e8-7a873728ac75","contextId":"c3df8df1-c666-477a-ac31-40577273c588","status":{"state":"submitted","timestamp":"2026-10-14T11:29:16.599828"},"history":[{"role":"user","parts":[{"text":"What is 15 * 23?"}],"messageId":"m1","taskId":"02c65a4e-cdcd-41fc-a5e8-7a873728ac75","contextId":"c3df8df1-c666-477a-ac31-40577273c588"}]}}}
 ```
 
 > This example runs a server, so it is verified by curl rather than by exiting. v2 deleted the
 > `agent.to_a2a()` method and the `pydantic-ai-slim[a2a]` extra; the replacement is
 > `fasta2a.pydantic_ai.agent_to_a2a(agent, ...)` from the separate `fasta2a` package, which
-> takes the same keyword arguments.
+> takes the same keyword arguments. fasta2a 2.x speaks A2A protocol 1.0: the card moves `url` and
+> `protocolVersion` into `supportedInterfaces`, and `message/send` wraps the task in `result.task`
+> with no `kind` discriminators (the request's `kind` fields are still accepted).
 
 ---
 
@@ -771,30 +773,39 @@ Evaluating handle_ticket ━━━━━━━━━━━━━━━━━━�
 ┏━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━━┓
 ┃ Case ID         ┃ Scores          ┃ Metrics          ┃ Assertions ┃ Duration ┃
 ┡━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━━━┩
-│ lost_order_ref… │ TrajectoryMatch │ requests: 3      │ ✔✔✔✔       │     2.7s │
+│ lost_order_ref… │ TrajectoryMatch │ requests: 3      │ ✔✔✔✔       │     3.5s │
 │                 │ : 1.00          │ input_tokens:    │            │          │
-│                 │ GEval: 4        │ 455              │            │          │
+│                 │ GEval: 5        │ 455              │            │          │
+│                 │                 │ output_tokens:   │            │          │
+│                 │                 │ 60               │            │          │
+│                 │                 │ cost: 0.000104   │            │          │
 ├─────────────────┼─────────────────┼──────────────────┼────────────┼──────────┤
-│ delivered_orde… │ GEval: 5        │ requests: 2      │ ✔✔✔        │     1.6s │
+│ delivered_orde… │ GEval: 5        │ requests: 2      │ ✔✔✔        │     1.5s │
 │                 │                 │ input_tokens:    │            │          │
 │                 │                 │ 254              │            │          │
+│                 │                 │ output_tokens:   │            │          │
+│                 │                 │ 26               │            │          │
+│                 │                 │ cost: 0.0000537  │            │          │
 ├─────────────────┼─────────────────┼──────────────────┼────────────┼──────────┤
-│ Averages        │ TrajectoryMatch │ requests: 2.50   │ 100.0% ✔   │     2.2s │
+│ Averages        │ TrajectoryMatch │ requests: 2.50   │ 100.0% ✔   │     2.5s │
 │                 │ : 1.00          │ input_tokens:    │            │          │
-│                 │ GEval: 4.50     │ 354.5            │            │          │
+│                 │ GEval: 5.00     │ 354.5            │            │          │
+│                 │                 │ output_tokens:   │            │          │
+│                 │                 │ 43.0             │            │          │
+│                 │                 │ cost: 0.0000790  │            │          │
 └─────────────────┴─────────────────┴──────────────────┴────────────┴──────────┘
 
 
 === Per-case evaluator breakdown ===
 
 lost_order_refunded
-  answer: A refund for order A-200 has been issued due to it being lost in transit.
+  answer: A refund has been issued for order A-200 due to it being lost in transit.
   [PASS] ToolCorrectness: None
   [PASS] ArgumentCorrectness: None
   [PASS] MaxToolCalls: 2 tool call(s), budget=3
   [PASS] MaxModelRequests: 3 model request(s) (from ctx.metrics['requests']), budget=4
   [score] TrajectoryMatch: 1.0
-  [score] GEval: 4
+  [score] GEval: 5
 
 delivered_order_not_refunded
   answer: Order A-100 has been delivered.
@@ -810,6 +821,11 @@ delivered_order_not_refunded
 > `ArgumentCorrectness` passes only because the refund was issued for `A-200`. The delivered
 > case asserts the opposite — `lookup_order` alone, no refund. Spans are captured locally via
 > `logfire.configure(send_to_logfire=False)`; no Logfire account or network access is required.
+>
+> The task is `async def`: pydantic-evals runs a plain `def` task in a worker thread per case,
+> each with its own event loop, and calling `run_sync` there intermittently failed a case on
+> 2.55 with `RuntimeError: ... bound to a different event loop` because the cases share the
+> agent's pooled HTTP connections.
 
 ---
 
@@ -866,3 +882,136 @@ Response: I am unable to generate the payroll report for employee E-1001 as the 
 > **`CancelledError` must be allowed out of the `async with agent.iter(...)` block.**
 > Catching it inside suppresses the teardown and the tool runs to completion anyway —
 > the run then takes 33s and reports a cancellation that did not really happen.
+
+---
+
+## 28. Conversation (`28_conversation.py`)
+
+```
+=== Turn 1 ===
+User:  Hi, I'm Ana and I'm flying to Porto next week.
+Agent: That sounds exciting, Ana! Enjoy your trip to Porto!
+conversation_id: 01a12cd7-c233-7649-b46d-132ea3afcf9c
+running usage:   requests=1, tokens=44
+
+=== Store and restore with ConversationTypeAdapter ===
+Saved 1914 bytes of JSON
+Restored: 2 messages, requests=1, same id: True
+
+=== Turn 2 (continued from the restored conversation) ===
+User:  What's my name, and which city am I visiting?
+Agent: Your name is Ana, and you're visiting Porto.
+conversation_id: 01a12cd7-c233-7649-b46d-132ea3afcf9c
+running usage:   requests=2, tokens=117
+
+=== Turn 3 with conversation= ===
+UsageLimitExceeded: The next request would exceed the request_limit of 2. Consider raising the limit, or see the docs on usage limits for budget-aware patterns: ...
+
+=== Turn 3 with message_history= only ===
+Agent: Try the iconic Francesinha sandwich and Pastéis de Nata for dessert.
+usage restarted at requests=1, so the cap never bit
+```
+
+> Turn 2 recalls both facts from turn 1 after a JSON round-trip through
+> `ConversationTypeAdapter`, under the same `conversation_id`, and its usage is cumulative
+> (`requests=2`). Every turn passes the same `UsageLimits(request_limit=2)`: carried as a
+> `Conversation`, the running usage makes turn 3 fail before it is sent, while the same turn
+> rebuilt from `message_history=` alone starts counting from zero and goes through.
+
+---
+
+## 29. Tool Call Judge (`29_tool_call_judge.py`)
+
+```
+=== Running the agent ===
+  [tool] delete_file('tmp/build-cache.log') ran
+
+=== Judge verdicts ===
+delete_file({'path': 'tmp/build-cache.log'})
+  vote=no -> allow
+  agent received: Deleted tmp/build-cache.log.
+delete_file({'path': 'config/production.db'})
+  vote=yes -> block
+  agent received: The safety judge blocked this `delete_file` call, so nothing was deleted. Do not retry; tell the user the file was kept.
+
+Files left: ['config/production.db']
+Model requests (agent + judge): 4
+Response: The file `tmp/build-cache.log` has been deleted. However, the file `config/production.db` was not deleted due to safety restrictions and has been kept.
+```
+
+> Only one `[tool]` line is printed: the judge voted `no` on the cache file, so its body ran,
+> and `yes` on the production database, so its body never ran and the agent received the
+> `denial_message` in its place. `ToolCallVerdict` carries the tool name, call ID, vote and
+> effective verdict but no arguments or reason (the judge answers only `yes`/`no`/`unsure`),
+> so the example joins each verdict to its call by `tool_call_id`. The 4 requests are 2 agent
+> turns plus 2 judgements: the judge's usage counts against the run's own limits.
+
+---
+
+## 30. Timeouts and Deadlines (`30_timeouts_and_deadlines.py`)
+
+```
+=== Example 1: agent.run(..., timeout=3) ===
+  [tool] archive_search('Lisbon 1755 earthquake') started, needs 30s
+RunTimedOut: The agent run timed out.
+  is RunCancelled: True
+  is TimeoutError: True
+  exc.all_messages():
+    ModelRequest.UserPromptPart
+    ModelResponse.ToolCallPart
+
+=== Example 2: RunContext.deadline / remaining_time() ===
+timeout=None
+  [tool] no deadline on this run -> deep research
+  Response: Lisbon is the capital of Portugal, known for its rich history, stunning architecture, and vibrant culture, having been rebuilt after the devastating earthquake in 1755.
+timeout=30
+  [tool] deadline=20:27:21 UTC, remaining=29.1s
+  [tool] plenty of time -> deep research (1s)
+  Response: Lisbon, the capital of Portugal, is renowned for its rich history and architecture, having been largely rebuilt after the devastating earthquake of 1755.
+timeout=8
+  [tool] deadline=20:27:02 UTC, remaining=7.1s
+  [tool] under 10s left -> quick answer from cache
+  Response: Lisbon is the capital of Portugal, known for its rich history, vibrant culture, and picturesque neighborhoods.
+
+=== Example 3: model_settings request_timeout ===
+ModelRequestTimeout: Request to model 'gpt-4o-mini' timed out after 0.05 seconds
+  exc.model_name: gpt-4o-mini
+  exc.timeout:    0.05s
+  is ModelAPIError: True
+  is RunCancelled:  False
+```
+
+> `RunTimedOut` stopped the run 3s into a 30s tool call; `all_messages()` holds the request and
+> the tool call that never returned, which is closed out as `'interrupted'` if the history is
+> resumed. In Example 2 the same tool takes a different path per run: `remaining_time()` is `None`
+> with no `timeout=`, and under 10s it answers from cache. Example 3 is a real OpenAI call given a
+> 50ms `request_timeout`, so it always misses its deadline.
+
+---
+
+## 31. Model Error Categories (`31_model_error_categories.py`)
+
+```
+=== Example 1: One handler for all categories [SIMULATED] ===
+  HTTP 429 ModelRateLimitError              -> back off for 2.0s and retry
+  HTTP 402 ModelQuotaExceededError          -> top up billing -- waiting won't help
+  HTTP 529 ModelOverloadedError             -> provider overloaded -- try another model
+  HTTP 503 ModelUnavailableError            -> provider down -- try another model
+  HTTP 500 ModelServerError                 -> provider bug -- retry once, then alert
+  HTTP 400 ModelContextWindowExceededError  -> compact the message history and retry
+
+=== Example 2: FallbackModel(fallback_on=(ModelRateLimitError,)) ===
+Response (REAL, from gpt-4o-mini-2024-07-18): The capital of Portugal is Lisbon.
+  failed attempt: model='flaky-model' outcome='error'
+    error: ModelRateLimitError: status_code: 429, model_name: flaky-model, body: None
+
+=== Example 3: A quota error does not fall back [SIMULATED 402] ===
+Caught ModelQuotaExceededError from 'flaky-model'
+  The real model was never called -> top up billing -- waiting won't help
+```
+
+> Every `[SIMULATED]` error is raised by a `FunctionModel` via `ModelHTTPError.for_category`, the
+> same combined class a real adapter raises, so the `except ModelHTTPError` in Example 1 sees each
+> specific category; only the Example 2 answer comes from OpenAI. The fallback recorded the
+> rate-limited attempt on `result.response.failed_attempts`. In Example 3 the quota error is not in
+> `fallback_on`, so `FallbackModel` re-raised it as-is instead of trying the real model.
