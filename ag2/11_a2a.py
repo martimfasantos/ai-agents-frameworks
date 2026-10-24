@@ -3,6 +3,7 @@ import os
 
 import httpx
 import uvicorn
+from a2a.types import AgentSkill
 
 from ag2 import Agent, tool
 from ag2.a2a import A2AConfig, A2AServer, build_card
@@ -56,8 +57,15 @@ def build_server() -> uvicorn.Server:
     )
 
     # --- 2. Wrap it: build_card publishes discovery metadata ---
+    # The A2A spec requires tags on every skill; the SDK warns without them.
+    skill = AgentSkill(
+        id="translate_to_french",
+        name="Translate to French",
+        description="Translates English text to French using a house glossary.",
+        tags=["translation", "french"],
+    )
     a2a_server = A2AServer(server_agent)
-    card = build_card(server_agent, url=BASE_URL)
+    card = build_card(server_agent, url=BASE_URL, skills=[skill])
     asgi = a2a_server.build_jsonrpc(url=BASE_URL, card=card)
 
     return uvicorn.Server(
