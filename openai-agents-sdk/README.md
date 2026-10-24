@@ -2,7 +2,7 @@
 
 - Repo: https://github.com/openai/openai-agents-python
 - Documentation: https://openai.github.io/openai-agents-python/
-- SDK Version: >= 0.23.1
+- SDK Version: >= 0.24.0
 
 ## Key Features
 
@@ -19,6 +19,7 @@ The OpenAI Agents SDK provides a lightweight framework for building multi-agent 
 - **Handoffs & Orchestration** — Native agent-to-agent delegation with streaming support
 - **Guardrails** — Input/output validation, tool input guardrails, and LLM-as-a-judge patterns
 - **Error Handlers** — `Runner.run(error_handlers={...})` recovers from turn limits, refusals and invalid final output instead of raising
+- **Tool Error Formatter** — one run-wide `RunConfig(tool_error_formatter=...)` callback controls the message the model sees for every failed tool call
 - **Tracing** — Built-in OpenAI trace integration for debugging
 
 Since 0.19.0, `agents.decorators` is public and exports `tool` as a literal alias for
@@ -49,6 +50,7 @@ Since 0.19.0, `agents.decorators` is public and exports `tool` as a literal alia
 | 18 | `18_error_handlers.py` | **Error Handlers** — max_turns, model_refusal and invalid_final_output recovery |
 | 19 | `19_scripted_model_testing.py` | **Scripted Model Testing** — `ScriptedModel`, deterministic tool-call scripts, `assert_complete()`, zero network calls |
 | 20 | `20_encrypted_session.py` | **Encrypted Sessions** — `EncryptedSession` over `SQLiteSession`, plaintext rows skipped, `max_scan_items` read budget |
+| 21 | `21_tool_error_formatter.py` | **Tool Error Formatter** — `RunConfig(tool_error_formatter=...)`, `ToolErrorFormatterArgs` with `kind="tool_exception"`, exception details kept from the model |
 
 ## How to Setup
 
@@ -88,6 +90,7 @@ uv run python 17_programmatic_tool_calling.py
 uv run python 18_error_handlers.py
 uv run python 19_scripted_model_testing.py
 uv run python 20_encrypted_session.py
+uv run python 21_tool_error_formatter.py
 ```
 
 > `15_sandbox_agent.py` and `17_programmatic_tool_calling.py` hardcode `gpt-5.6`.
