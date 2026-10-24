@@ -103,10 +103,11 @@ if target_checkpoint:
     print(f"AI: {ai_content}\n")
 
     # Show that the fork created a separate timeline
+    # Without a checkpoint_id, get_state reads the thread's latest checkpoint: the fork's head
     print("=== Forked Timeline ===\n")
-    forked_state = graph.get_state(replay_config)
+    forked_state = graph.get_state(config)
     print(f"Messages in forked timeline: {len(forked_state.values['messages'])}")
 
-    # Original timeline is unchanged
-    original_state = graph.get_state(config)
+    # Original timeline is unchanged; its head is the newest checkpoint listed above
+    original_state = graph.get_state(checkpoints[0].config)
     print(f"Messages in original timeline: {len(original_state.values['messages'])}")
