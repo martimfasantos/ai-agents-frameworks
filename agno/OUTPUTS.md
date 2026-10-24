@@ -1,6 +1,6 @@
 # Agno Example Outputs
 
-Captured outputs from running all 22 examples against agno v3.0.9 with `gpt-4o-mini`.
+Captured outputs from running all 25 examples against agno v3.1.10 with `gpt-4o-mini`.
 
 > These outputs may vary between runs due to LLM non-determinism. The structure and tool invocations should remain consistent.
 
@@ -828,5 +828,83 @@ Answer: The error reported in the payments service is:
 > AgentFS. The answer is buried at line 38 where no preview would reach it, so the agent
 > calls `search_result` and then `read_result` to fetch just that line. `Tools called:`
 > shows it reaching for both on its own; neither is declared by the example.
+
+---
+
+## 22_conversation_compaction.py
+
+```
+=== Turn 1: share a 25-row service inventory ===
+Agent: Noted.
+
+=== Turn 2: an unrelated question ===
+Agent: A service mesh is an infrastructure layer that manages communication between microservices in a distributed application, providing features like traffic management, security, and observability.
+
+=== Compacting the session ===
+WARNING tokenizers not installed. Please install it using `pip install tokenizers`.: No module named 'tokenizers'
+WARNING tiktoken not installed. Please install it using `pip install tiktoken`.: No module named 'tiktoken'
+Status:          compacted
+Messages folded: 2
+Context tokens:  285 -> 213
+Summary:         ## Goal To maintain a record of services and their corresponding ports and owners for future reference. Not covered here: specifics regarding the nature or func…
+Summary holds service-17's port: False
+
+=== Turn 3: recall a single row ===
+Tool call: search_compacted_history({'pattern': 'service-17', 'context_lines': 10})
+Agent:     Service-17 uses port 44623 and is owned by ines.
+Expected:  port 44623, owner ines
+```
+
+> `agent.compact()` folds turn 1 — the 25-row inventory — into a summary cut to the 150-token budget, and the summary does not carry service-17's port. The correct answer can only have come from the archived transcript, which is what the `search_compacted_history` call shows. The two warnings are expected: without the optional `agno[tokenizers]` extra, agno counts tokens with a character-based estimate, which is where the before/after figures come from.
+
+---
+
+## 23_hyde_query_transform.py
+
+```
+Question: Why did our sales numbers fall?
+
+=== Plain search (embeds the question) ===
+  1. Sales dashboard guide: The sales dashboard shows numbers for each region. If the nu…
+  2. Q3 business review: Three enterprise accounts postponed their contract renewals …
+
+=== HyDE search (embeds a hypothetical answer) ===
+  1. Q3 business review: Three enterprise accounts postponed their contract renewals …
+  2. Sales dashboard guide: The sales dashboard shows numbers for each region. If the nu…
+```
+
+> Both searches run against the same LanceDb table. The plain search ranks the dashboard guide first because it repeats the question's words ("sales", "numbers", "fall"); the Q3 review answers the question but shares none of them. HyDE embeds an LLM-written hypothetical answer instead, which lands next to the real answer and puts the Q3 review on top.
+
+---
+
+## 24_multi_turn_eval.py
+
+```
+=== Running multi-turn eval suite ===
+
+[PASS] turn 1: offers open slots
+  session: booking-session-001 (shared)
+  tool:    get_open_slots({}) -> Open slots (Europe/Lisbon): Tuesday 10:00, Wednesday 15:00
+  reply:   I have available slots on Tuesday at 10:00 and Wednesday at 15:00; which one works for you?
+
+[PASS] turn 2: books the slot using turn-1 context
+  session: booking-session-001 (shared)
+  tool:    create_appointment({'slot': 'Wednesday 15:00', 'name': 'Priya'}) -> Booked Wednesday 15:00 for Priya (user lead-42) on calendar cal-7.
+  reply:   Your appointment has been booked for Wednesday at 15:00, Priya.
+  score:   booked name='Priya', slot='Wednesday 15:00'; expected 'Priya' on Wednesday
+
+[PASS] fresh session: no calendar, no slots
+  session: eval-fresh session: no calendar, no slots-bc4efca6 (generated per case)
+  tool:    get_open_slots({}) -> No calendar is configured for this caller.
+  reply:   It seems there is no calendar configured; please provide your name so we can assist you further.
+
+=== Stored session 'booking-session-001' ===
+Runs in session: 2 (turn 1 + turn 2)
+Session state:   {'calendar_id': 'cal-7', 'timezone': 'Europe/Lisbon', 'appointment': {'slot': 'Wednesday 15:00', 'name': 'Priya'}}
+
+Suite: PASS — 3/3 cases passed
+```
+
+> The first two cases share `session_id`, so the suite runs them as consecutive turns of one conversation. Turn 2 only says "Wednesday works for me" — the name `Priya` in the `create_appointment` call and `calendar cal-7` in its result can only come from turn 1's history and the session_state turn 1 passed. The third case has no `session_id`, gets a generated session with no history or calendar, and correctly offers no slots. The stored session holds both turns and the booked appointment.
 
 ---
