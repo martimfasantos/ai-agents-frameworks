@@ -17,7 +17,7 @@ Claude Sonnet, but you can swap in OpenAI, Anthropic, Ollama, and many
 more by passing a model object to the Agent constructor.
 
 For more details, visit:
-https://strandsagents.com/docs/user-guide/concepts/model-providers/
+https://strandsagents.com/docs/user-guide/sdk/model-providers/
 -------------------------------------------------------
 """
 

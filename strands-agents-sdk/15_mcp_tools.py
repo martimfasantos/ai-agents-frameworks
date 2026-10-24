@@ -16,7 +16,7 @@ an MCPClient directly to the Agent for managed lifecycle, or use a context
 manager for explicit control.
 
 For more details, visit:
-https://strandsagents.com/docs/user-guide/concepts/tools/mcp-tools/
+https://strandsagents.com/docs/user-guide/sdk/tools/mcp-tools/
 -------------------------------------------------------
 """
 

@@ -24,7 +24,7 @@ that checks its cancel_signal. Long-running tools should poll that
 signal so they stop promptly instead of running to completion.
 
 For more details, visit:
-https://strandsagents.com/docs/user-guide/concepts/agents/agent-loop/
+https://strandsagents.com/docs/user-guide/sdk/agents/agent-loop/
 -------------------------------------------------------
 """
 

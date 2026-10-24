@@ -18,7 +18,7 @@ with dependencies and priorities, and independent tasks run in parallel
 automatically. This is ideal for complex multi-step processes.
 
 For more details, visit:
-https://strandsagents.com/docs/user-guide/concepts/multi-agent/workflow/
+https://strandsagents.com/docs/user-guide/sdk/multi-agent/workflow/
 -------------------------------------------------------
 """
 

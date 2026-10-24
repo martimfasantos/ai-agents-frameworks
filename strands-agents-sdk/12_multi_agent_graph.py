@@ -18,7 +18,7 @@ based on previous agent output. This gives you explicit control over
 multi-agent pipelines.
 
 For more details, visit:
-https://strandsagents.com/docs/user-guide/concepts/multi-agent/graph/
+https://strandsagents.com/docs/user-guide/sdk/multi-agent/graph/
 -------------------------------------------------------
 """
 
@@ -74,6 +74,8 @@ builder.add_edge("planner", "executor")
 builder.add_edge("executor", "reviewer")
 
 builder.set_entry_point("planner")
+# Bound the run; build() warns when a graph has no execution limit
+builder.set_execution_timeout(300.0)
 
 graph = builder.build()
 

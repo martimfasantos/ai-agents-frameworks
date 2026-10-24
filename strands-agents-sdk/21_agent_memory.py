@@ -23,7 +23,7 @@ the store and injects matches into the prompt. This is the complement of
 17_session_persistence.py, which replays the conversation history itself.
 
 For more details, visit:
-https://strandsagents.com/docs/user-guide/concepts/memory/test-memory-store/
+https://strandsagents.com/docs/user-guide/sdk/memory/test-memory-store/
 -------------------------------------------------------
 """
 

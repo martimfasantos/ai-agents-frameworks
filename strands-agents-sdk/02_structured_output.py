@@ -17,7 +17,7 @@ Pass a Pydantic model via structured_output_model and access the parsed
 result through result.structured_output.
 
 For more details, visit:
-https://strandsagents.com/docs/user-guide/concepts/agents/structured-output/
+https://strandsagents.com/docs/user-guide/sdk/agents/structured-output/
 -------------------------------------------------------
 """
 
