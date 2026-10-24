@@ -33,6 +33,7 @@ print("=== Example 1: Custom String System Prompt ===")
 
 async def example_custom_prompt():
     options = ClaudeAgentOptions(
+        model=settings.ANTHROPIC_MODEL_NAME,
         system_prompt="You are a pirate. Respond to everything in pirate speak. Keep it short.",
     )
 
@@ -54,6 +55,7 @@ print("\n=== Example 2: Preset System Prompt (claude_code) ===")
 
 async def example_preset_prompt():
     options = ClaudeAgentOptions(
+        model=settings.ANTHROPIC_MODEL_NAME,
         system_prompt={"type": "preset", "preset": "claude_code"},
     )
 
@@ -75,6 +77,7 @@ print("\n=== Example 3: Preset with Append ===")
 
 async def example_preset_append():
     options = ClaudeAgentOptions(
+        model=settings.ANTHROPIC_MODEL_NAME,
         system_prompt={
             "type": "preset",
             "preset": "claude_code",

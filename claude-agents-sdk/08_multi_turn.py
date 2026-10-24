@@ -35,7 +35,7 @@ https://platform.claude.com/docs/en/agent-sdk/streaming-vs-single-mode
 
 # --- 1. Create a multi-turn conversation ---
 async def main():
-    options = ClaudeAgentOptions()
+    options = ClaudeAgentOptions(model=settings.ANTHROPIC_MODEL_NAME)
 
     async with ClaudeSDKClient(options) as client:
         # Turn 1: Set context

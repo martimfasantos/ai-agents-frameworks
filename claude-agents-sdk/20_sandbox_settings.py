@@ -44,6 +44,7 @@ async def main():
     async for message in query(
         prompt="What is 15 * 23? Calculate without using any tools.",
         options=ClaudeAgentOptions(
+            model=settings.ANTHROPIC_MODEL_NAME,
             sandbox=SandboxSettings(
                 enabled=True,  # Enable bash sandboxing
                 network=SandboxNetworkConfig(
@@ -65,6 +66,7 @@ async def main():
     async for message in query(
         prompt="List the files in the current directory.",
         options=ClaudeAgentOptions(
+            model=settings.ANTHROPIC_MODEL_NAME,
             sandbox=SandboxSettings(
                 enabled=True,
                 network=SandboxNetworkConfig(

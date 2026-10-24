@@ -37,7 +37,7 @@ print("=== Example 1: Cost and Usage Tracking ===")
 async def example_cost_tracking():
     async for message in query(
         prompt="Explain what a REST API is in two sentences.",
-        options=ClaudeAgentOptions(),
+        options=ClaudeAgentOptions(model=settings.ANTHROPIC_MODEL_NAME),
     ):
         if isinstance(message, ResultMessage):
             print(f"Result: {message.result}")
@@ -64,6 +64,7 @@ print("\n=== Example 2: Limit Max Turns ===")
 
 async def example_max_turns():
     options = ClaudeAgentOptions(
+        model=settings.ANTHROPIC_MODEL_NAME,
         max_turns=3,
         allowed_tools=["Read", "Glob"],
         permission_mode="bypassPermissions",
@@ -94,11 +95,11 @@ print("\n=== Example 3: Budget Cap ===")
 
 async def example_budget_cap():
     options = ClaudeAgentOptions(
-        max_budget_usd=0.05,  # 5 cents max
+        model=settings.ANTHROPIC_MODEL_NAME,
+        max_budget_usd=0.0001,  # Below the cost of a single request, so it trips
     )
 
-    # Like max_turns, exceeding the cap surfaces as a raised error result --
-    # whether it fires depends on how expensive the configured model is
+    # Like max_turns, exceeding the cap surfaces as a raised error result
     try:
         async for message in query(
             prompt="What is the capital of France?",
@@ -108,7 +109,7 @@ async def example_budget_cap():
                 cost = message.total_cost_usd
                 print(f"Result: {message.result}")
                 print(f"Cost: ${cost:.6f}" if cost else "Cost: N/A")
-                print(f"Budget limit: $0.05")
+                print(f"Budget limit: $0.0001")
     except Exception as error:
         print(f"Budget cap hit: {error}")
 
@@ -123,7 +124,7 @@ print("\n=== Example 4: Effort Level ===")
 
 async def example_effort():
     # Low effort for quick, simple answers
-    options = ClaudeAgentOptions(effort="low")
+    options = ClaudeAgentOptions(model=settings.ANTHROPIC_MODEL_NAME, effort="low")
 
     async for message in query(
         prompt="What is 2 + 2?",
@@ -146,6 +147,7 @@ async def example_model_usage():
     # A subagent run makes the difference visible: usage counts only the main
     # loop's tokens, while model_usage aggregates the whole agent tree
     options = ClaudeAgentOptions(
+        model=settings.ANTHROPIC_MODEL_NAME,
         allowed_tools=["Task"],
         permission_mode="bypassPermissions",
         max_turns=6,

@@ -91,6 +91,7 @@ print("=== Deferred Tool Use (Human-in-the-Loop) ===")
 
 async def main():
     options = ClaudeAgentOptions(
+        model=settings.ANTHROPIC_MODEL_NAME,
         mcp_servers={"database": db_server},
         allowed_tools=["mcp__database__*"],
         hooks={

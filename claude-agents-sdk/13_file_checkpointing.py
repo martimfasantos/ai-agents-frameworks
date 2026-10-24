@@ -47,6 +47,7 @@ print(f"Initial file content: {open(test_file).read().strip()}")
 # --- 3. Run the agent with file checkpointing enabled ---
 async def main():
     options = ClaudeAgentOptions(
+        model=settings.ANTHROPIC_MODEL_NAME,
         enable_file_checkpointing=True,
         cwd=work_dir,
         allowed_tools=["Read", "Write"],
@@ -87,6 +88,7 @@ async def main():
         print("\n=== Rewinding to Turn 1 checkpoint ===")
         async with ClaudeSDKClient(
             ClaudeAgentOptions(
+                model=settings.ANTHROPIC_MODEL_NAME,
                 enable_file_checkpointing=True,
                 resume=session_id,
                 cwd=work_dir,

@@ -37,6 +37,7 @@ https://platform.claude.com/docs/en/agent-sdk/mcp
 # Make sure Node.js is installed for this example to work.
 
 options = ClaudeAgentOptions(
+    model=settings.ANTHROPIC_MODEL_NAME,
     mcp_servers={
         "filesystem": {
             "type": "stdio",

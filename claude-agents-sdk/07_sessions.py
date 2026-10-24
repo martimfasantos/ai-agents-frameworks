@@ -42,7 +42,7 @@ async def start_session() -> str:
 
     async for message in query(
         prompt="Remember this: the secret code is ALPHA-7. Confirm you stored it.",
-        options=ClaudeAgentOptions(),
+        options=ClaudeAgentOptions(model=settings.ANTHROPIC_MODEL_NAME),
     ):
         if isinstance(message, ResultMessage):
             session_id = message.session_id
@@ -61,7 +61,7 @@ print("\n=== Step 2: Resume the session ===")
 
 async def resume_session(session_id: str):
     """Resume a previous session and ask about stored context."""
-    options = ClaudeAgentOptions(resume=session_id)
+    options = ClaudeAgentOptions(model=settings.ANTHROPIC_MODEL_NAME, resume=session_id)
 
     async for message in query(
         prompt="What was the secret code I told you earlier?",
@@ -80,6 +80,7 @@ print("\n=== Step 3: Fork the session ===")
 async def fork_and_diverge(session_id: str):
     """Fork a session to branch the conversation."""
     options = ClaudeAgentOptions(
+        model=settings.ANTHROPIC_MODEL_NAME,
         resume=session_id,
         fork_session=True,
     )

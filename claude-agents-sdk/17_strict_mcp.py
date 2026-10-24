@@ -38,6 +38,7 @@ print("=== Strict MCP Config Demo ===\n")
 # With strict_mcp_config=True, only explicitly-passed MCP servers are used.
 # No project, user, or global MCP configs are loaded.
 options = ClaudeAgentOptions(
+    model=settings.ANTHROPIC_MODEL_NAME,
     strict_mcp_config=True,
     # No mcp_servers passed — agent has zero external MCP tools
     allowed_tools=["Read", "Glob"],
