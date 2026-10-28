@@ -2,7 +2,7 @@ import asyncio
 
 from dotenv import load_dotenv
 
-from claude_agent_sdk import query, ResultMessage
+from claude_agent_sdk import ClaudeAgentOptions, query, ResultMessage
 
 from settings import settings
 
@@ -26,7 +26,10 @@ https://platform.claude.com/docs/en/agent-sdk/quickstart
 
 # --- 1. Send a one-shot query ---
 async def main():
-    async for message in query(prompt="Where does 'hello world' come from?"):
+    async for message in query(
+        prompt="Where does 'hello world' come from?",
+        options=ClaudeAgentOptions(model=settings.ANTHROPIC_MODEL_NAME),
+    ):
         if isinstance(message, ResultMessage) and message.subtype == "success":
             print(message.result)
 

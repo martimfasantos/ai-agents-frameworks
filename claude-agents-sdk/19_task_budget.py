@@ -43,6 +43,7 @@ async def main():
     async for message in query(
         prompt="Write a haiku about programming.",
         options=ClaudeAgentOptions(
+            model=settings.ANTHROPIC_MODEL_NAME,
             max_budget_usd=1.00,  # Cap total spend at $1.00
             max_turns=1,
         ),
@@ -59,6 +60,7 @@ async def main():
     async for message in query(
         prompt="Research and summarize the history of Python.",
         options=ClaudeAgentOptions(
+            model=settings.ANTHROPIC_MODEL_NAME,
             task_budget=TaskBudget(
                 total=25000,  # Total token budget (model minimum is 20,000)
             ),

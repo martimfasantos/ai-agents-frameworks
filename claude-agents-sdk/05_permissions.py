@@ -1,6 +1,5 @@
 import asyncio
 import warnings
-from collections.abc import AsyncIterable
 from typing import Any
 
 from dotenv import load_dotenv
@@ -49,6 +48,7 @@ print("=== Example 1: Permission Mode with Allow/Deny Lists ===")
 
 async def example_permission_lists():
     options = ClaudeAgentOptions(
+        model=settings.ANTHROPIC_MODEL_NAME,
         # Allow Read and Glob but deny Bash for safety
         allowed_tools=["Read", "Glob"],
         disallowed_tools=["Bash"],
@@ -98,26 +98,14 @@ async def permission_callback(
     )
 
 
-async def streaming_prompt(text: str) -> AsyncIterable[dict[str, Any]]:
-    """Wrap a string prompt as an AsyncIterable for streaming mode."""
-    yield {
-        "type": "user",
-        "message": {"role": "user", "content": text},
-        "parent_tool_use_id": None,
-        "session_id": None,
-    }
-
-
 async def example_can_use_tool():
     options = ClaudeAgentOptions(
+        model=settings.ANTHROPIC_MODEL_NAME,
         can_use_tool=permission_callback,
     )
 
-    # can_use_tool requires streaming mode, so we pass an AsyncIterable prompt
     async for message in query(
-        prompt=streaming_prompt(
-            "Read the contents of settings.py in the current directory."
-        ),
+        prompt="Read the contents of settings.py in the current directory.",
         options=options,
     ):
         if isinstance(message, ResultMessage) and message.subtype == "success":
@@ -138,6 +126,7 @@ async def example_shadowed_callback():
     # A whole-tool allowed_tools entry auto-approves before the callback runs,
     # so the callback never sees the call. Since 0.2.111 the SDK warns about it.
     options = ClaudeAgentOptions(
+        model=settings.ANTHROPIC_MODEL_NAME,
         can_use_tool=permission_callback,
         allowed_tools=["Read"],
     )
@@ -148,7 +137,7 @@ async def example_shadowed_callback():
         warnings.simplefilter("always")
 
         async for message in query(
-            prompt=streaming_prompt("Read settings.py and say how many lines it has."),
+            prompt="Read settings.py and say how many lines it has.",
             options=options,
         ):
             if isinstance(message, ResultMessage) and message.subtype == "success":

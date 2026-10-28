@@ -47,6 +47,7 @@ async def run_with_store() -> str:
     session_id = ""
 
     options = ClaudeAgentOptions(
+        model=settings.ANTHROPIC_MODEL_NAME,
         session_store=store,
         session_store_flush="eager",  # Near-real-time transcript delivery
     )
@@ -74,18 +75,20 @@ async def inspect_store(session_id: str):
     sessions = await list_sessions_from_store(store)
     print(f"Sessions in store: {len(sessions)}")
     for s in sessions:
-        print(f"  - {s.id} (created: {s.created_at})")
+        print(f"  - {s.session_id} (created: {s.created_at})")
 
     # --- 4. Read messages from the stored session ---
     print(f"\n--- Step 3: Read messages from session {session_id[:12]}... ---")
     messages = await get_session_messages_from_store(store, session_id)
     print(f"Total messages in transcript: {len(messages)}")
     for msg in messages:
-        msg_type = type(msg).__name__
-        preview = ""
-        if isinstance(msg, ResultMessage) and msg.subtype == "success":
-            preview = f" -> {msg.result[:60]}..."
-        print(f"  [{msg_type}]{preview}")
+        # msg.message is the raw API message: string content for prompts, block lists for replies
+        content = msg.message.get("content", "")
+        if isinstance(content, list):
+            content = " ".join(
+                block.get("text", "") for block in content if block.get("type") == "text"
+            )
+        print(f"  [{msg.type}] {content[:60] or '(no text)'}")
 
 
 asyncio.run(inspect_store(saved_id))

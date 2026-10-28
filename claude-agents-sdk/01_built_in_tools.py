@@ -33,6 +33,7 @@ https://platform.claude.com/docs/en/agent-sdk/overview#capabilities
 
 # --- 1. Configure the agent with built-in tools ---
 options = ClaudeAgentOptions(
+    model=settings.ANTHROPIC_MODEL_NAME,
     allowed_tools=["Read", "Glob"],
     permission_mode="bypassPermissions",
 )

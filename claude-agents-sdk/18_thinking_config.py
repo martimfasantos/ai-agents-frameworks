@@ -45,6 +45,7 @@ async def main():
     async for message in query(
         prompt="What is 2 + 2?",
         options=ClaudeAgentOptions(
+            model=settings.ANTHROPIC_MODEL_NAME,
             thinking=ThinkingConfigAdaptive(type="adaptive"),
             max_turns=1,
         ),
@@ -62,6 +63,7 @@ async def main():
     async for message in query(
         prompt="Explain the halting problem in simple terms.",
         options=ClaudeAgentOptions(
+            model=settings.ANTHROPIC_MODEL_NAME,
             thinking=ThinkingConfigEnabled(type="enabled", budget_tokens=2000),
             max_turns=1,
         ),
@@ -78,6 +80,7 @@ async def main():
     async for message in query(
         prompt="Name 3 prime numbers.",
         options=ClaudeAgentOptions(
+            model=settings.ANTHROPIC_MODEL_NAME,
             thinking=ThinkingConfigDisabled(type="disabled"),
             max_turns=1,
         ),

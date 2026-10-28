@@ -82,6 +82,7 @@ city_server = create_sdk_mcp_server(
 # --- 3. Run a query with custom tools ---
 async def main():
     options = ClaudeAgentOptions(
+        model=settings.ANTHROPIC_MODEL_NAME,
         mcp_servers={"city_info": city_server},
         # Auto-approve all tools on this server with wildcard
         allowed_tools=["mcp__city_info__*"],
