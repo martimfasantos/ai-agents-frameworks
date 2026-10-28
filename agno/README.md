@@ -2,7 +2,7 @@
 
 - Repo: https://github.com/agno-agi/agno
 - Documentation: https://docs.agno.com
-- Version: **3.0.9**
+- Version: **3.1.10**
 
 ## Agno Examples
 
@@ -65,6 +65,9 @@ cp .env.example .env
 | 19 | `19_eval_suite.py` | Evals | `Case` + `run_cases()` graded by `CodeScorer` and `ToolCallScorer` |
 | 20 | `20_runs_table.py` | Runs Table | `agno_runs` rows, `db.get_runs()`/`get_run()`, `MigrationManager` |
 | 21 | `21_tool_result_offloading.py` | Tool Result Offloading | `offload_tool_results=ResultStore(...)`, `read_result`/`search_result` |
+| 22 | `22_conversation_compaction.py` | Compaction | `Compaction(...)`, `agent.compact()` and the `search_compacted_history` archive search |
+| 23 | `23_hyde_query_transform.py` | Query Transformation | Plain vs `HyDE` search with `Knowledge(query_transformer=...)` |
+| 24 | `24_multi_turn_eval.py` | Multi-Turn Evals | `Case` run arguments (`session_id`, `user_id`, `session_state`) and cases sharing a session as turns |
 
 ### Running examples
 
@@ -77,6 +80,9 @@ python 18_filesystem.py
 python 19_eval_suite.py
 python 20_runs_table.py
 python 21_tool_result_offloading.py
+python 22_conversation_compaction.py
+python 23_hyde_query_transform.py
+python 24_multi_turn_eval.py
 ```
 
 > **Note:** Example `14_mcp_tools.py` requires Node.js (npx) for the MCP filesystem server, and

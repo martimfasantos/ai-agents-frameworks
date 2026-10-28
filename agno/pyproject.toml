@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Agno framework examples"
 requires-python = ">=3.12"
 dependencies = [
-    "agno>=2.8.2",
+    "agno>=3.1.10",
     "ddgs",
     "fastapi",
     "fastmcp>=4.0.0,<5",
