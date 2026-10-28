@@ -45,7 +45,7 @@ agent = create_deep_agent(
 # --- 3. Ask the agent to create a file ---
 print("=== Deep Agents Local Filesystem Backend ===")
 print(f"Workspace on disk: {workspace}")
-request = "Create a file named notes.txt containing exactly: Hello from disk"
+request = "Create the file /notes.txt containing exactly: Hello from disk"
 result = agent.invoke({"messages": [{"role": "user", "content": request}]})
 print(f"\nAgent: {result['messages'][-1].text}")
 
