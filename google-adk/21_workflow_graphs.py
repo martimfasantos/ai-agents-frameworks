@@ -85,9 +85,9 @@ def escalate(node_input: str, ctx) -> str:
 #                     2. Wire nodes into a graph
 # ----------------------------------------------------------------
 # Edges accept an explicit Edge(...), a tuple for a straight hop, or a dict to
-# fan out on the route a node emitted. `description` and `input_schema` are what
-# make this Workflow usable as an LlmAgent tool in section 3 — NodeTool raises
-# without an input_schema.
+# fan out on the route a node emitted. `description` and `input_schema` become
+# the tool declaration in section 3; without input_schema, NodeTool infers it
+# from the start node's `node_input` type hint.
 
 triage_workflow = Workflow(
     name="triage_workflow",

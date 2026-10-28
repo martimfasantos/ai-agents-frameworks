@@ -42,7 +42,7 @@ SESSION_ID = "session_1"
 
 search_agent = LlmAgent(
     name="GroundedSearchAgent",
-    model=settings.GOOGLE_MODEL_NAME,
+    model=settings.GOOGLE_SEARCH_MODEL_NAME,  # google_search needs a search-enabled model
     instruction=(
         "You are a research assistant. Use Google Search to find accurate, "
         "up-to-date information. Summarize findings in 2-3 sentences."

@@ -45,6 +45,8 @@ memory_agent = LlmAgent(
         "You are a helpful assistant with access to past conversation memory. "
         "ALWAYS call the load_memory tool before answering any question about the user "
         "or prior conversations. Never answer from memory without calling the tool first. "
+        "Memory search matches exact words, so query with plain words the user would have "
+        "said, like 'my name is' or 'I am a', not abstract terms like 'user profile'. "
         "Respond in 1-3 sentences."
     ),
     tools=[load_memory],
@@ -79,6 +81,8 @@ async def run_session(
     print(f"\n[{label}]")
     print(f"  Query: {query}")
     async for event in events:
+        for call in event.get_function_calls():
+            print(f"  load_memory query: {call.args.get('query')!r}")
         if event.is_final_response():
             if event.content and event.content.parts:
                 print(f"  Response: {event.content.parts[0].text}")
