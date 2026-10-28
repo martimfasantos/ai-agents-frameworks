@@ -2,7 +2,7 @@
 
 - Repo: https://github.com/ag2ai/ag2
 - Documentation: https://docs.ag2.ai/
-- Version: **1.1.2**
+- Version: **1.2.1**
 
 ## About AG2
 
@@ -30,6 +30,7 @@ Key features:
 - **A2A protocol** - `A2AServer` to publish an agent, `A2AConfig` to consume a remote one
 - **ACP** - drive Claude Code, Codex, or OpenCode as first-class agents
 - **Metrics** - `MetricsMiddleware` emitting Prometheus counters and histograms
+- **Decision models** - `OpenAIDecisionsConfig` answering typed classify/detect questions with probabilities
 
 ## Setup
 
@@ -75,6 +76,7 @@ uv run python 15_resume.py
 uv run python 16_metrics.py
 uv run python 17_cli_agents_acp.py
 uv run python 18_invocation_plugins.py
+uv run python 19_decision_models.py
 ```
 
 ## Examples
@@ -92,7 +94,7 @@ uv run python 18_invocation_plugins.py
 | 8 | `08_guardrails.py` | `on_tool_execution` veto, `BaseObserver`, `ObserverAlert`, `AlertPolicy`, `HaltEvent` |
 | 9 | `09_mcp_tools.py` | `MCPToolkit`, `MCPStdioServerConfig`, local `MCPServer` (mcp 2.x) |
 | 10 | `10_observability.py` | `MemoryStream.subscribe()`, `stream.where()`, event log + token usage |
-| 11 | `11_a2a.py` | `A2AServer`, `build_card`, `A2AConfig`, server-side tools |
+| 11 | `11_a2a.py` | `A2AServer`, `build_card` with a tagged `AgentSkill`, `A2AConfig`, server-side tools |
 | 12 | `12_middleware.py` | `BaseMiddleware`, `on_llm_call` / `on_turn`, middleware stacks |
 | 13 | `13_memory_stream.py` | `MemoryStream` shared across turns for conversation memory |
 | 14 | `14_observable_run.py` | `agent.run()`, `run.start()`, `run.stream.join()`, `run.enqueue()` |
@@ -100,12 +102,15 @@ uv run python 18_invocation_plugins.py
 | 16 | `16_metrics.py` | `MetricsMiddleware`, Prometheus counters/histograms, exposition text |
 | 17 | `17_cli_agents_acp.py` | `ag2.acp` `ClaudeCodeConfig` driving Claude Code as an agent |
 | 18 | `18_invocation_plugins.py` | `Plugin(prompt=, tools=, variables=)`, `ask(plugins=...)`, `Variable()` injection |
+| 19 | `19_decision_models.py` | `OpenAIDecisionsConfig`, `Enum` classifier, `bool` detector with `boolean_threshold`, `reply.response.metadata` |
 
 > `17_cli_agents_acp.py` needs Node.js (the Claude Code ACP adapter runs through `npx`) and an existing Claude Code login under `~/.claude`.
+>
+> `19_decision_models.py` always uses OpenAI's `gpt-6-luna` decision model (public beta), not `OPENAI_MODEL_NAME`; your OpenAI key needs access to the Decisions API.
 
 ## Key dependencies
 
-- `ag2[openai,mcp,a2a,acp,metrics]>=1.1.2` - AG2 with OpenAI, MCP, A2A, ACP and Prometheus extras
+- `ag2[openai,mcp,a2a,acp,metrics]>=1.2.1` - AG2 with OpenAI, MCP, A2A, ACP and Prometheus extras (pulls `openai>=3.27` and `a2a-sdk>=1.2`)
 - `a2a-sdk[http-server]` - required by `A2AServer.build_jsonrpc()` (add `grpc` only for `build_grpc()`)
 - `mcp>=2.0,<3` - Model Context Protocol SDK (ag2 1.0.3+ requires mcp 2.x)
 - `pydantic-settings` - settings management from .env
