@@ -16,7 +16,7 @@ so no explicit model configuration is required. Here we use OpenAI as an
 alternative provider configured via settings.
 
 For more details, visit:
-https://strandsagents.com/docs/user-guide/quickstart/python/
+https://strandsagents.com/docs/user-guide/sdk/quickstart/python/
 -------------------------------------------------------
 """
 

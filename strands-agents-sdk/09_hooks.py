@@ -26,7 +26,7 @@ or cancelling tool calls based on custom logic. For authorization and
 guardrails specifically, see the intervention API in 19_interventions.py.
 
 For more details, visit:
-https://strandsagents.com/docs/user-guide/concepts/agents/hooks/
+https://strandsagents.com/docs/user-guide/sdk/agents/hooks/
 -------------------------------------------------------
 """
 

@@ -2,7 +2,7 @@
 
 - Repo: https://github.com/strands-agents/harness-sdk
 - Documentation: https://strandsagents.com/docs/
-- Version: **1.55.1**
+- Version: **1.62.0**
 
 ## About Strands Agents SDK
 
@@ -13,8 +13,9 @@ Key features:
 - **`@tool` decorator** - Simple function-based tool creation
 - **Class-based tools** - OOP tools with shared state
 - **Structured output** - Pydantic model responses
-- **Multi-agent patterns** - Agents-as-tools (with `as_tool()`), swarm, graph, workflow orchestration
+- **Multi-agent patterns** - Agents-as-tools (with `as_tool()`), swarm, graph, workflow orchestration, plus vended `subagent` and `swarm` tools
 - **Hooks** - Lifecycle event hooks for monitoring and control, with `HookOrder` priorities
+- **Middleware** - `add_middleware()` Input / Wrap / Output handlers around model calls and tool execution
 - **Interventions** - Typed `Proceed`/`Deny`/`Guide`/`Transform` decisions for guardrails and authorization
 - **Human-in-the-loop** - `HumanInTheLoop` approval gate with interrupt/resume
 - **Memory** - `MemoryManager` cross-session fact extraction and recall
@@ -81,6 +82,9 @@ uv run python 22_invocation_limits.py
 uv run python 23_goal_loop.py
 uv run python 24_cancellation.py
 uv run python 25_background_tasks.py
+uv run python 26_subagent_tool.py
+uv run python 27_middleware.py
+uv run python 28_swarm_tool.py
 ```
 
 ## Examples
@@ -99,13 +103,13 @@ uv run python 25_background_tasks.py
 | 9 | `09_hooks.py` | Lifecycle hooks: before/after invocation, before/after tool call, `HookOrder` |
 | 10 | `10_conversation_management.py` | SlidingWindow, Summarizing, and Null conversation managers, `pin_first` |
 | 11 | `11_multi_agent_swarm.py` | Swarm multi-agent orchestration with handoffs |
-| 12 | `12_multi_agent_graph.py` | Graph-based DAG agent orchestration |
+| 12 | `12_multi_agent_graph.py` | Graph-based DAG agent orchestration, `set_execution_timeout` |
 | 13 | `13_multi_agent_workflow.py` | Workflow tool for sequential multi-step pipelines |
 | 14 | `14_a2a_agent.py` | Agent-to-Agent (A2A) protocol communication |
 | 15 | `15_mcp_tools.py` | Model Context Protocol (MCP) tool integration, client options |
 | 16 | `16_skills_plugin.py` | AgentSkills plugin with programmatic Skill creation |
 | 17 | `17_session_persistence.py` | FileSessionManager for state and conversation persistence |
-| 18 | `18_context_compression.py` | Proactive compression, `context_manager="auto"` / `"agentic"` |
+| 18 | `18_context_compression.py` | Proactive compression, `context_manager="auto"` / `"agentic"`, strategy presets + `Offload` |
 | 19 | `19_interventions.py` | `InterventionHandler` with `Proceed` / `Deny` / `Guide` / `Transform` |
 | 20 | `20_human_in_the_loop.py` | `HumanInTheLoop` approval gate, interrupt/resume, custom async `ask` |
 | 21 | `21_agent_memory.py` | `MemoryManager` + `TestMemoryStore`, cross-session recall and extraction |
@@ -113,9 +117,12 @@ uv run python 25_background_tasks.py
 | 23 | `23_goal_loop.py` | `GoalLoop` validate-and-retry with an LLM judge and a programmatic validator |
 | 24 | `24_cancellation.py` | `Agent.cancel()` from another thread, `cancel_signal`, cooperative tool cancellation |
 | 25 | `25_background_tasks.py` | `background_tasks`, `BackgroundTasksConfig(always=, max_concurrency=)`, overlapping tool calls |
+| 26 | `26_subagent_tool.py` | `make_subagent()` with `Preset` roles, a model `Choice` of `Option`s, custom `builder`, `max_depth` |
+| 27 | `27_middleware.py` | `add_middleware()`: `InvokeModelStage.Input` / `.Output`, `ExecuteToolStage` Wrap handler that blocks a tool |
+| 28 | `28_swarm_tool.py` | `make_swarm()` with `Preset` roles, `instructions=Fixed()`, handoff limits, streamed swarm events |
 
 ## Key dependencies
 
-- `strands-agents>=1.55.1` - Strands Agents SDK (locked at 1.55.1)
-- `strands-agents-tools>=0.5.2` - Community tools (calculator, current_time, shell, etc.) (locked at 0.8.5)
+- `strands-agents>=1.62.0` - Strands Agents SDK (locked at 1.62.0)
+- `strands-agents-tools>=0.8.10` - Community tools (calculator, current_time, shell, etc.) (locked at 0.8.10)
 - `pydantic-settings` - Settings management from .env

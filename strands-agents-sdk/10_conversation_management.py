@@ -24,7 +24,7 @@ pin_first is available on both managers and keeps early instructions or
 reference data in context no matter how long the conversation gets.
 
 For more details, visit:
-https://strandsagents.com/docs/user-guide/concepts/agents/conversation-management/
+https://strandsagents.com/docs/user-guide/sdk/agents/conversation-management/
 -------------------------------------------------------
 """
 

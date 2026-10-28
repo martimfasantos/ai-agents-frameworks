@@ -19,7 +19,7 @@ feedback until it passes or max_attempts runs out. The judge reuses the host
 agent's model, so no extra provider is needed.
 
 For more details, visit:
-https://strandsagents.com/docs/user-guide/concepts/plugins/goal-loop/
+https://strandsagents.com/docs/user-guide/sdk/plugins/goal-loop/
 -------------------------------------------------------
 """
 

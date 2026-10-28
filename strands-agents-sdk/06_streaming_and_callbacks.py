@@ -17,7 +17,7 @@ with callback handlers that receive text chunks and tool-use events, or
 use async iterators for fine-grained control over the event stream.
 
 For more details, visit:
-https://strandsagents.com/docs/user-guide/concepts/streaming/
+https://strandsagents.com/docs/user-guide/sdk/streaming/
 -------------------------------------------------------
 """
 

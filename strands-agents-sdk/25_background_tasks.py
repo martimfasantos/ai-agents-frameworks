@@ -24,7 +24,7 @@ useful when you know a tool is slow and independent, or when it must stay
 inline because later reasoning depends on it immediately.
 
 For more details, visit:
-https://strandsagents.com/docs/user-guide/concepts/agents/agent-loop/
+https://strandsagents.com/docs/user-guide/sdk/agents/agent-loop/
 -------------------------------------------------------
 """
 
