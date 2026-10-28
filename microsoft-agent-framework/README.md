@@ -2,7 +2,7 @@
 
 - Repo: https://github.com/microsoft/agent-framework
 - Documentation: https://learn.microsoft.com/en-us/agent-framework/
-- Version: **1.18.0**
+- Version: **1.23.0**
 
 Microsoft Agent Framework is an open-source SDK for building, orchestrating, and deploying AI agents and multi-agent workflows. It unifies the capabilities of AutoGen and Semantic Kernel, providing a comprehensive platform for creating intelligent agents with tool use, middleware, sessions, structured outputs, MCP integration, and graph-based workflows with human-in-the-loop support.
 
@@ -62,22 +62,25 @@ uv run python 00_hello_world.py
 | `17_workflows_human_in_the_loop.py` | Workflows: HITL | Pause workflows for human approval via `request_info` |
 | `18_workflows_visualization.py` | Workflows: Visualization | Export workflow graphs as Mermaid diagrams and PNG images |
 | `19_class_skill.py` | ClassSkill | Class-based skills with `@ClassSkill.resource` and `@ClassSkill.script` |
-| `20_prompt_injection_defense.py` | Prompt Injection Defense | FIDES information-flow control with integrity and confidentiality labels |
+| `20_prompt_injection_defense.py` | Prompt Injection Defense | FIDES blocks an injected tool call and hides untrusted tool output via `SecureAgentConfig` |
 | `21_harness_agent.py` | Harness Agent | Batteries-included agent with memory, todos, modes, and compaction |
 | `22_file_memory.py` | File Memory | Cross-session recall via `FileMemoryProvider` and a scoped file store |
 | `23_message_injection.py` | Message Injection | Nudge a running agent mid-turn with `enqueue_messages` |
 | `24_mcp_progressive_disclosure.py` | MCP Progressive Disclosure | Load and unload MCP tool schemas on demand, bounded by `allowed_tools` |
 | `25_workflow_checkpoints.py` | Workflow Checkpoints | Resume a crashed workflow from its last superstep checkpoint (no LLM calls) |
 | `26_vector_store_rag.py` | Vector Store RAG | `@vectorstoremodel`, `VectorStoreField`, `InMemoryCollection`, `create_vector_search_tool` |
+| `27_streaming_guardrails.py` | Streaming Guardrails | Buffer a streamed reply, rewrite it with a result transform, and block it with a result gate before any chunk is released |
+| `28_mcp_caller_owned_client.py` | Caller-Owned MCP Client | Share one in-process `mcp.Client` across MCP tool wrappers via `mcp_client=`; closing a wrapper leaves the client open |
 
 ## Key dependencies
 
 | Package | Version | Purpose |
 |---------|---------|---------|
-| `agent-framework` | 1.18.0 | Core framework (agents, tools, middleware, workflows) |
-| `agent-framework-core` | 1.18.0 | Core abstractions and base classes |
-| `agent-framework-declarative` | 1.0.4 | YAML/JSON declarative agent definitions |
-| `agent-framework-orchestrations` | 1.1.1 | Sequential and Handoff orchestration builders |
+| `agent-framework` | 1.23.0 | Core framework (agents, tools, middleware, workflows) |
+| `agent-framework-core` | 1.23.0 | Core abstractions and base classes |
+| `agent-framework-declarative` | 1.4.0 | YAML/JSON declarative agent definitions |
+| `agent-framework-orchestrations` | 1.4.0 | Sequential and Handoff orchestration builders |
+| `mcp` | 2.3.0 | MCP SDK 2.x (required by `agent-framework` >= 1.23.0); used directly by examples 24 and 28 |
 | `pydantic` | >=2.0 | Structured output schemas |
 | `pydantic-settings` | >=2.0 | `.env` file loading via `BaseSettings` |
 | `python-dotenv` | >=1.0 | Explicit `.env` loading (framework does not auto-load) |
@@ -88,7 +91,8 @@ uv run python 00_hello_world.py
 - The framework does **not** auto-load `.env` files. Every example calls `load_dotenv()` explicitly.
 - Examples 05 and 13 require `OpenAIResponsesClient` (Responses API) rather than `OpenAIChatClient`.
 - Example 09 requires Node.js / `npx` for the MCP filesystem server. Example 24 does not — it launches its own
-  Python MCP stdio server as a child process.
+  Python MCP stdio server as a child process. Example 28 runs its MCP server in-process, with no
+  subprocess.
 - Example 18 requires the system `graphviz` package for PNG export (`brew install graphviz` on macOS).
 - Example 22 writes memory files to `res/agent-file-memory/`; example 25 makes no LLM calls at all.
 - **Telemetry:** since v1.13.0 the framework emits process-wide feature-usage telemetry and reports a first-party

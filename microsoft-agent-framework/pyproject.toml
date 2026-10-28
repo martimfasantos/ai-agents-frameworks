@@ -4,8 +4,10 @@ version = "0.1.0"
 description = "Hands-on examples for the Microsoft Agent Framework"
 requires-python = ">=3.13"
 dependencies = [
-    "agent-framework>=1.13.0",
-    "agent-framework-core>=1.13.0",
+    "agent-framework>=1.23.0",
+    "agent-framework-core>=1.23.0",
+    # Only here so uv accepts the pre-release that agent-framework requires.
+    "azure-ai-contentunderstanding>=1.2.0b2",
     "graphviz>=0.21",
     "pydantic>=2.13.0b2",
     "pydantic-settings>=2.13.1",
