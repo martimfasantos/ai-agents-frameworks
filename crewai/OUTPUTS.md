@@ -1,6 +1,6 @@
 # CrewAI - Example Outputs
 
-All examples run with `crewai[tools]>=1.15.21` and `gpt-4o-mini` as the model.
+All examples run with `crewai[tools]>=1.15.29` and `gpt-4o-mini` as the model.
 
 > **Note:** LLM responses are non-deterministic. Your outputs will differ in wording but should follow the same structure and demonstrate the same features.
 
@@ -1037,3 +1037,79 @@ Conversation ended: True
 > earlier turns — and the built-in `end` route on the goodbye.
 
 **Verdict:** PASS - A conversational Flow routed four turns across a custom route and two built-in routes, with history and the `ended` flag persisted on `ConversationState`
+
+---
+
+## 30_llm_overlay.py
+
+```
+$ uv run python 30_llm_overlay.py
+
+=== 1. No overlay ===
+  Analyst  ran on gpt-4o-mini  requests=1 tokens=119
+  Editor   ran on gpt-4o-mini  requests=1 tokens=123
+  Answer: We're excited to announce that dark mode has been added, providing you with a sleek and stylish way to enjoy your experience!
+
+=== 2. llm_overlay({"Editor": "gpt-4o"}) ===
+  Analyst  ran on gpt-4o-mini  requests=1 tokens=119
+  Editor   ran on gpt-4o       requests=1 tokens=122
+  Answer: Discover a whole new look and feel with the introduction of dark mode, enhancing your user experience with style and comfort!
+
+=== 3. llm_overlay({"model:gpt-4o-mini": "gpt-4o"}) ===
+Crew built inside the block:
+  Analyst  ran on gpt-4o       requests=1 tokens=119
+  Editor   ran on gpt-4o       requests=1 tokens=113
+  Answer: Experience our new dark mode feature for a fresh and comfortable viewing experience.
+Crew built before the block, kicked off inside it:
+  Analyst  ran on gpt-4o-mini  requests=1 tokens=119
+  Editor   ran on gpt-4o-mini  requests=1 tokens=116
+```
+
+> `build_crew()` declares both agents on `gpt-4o-mini` and is never edited; only the
+> `with llm_overlay(...)` block around it changes. The role key moves just the
+> `Editor`, the `model:` key moves every agent declared on `gpt-4o-mini`, and the
+> crew built before the block stays on `gpt-4o-mini` even though it is kicked off
+> inside it, because an agent reads the overlay once, when it is built. Each
+> `requests=` count comes from that agent's own LLM instance, so it shows which
+> model actually served the call.
+
+**Verdict:** PASS - The same crew factory ran on its declared model, then with one role and then one model remapped by `llm_overlay`, with per-agent usage confirming the model each agent called
+
+---
+
+## 31_context_window_management.py
+
+```
+$ uv run python 31_context_window_management.py
+
+=== 1. Context budget ===
+Usable context window for gpt-4o-mini: 108,800 tokens (85% of advertised)
+Tool results above 25% of that are deferred: > 27,200 tokens
+
+Log dump: 700 lines, 30,805 tokens (counted by the provider)
+Over the deferral threshold: True
+
+=== 2. Agent run with use_better_compaction=True ===
+[TOOL] fetch_service_logs args={'window': 'last_hour'} -> 77,744 chars
+[DEFERRED] Model sees (1,665 chars): The result of `fetch_service_logs` with arguments `{"window": "last_hour"}` was stored as temporary artifact `tool-result-OdG8pLkaTYVSJdlQN_oAfA` at relative file path `tool-result-OdG8pLkaTYVSJdlQN_oAfA/result.md`. It contains 700 lines and is estimated at 30805 tokens (about 44.0 tokens per line).
+[DEFERRED] ...Use `read_a_deferred_tool_result` to read it in bounded sections. For a roughly 5,440-token read, request about 124 lines, for example with `start_line=1` and `line_count=124`.
+[TOOL] read_a_deferred_tool_result args={'file_path': 'tool-result-OdG8pLkaTYVSJdlQN_oAfA/result.md', 'start_line': 1, 'line_count': 124} -> 13,763 chars
+[TOOL] read_a_deferred_tool_result args={'file_path': 'tool-result-OdG8pLkaTYVSJdlQN_oAfA/result.md', 'start_line': 125, 'line_count': 124} -> 13,766 chars
+[TOOL] read_a_deferred_tool_result args={'file_path': 'tool-result-OdG8pLkaTYVSJdlQN_oAfA/result.md', 'start_line': 249, 'line_count': 124} -> 13,762 chars
+[TOOL] read_a_deferred_tool_result args={'file_path': 'tool-result-OdG8pLkaTYVSJdlQN_oAfA/result.md', 'start_line': 373, 'line_count': 124} -> 13,793 chars
+
+Answer: 2026-10-23T08:07:11.431Z ERROR [payments-svc] card authorization timed out after 30000ms (gateway=stripe-eu)
+fetch_service_logs calls: 1, deferred-result reads: 4
+Summarization events: 0
+(Summarization only runs when a pending request exceeds the usable window; deferral kept this run well below it.)
+```
+
+> The log dump is 30,805 tokens, above the 27,200-token deferral threshold (25% of the
+> 108,800-token usable window), so the 77,744-char tool result was not added to the
+> conversation. It was written to a temporary artifact and the model got a 1,665-char
+> notice with a preview and a suggested read size instead. The agent then paged through the file with
+> the auto-added `read_a_deferred_tool_result` tool and stopped at the section holding
+> line 431, the only `ERROR`. The artifact is deleted when the run ends. Summarization did
+> not fire: with deferral the conversation stayed far below the usable window.
+
+**Verdict:** PASS - An oversized tool result was deferred to a temp file and read back in bounded sections via `DeferredToolResultReader`, with the provider token count and usable window printed up front
